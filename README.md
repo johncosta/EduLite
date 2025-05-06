@@ -87,10 +87,10 @@ This project is licensed under the MIT License – free to use, free to modify.
 
 ## ✨ Credits
 
-Made with ❤️ by [Ibrahim Abu Al-Roos](https://github.com/ibrahim-2030) and the global open-source community.
+Made with ❤️ by [Ibrahim Abu Al-Roos](https://github.com/ibrahim-sisar) and the global open-source community.
 
 ---
 
 ## 🌍 Join Us!
 
-Drop a “💥 I’m in” on the [discussion thread](https://github.com/ibrahim-2030/edulite/discussions), or DM me on GitHub. Let’s change education together.
+Drop a “💥 I’m in” on the [discussion thread](https://github.com/ibrahim-sisar/edulite/discussions), or DM me on GitHub. Let’s change education together.
