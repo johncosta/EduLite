@@ -91,6 +91,15 @@ Made with ❤️ by [Ibrahim Abu Al-Roos](https://github.com/ibrahim-sisar) and 
 
 ---
 
+## Team
+
+|     avatars     |     username     |     role in the project     |
+|-----------------|------------------|-----------------------------|
+| <img src="https://avatars.githubusercontent.com/u/180776661?v=4" width="100"/> | [ibrahim-sisar](https://github.com/ibrahim-sisar) | Project Leader, backend dev |
+| <img src="https://avatars.githubusercontent.com/u/109621208?v=4" width="100"/> | [smattymatty](https://github.com/smattymatty) | backend dev |
+| <img src="https://avatars.githubusercontent.com/u/156261611?v=4" width="100"/> | [slaftamyr](https://github.com/slaftamyr) | frontend dev |
+
+---
 ## 🌍 Join Us!
 
 Drop a “💥 I’m in” on the [discussion thread](https://github.com/ibrahim-sisar/edulite/discussions), or DM me on GitHub. Let’s change education together.
