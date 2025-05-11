@@ -3,7 +3,6 @@
 **EduLite** is an open-source educational platform designed to be simple, fast, and accessible – even on slow internet connections. It’s built with students in mind, especially those in crisis zones or underserved areas. Inspired by the challenges of online learning during war and pandemics, EduLite aims to create a smoother, more human experience in digital education.
 
 ---
-<!-- edulite -->
 
 ## 🚀 Features (Planned)
 - ✅ Real-time messaging (Students ↔ Teachers)
