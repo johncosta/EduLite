@@ -112,7 +112,7 @@ MIT License – free to use, modify, and share.
 - **Ibrahim Abu Al-Roos** – Project Leader, backend dev  
 - **smattymatty** – backend developer  
 - **slaftamyr** – frontend developer  
-> with ❤️ from Palestine and the global open-source community.
+> with ❤️ from *Palestine*, *Canada*, *Sudan* and the global open-source community.
 
 ---
 
@@ -120,6 +120,8 @@ MIT License – free to use, modify, and share.
 
 💥 Drop a “I’m in” on the [Discussions](https://github.com/ibrahim-sisar/EduLite/discussions),  
 📬 Or DM me on [GitHub](https://github.com/ibrahim-sisar).  
+💬 Or join discord server [EduLite](https://discord.gg/phXnxX2dD4)
+📁 Or fill out a Google form [Forms](https://forms.gle/2LsCPrW44eHmTrwT8)
 
 > 🌱 EduLite is for every student who just wants to learn — no matter where they are.
 
