@@ -14,13 +14,13 @@ The EduLite frontend is a responsive interface that focuses on speed, clarity, a
 
 ## 🗂️ Project Structure
  
-
+```
 Frontend/
 ├──EduLiteFrontend/
-      ├──node-modules/
+|     ├──node-modules/
 │     ├── public/                 
 │     ├── src/
-│     │   ├── assets/             # Images, logos, etc.
+│     │   ├── assets/  # Images, logos, etc.
 │     │   ├── components/        
 │     │   ├── App.jsx            
 │     │   └── main.jsx 
@@ -29,9 +29,11 @@ Frontend/
 │     ├── package.json
 │     └── vite.config.js
 └──README.md
-
+```
 ## 🚀 Getting Started
  
+```bash
 cd Frontend
 npm install
 npm run dev
+```
