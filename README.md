@@ -3,8 +3,14 @@
 ![EduLite](https://img.shields.io/badge/EduLite-Education%20for%20All-blue)
 ![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)
 ![MIT License](https://img.shields.io/badge/license-MIT-yellow)
+![Volunteer Project](https://img.shields.io/badge/Volunteer-Project-orange)
+![No Funding](https://img.shields.io/badge/Open%20Source-No%20Funding-red)
 
-> A student-first learning platform, built for areas with weak internet and real challenges.
+
+> 🧡 **Note:** EduLite is a **100% volunteer-driven open source project**.  
+> There is **no funding or salaries** involved. Everyone contributes out of passion for learning and helping others.
+
+## A student-first learning platform, built for areas with weak internet and real challenges.
 
 ---
 
