@@ -10,12 +10,12 @@ This is the backend part of EduLite – built with Django & Django REST Framewor
 - Django JWT (for auth)
 
 ## 🗂️ Project Structure
-
+```
 backend/
 ├── EduLite/ # Django settings and project config
 ├── README.md/ # backend documentation
 └── manage.py
-
+```
 
 
 ## 🚀 Getting Started
