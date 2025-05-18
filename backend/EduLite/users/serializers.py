@@ -77,7 +77,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # We can move this to settings.py if we need to
         blocked_domains = ['example.com', 'test.com'] 
         
-        if domain_part.lower() in [d.lower() for d in blocked_domains]: # Case-insensitive domain check
+        if domain_part.lower() in [d.lower() for d in blocked_domains]:
             raise serializers.ValidationError(
                 "Registration from this email domain is not allowed."
             )

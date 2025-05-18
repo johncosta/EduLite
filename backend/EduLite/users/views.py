@@ -6,16 +6,20 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.pagination import PageNumberPagination # For list views
 
-from .serializers import UserSerializer, GroupSerializer
+from .serializers import UserSerializer, GroupSerializer, UserRegistrationSerializer
 
-# --- Base API View for EduLite ---
-class EduLiteBaseAPIView(APIView):
+# --- Base API View for users App ---
+class UsersAppBaseAPIView(APIView):
     """
     A custom base API view for the EduLite project.
     Provides default authentication permissions and a helper method to get serializer context.
     Other common functionalities for EduLite APIViews can be added here.
+    
+    **attribute** 'permission_classes' is set to [permissions.IsAuthenticated] by default.
+    
+    **method** 'get_serializer_context' is used to get the request object.
     """
-    permission_classes = [permissions.IsAuthenticated] # Default to requiring authentication
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_context(self):
         """
@@ -29,17 +33,17 @@ class EduLiteBaseAPIView(APIView):
 
 # --- User API Views ---
 
-class UserListCreateView(EduLiteBaseAPIView):
+
+class UserListView(UsersAppBaseAPIView):
     """
-    API view to list all users (with pagination) or create a new user.
-    Inherits from EduLiteBaseAPIView.
+    API view to list all users (with pagination).
     - GET: Returns a paginated list of users.
-    - POST: Creates a new user.
     """
     # Attributes used by our manual implementation
     queryset_all = User.objects.all().order_by('-date_joined')
     serializer_class_instance = UserSerializer
-    pagination_class_instance = PageNumberPagination # Standard DRF pagination
+    pagination_class_instance = PageNumberPagination
+    pagination_class_instance.page_size = 10
 
     def get(self, request, *args, **kwargs): # Handles LIST
         users = self.queryset_all
@@ -55,22 +59,30 @@ class UserListCreateView(EduLiteBaseAPIView):
         serializer = self.serializer_class_instance(users, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
+
+class UserRegistrationView(UsersAppBaseAPIView):
+    """
+    API view to register a new user.
+    - POST: Creates a new user.
+    """
+    permission_classes = [permissions.AllowAny]
+    
     def post(self, request, *args, **kwargs): # Handles CREATE
-        # For user creation, a more specialized way will be needed
-        # for now, just use the basic UserSerializer 
-        serializer = self.serializer_class_instance(data=request.data, context=self.get_serializer_context())
+        serializer = UserRegistrationSerializer(
+            data=request.data, context=self.get_serializer_context()
+            )
         if serializer.is_valid():
-            # For user creation, a more specialized way will be needed
-            # for now, just use the basic UserSerializer 
-            serializer.save() 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            user = serializer.save() # Calls create() in the serializer
+            return Response(
+                {'message': 'User created successfully.', 'user_id': user.id, 'username': user.username},
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserRetrieveUpdateDestroyView(EduLiteBaseAPIView):
+class UserRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     """
     API view to retrieve, update, or delete a specific user by their PK.
-    Inherits from EduLiteBaseAPIView.
     - GET: Retrieves a user.
     - PUT: Updates a user.
     - PATCH: Partially updates a user.
@@ -127,16 +139,17 @@ class UserRetrieveUpdateDestroyView(EduLiteBaseAPIView):
 
 # --- Group API Views ---
 
-class GroupListCreateView(EduLiteBaseAPIView):
+
+class GroupListCreateView(UsersAppBaseAPIView):
     """
     API view to list all groups (with pagination) or create a new group.
-    Inherits from EduLiteBaseAPIView.
     - GET: Returns a paginated list of groups.
     - POST: Creates a new group.
     """
     queryset_all = Group.objects.all().order_by('name')
     serializer_class_instance = GroupSerializer
     pagination_class_instance = PageNumberPagination
+    pagination_class_instance.page_size = 10
 
     def get(self, request, *args, **kwargs): # Handles LIST
         groups = self.queryset_all
@@ -165,10 +178,10 @@ class GroupListCreateView(EduLiteBaseAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GroupRetrieveUpdateDestroyView(EduLiteBaseAPIView):
+class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     """
     API view to retrieve, update, or delete a specific group by its PK.
-    Inherits from EduLiteBaseAPIView.
+    Inherits from UsersAppBaseAPIView.
     - GET: Retrieves a group.
     - PUT: Updates a group.
     - PATCH: Partially updates a group.
