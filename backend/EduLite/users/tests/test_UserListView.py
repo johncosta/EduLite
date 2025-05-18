@@ -34,7 +34,6 @@ class UserListViewTests(APITestCase):
             password='password123',
             first_name='Another',
             last_name='UserTwo',
-            is_active=True # Explicitly set active
         )
         self.inactive_user = User.objects.create_user(
             username='inactiveuser',

@@ -6,7 +6,8 @@ from . import views
 urlpatterns = [
     # User URLs
     path('users/', views.UserListView.as_view(), name='user-list'),
-    path('users/<int:pk>/', views.UserRetrieveUpdateDestroyView.as_view(), name='user-detail'),
+    path('users/<int:pk>/', views.UserRetrieveView.as_view(), name='user-detail'),
+    path('users/<int:pk>/update/', views.UserUpdateDeleteView.as_view(), name='user-update'),
 
     # User Registration URL
     path('register/', views.UserRegistrationView.as_view(), name='user-register'),

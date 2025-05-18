@@ -74,8 +74,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             # This is an extra safeguard. EmailField should catch most format issues.
             raise serializers.ValidationError("Invalid email format: '@' symbol missing.")
         email_name, domain_part = value.split('@', 1)
-        # We can move this to settings.py if we need to
-        blocked_domains = ['example.com', 'test.com'] 
+        from django.conf import settings
+        blocked_domains = getattr(settings, 'BLOCKED_EMAIL_DOMAINS', ['example.com', 'test.com'])
         
         if domain_part.lower() in [d.lower() for d in blocked_domains]:
             raise serializers.ValidationError(

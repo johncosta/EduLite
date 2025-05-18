@@ -28,8 +28,6 @@ class UsersAppBaseAPIView(APIView):
         """
         return {'request': self.request}
 
-    # You can add other common methods here
-
 
 # --- User API Views ---
 
@@ -39,7 +37,6 @@ class UserListView(UsersAppBaseAPIView):
     API view to list all users (with pagination).
     - GET: Returns a paginated list of users.
     """
-    # Attributes used by our manual implementation
     queryset_all = User.objects.all().order_by('-date_joined')
     serializer_class_instance = UserSerializer
     pagination_class_instance = PageNumberPagination
@@ -80,14 +77,12 @@ class UserRegistrationView(UsersAppBaseAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserRetrieveUpdateDestroyView(UsersAppBaseAPIView):
+class UserRetrieveView(UsersAppBaseAPIView):
     """
     API view to retrieve, update, or delete a specific user by their PK.
     - GET: Retrieves a user.
-    - PUT: Updates a user.
-    - PATCH: Partially updates a user.
-    - DELETE: Deletes a user.
     """
+    permission_classes = [permissions.IsAuthenticated]
     queryset_all = User.objects.all() # Base queryset for object lookup
     serializer_class_instance = UserSerializer
 
@@ -105,6 +100,19 @@ class UserRetrieveUpdateDestroyView(UsersAppBaseAPIView):
             )
         return Response(serializer.data)
 
+
+class UserUpdateDeleteView(UsersAppBaseAPIView):
+    """
+    API view to update or delete a specific user by their PK.
+    Inherits from UsersAppBaseAPIView.
+    - PUT: Updates a user.
+    - PATCH: Partially updates a user.
+    - DELETE: Deletes a user.
+    """
+    permission_classes = [permissions.IsAdminUser]
+    queryset_all = User.objects.all() # Base queryset for object lookup
+    serializer_class_instance = UserSerializer
+    
     def put(self, request, pk, *args, **kwargs): # Handles UPDATE
         user = self.get_object(pk)
         serializer = self.serializer_class_instance(
