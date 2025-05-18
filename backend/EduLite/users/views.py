@@ -87,7 +87,10 @@ class UserRetrieveUpdateDestroyView(EduLiteBaseAPIView):
 
     def get(self, request, pk, *args, **kwargs): # Handles RETRIEVE
         user = self.get_object(pk)
-        serializer = self.serializer_class_instance(user, context=self.get_serializer_context())
+        serializer = self.serializer_class_instance(
+            user, 
+            context=self.get_serializer_context()
+            )
         return Response(serializer.data)
 
     def put(self, request, pk, *args, **kwargs): # Handles UPDATE
