@@ -78,13 +78,11 @@ class UserRetrieveUpdateDestroyView(EduLiteBaseAPIView):
     """
     queryset_all = User.objects.all() # Base queryset for object lookup
     serializer_class_instance = UserSerializer
-    # lookup_url_kwarg = 'pk' # Default is 'pk', can be customized if URL pattern uses different name
 
     def get_object(self, pk):
         """
         Helper method to retrieve the user object or raise a 404 error.
         """
-        # You could use self.lookup_url_kwarg if you make it configurable
         return get_object_or_404(self.queryset_all, pk=pk)
 
     def get(self, request, pk, *args, **kwargs): # Handles RETRIEVE
@@ -94,7 +92,11 @@ class UserRetrieveUpdateDestroyView(EduLiteBaseAPIView):
 
     def put(self, request, pk, *args, **kwargs): # Handles UPDATE
         user = self.get_object(pk)
-        serializer = self.serializer_class_instance(user, data=request.data, context=self.get_serializer_context())
+        serializer = self.serializer_class_instance(
+            user, 
+            data=request.data, 
+            context=self.get_serializer_context()
+            )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -102,7 +104,12 @@ class UserRetrieveUpdateDestroyView(EduLiteBaseAPIView):
 
     def patch(self, request, pk, *args, **kwargs): # Handles PARTIAL_UPDATE
         user = self.get_object(pk)
-        serializer = self.serializer_class_instance(user, data=request.data, partial=True, context=self.get_serializer_context())
+        serializer = self.serializer_class_instance(
+            user, 
+            data=request.data, 
+            partial=True, 
+            context=self.get_serializer_context()
+            )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -121,6 +128,8 @@ class GroupListCreateView(EduLiteBaseAPIView):
     """
     API view to list all groups (with pagination) or create a new group.
     Inherits from EduLiteBaseAPIView.
+    - GET: Returns a paginated list of groups.
+    - POST: Creates a new group.
     """
     queryset_all = Group.objects.all().order_by('name')
     serializer_class_instance = GroupSerializer
@@ -131,9 +140,18 @@ class GroupListCreateView(EduLiteBaseAPIView):
         paginator = self.pagination_class_instance()
         page = paginator.paginate_queryset(groups, request, view=self)
         if page is not None:
-            serializer = self.serializer_class_instance(page, many=True, context=self.get_serializer_context())
+            serializer = self.serializer_class_instance(
+                page, 
+                many=True, 
+                context=self.get_serializer_context()
+                )
             return paginator.get_paginated_response(serializer.data)
-        serializer = self.serializer_class_instance(groups, many=True, context=self.get_serializer_context())
+        # When pagination is not active or applicable, just return the full list
+        serializer = self.serializer_class_instance(
+            groups, 
+            many=True, 
+            context=self.get_serializer_context()
+            )
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs): # Handles CREATE
@@ -148,6 +166,10 @@ class GroupRetrieveUpdateDestroyView(EduLiteBaseAPIView):
     """
     API view to retrieve, update, or delete a specific group by its PK.
     Inherits from EduLiteBaseAPIView.
+    - GET: Retrieves a group.
+    - PUT: Updates a group.
+    - PATCH: Partially updates a group.
+    - DELETE: Deletes a group.
     """
     queryset_all = Group.objects.all()
     serializer_class_instance = GroupSerializer
@@ -157,12 +179,19 @@ class GroupRetrieveUpdateDestroyView(EduLiteBaseAPIView):
 
     def get(self, request, pk, *args, **kwargs): # Handles RETRIEVE
         group = self.get_object(pk)
-        serializer = self.serializer_class_instance(group, context=self.get_serializer_context())
+        serializer = self.serializer_class_instance(
+            group, 
+            context=self.get_serializer_context()
+            )
         return Response(serializer.data)
 
     def put(self, request, pk, *args, **kwargs): # Handles UPDATE
         group = self.get_object(pk)
-        serializer = self.serializer_class_instance(group, data=request.data, context=self.get_serializer_context())
+        serializer = self.serializer_class_instance(
+            group, 
+            data=request.data, 
+            context=self.get_serializer_context()
+            )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -170,7 +199,12 @@ class GroupRetrieveUpdateDestroyView(EduLiteBaseAPIView):
 
     def patch(self, request, pk, *args, **kwargs): # Handles PARTIAL_UPDATE
         group = self.get_object(pk)
-        serializer = self.serializer_class_instance(group, data=request.data, partial=True, context=self.get_serializer_context())
+        serializer = self.serializer_class_instance(
+            group, 
+            data=request.data, 
+            partial=True, 
+            context=self.get_serializer_context()
+            )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
