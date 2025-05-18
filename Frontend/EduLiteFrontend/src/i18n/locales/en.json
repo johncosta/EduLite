@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "home": "Home",
+    "conversations": "Conversations",
+    "chapters": "Chapters",
+    "profile": "Profile",
+    "settings": "Settings",
+    "menu": "Menu",
+    "notifications": "Notifications",
+    "login": "Login",
+    "logout": "Logout"
+  },
+ "home": {
+    "title": "A lightweight, student-first learning platform",
+    "intro":"Easily connect with teachers and students, and enjoy a complete and seamless remote learning experience — anytime, anywhere",
+    "about": "EduLite is a lightweight digital education platform designed for areas with weak internet and real-life challenges for students and teachers.",
+    "loginNow": "Log in now",
+    "featuresTitle": "What Makes EduLite Special?",
+    "features": {
+      "chat": "Real-time messaging between students and teachers",
+      "assignments": "Assignment and exam creation and submission",
+      "antiCheat": "Smart anti-cheating system",
+      "schedule": "Lecture scheduling and calendar integration",
+      "meet": "Google Meet integration",
+      "ui": "Clean and age-friendly UI",
+      "lightweight": "Extremely lightweight – works even with poor connectivity"
+    },
+    "openSourceTitle": "Open-Source Collaboration",
+    "openSourceText": "EduLite is an open-source project. We welcome contributors from all over the world to join us on our mission.",
+    "joinGithub": "Join on GitHub"
+  }
+}
