@@ -46,6 +46,11 @@ Frontend/
 │     │   ├── App.css  
 │     │   ├── App.jsx  
 │     │   ├── index.css           
+│     ├── public/                 
+│     ├── src/
+│     │   ├── assets/  # Images, logos, etc.
+│     │   ├── components/        
+│     │   ├── App.jsx            
 │     │   └── main.jsx 
 │     │   
 │     ├── .gitignore
@@ -58,6 +63,7 @@ Frontend/
 ## 🚀 Getting Started
  
 ```bash
+ 
 cd Frontend/EduLiteFrontend
 npm install
 npm run dev
