@@ -110,8 +110,15 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
     - DELETE: Deletes a user.
     """
     permission_classes = [permissions.IsAdminUser]
+    # TODO: Update permissions to allow users to update their own profile
     queryset_all = User.objects.all() # Base queryset for object lookup
     serializer_class_instance = UserSerializer
+    
+    def get_object(self, pk):
+        """
+        Helper method to retrieve the user object or raise a 404 error.
+        """
+        return get_object_or_404(self.queryset_all, pk=pk)
     
     def put(self, request, pk, *args, **kwargs): # Handles UPDATE
         user = self.get_object(pk)
