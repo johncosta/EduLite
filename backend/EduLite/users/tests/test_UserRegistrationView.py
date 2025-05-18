@@ -110,6 +110,3 @@ class UserRegistrationViewTests(APITestCase):
         self.assertIn('password', response.data)
         # The exact message depends on the validator
         self.assertTrue("too short" in str(response.data['password'][0]).lower())
-
-    # You can add more tests for other specific serializer validations,
-    # like invalid email formats that your serializer's validate_email explicitly checks for.

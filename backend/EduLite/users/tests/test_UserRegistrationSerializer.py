@@ -116,6 +116,7 @@ class UserRegistrationSerializerTests(TestCase):
         self.assertIn('email', serializer.errors)
         self.assertEqual(str(serializer.errors['email'][0]), 'A user with this email address already exists.')
 
+    @override_settings(BLOCKED_EMAIL_DOMAINS=['example.com'])
     def test_blocked_email_domain(self):
         """Test validation error for an email from a blocked domain."""
         data = self.valid_data_minimal.copy()
