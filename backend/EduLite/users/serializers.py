@@ -43,6 +43,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     Handles username, email, password input, password confirmation, and secure password hashing.
     """
     email = serializers.EmailField(required=True)
+    
     password = serializers.CharField(
         write_only=True, # ensures the password is never returned in the response
         required=True, 
@@ -63,13 +64,31 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'last_name': {'required': False}
         }
 
-    def validate_email(self, value):
+    def validate_email(self, value: str) -> str:
         """
-        Check that the email is unique.
+        Perform custom email validations:
+        1. Check for blocked domains.
+        2. Check for email uniqueness.
         """
+        if '@' not in value:
+            # This is an extra safeguard. EmailField should catch most format issues.
+            raise serializers.ValidationError("Invalid email format: '@' symbol missing.")
+        email_name, domain_part = value.split('@', 1)
+        # We can move this to settings.py if we need to
+        blocked_domains = ['example.com', 'test.com'] 
+        
+        if domain_part.lower() in [d.lower() for d in blocked_domains]: # Case-insensitive domain check
+            raise serializers.ValidationError(
+                "Registration from this email domain is not allowed."
+            )
+
+        # Uniqueness Check
         if User.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError("A user with that email already exists.")
-        return value
+            raise serializers.ValidationError(
+                "A user with this email address already exists."
+            )
+        
+        return value # If all checks pass, return the validated email value
 
     def validate_username(self, value):
         """
@@ -102,6 +121,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # create_user handles normalization of username/email and password hashing
         user = User.objects.create_user(
             **validated_data, # username, email, first_name, last_name
-            password=password
+            password=password,
+            is_active=True, # TODO: Setup email verification, or other means of account activation
         )
         return user
