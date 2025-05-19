@@ -13,6 +13,7 @@ This is the backend part of EduLite – built with Django & Django REST Framewor
 ```
 backend/
 ├── EduLite/ # Django settings and project config
+├── EduLite/users # App for managing users, includes registration
 ├── README.md/ # backend documentation
 └── manage.py
 ```
