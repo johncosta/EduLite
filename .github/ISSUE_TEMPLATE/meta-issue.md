@@ -1,5 +1,5 @@
 ---
-name: "🚀 Meta Issue / Main Quest"
+name: "Meta Issue / Main Quest"
 about: "Outline a major new feature or epic for EduLite."
 title: "[META] Main Quest"
 labels: ''

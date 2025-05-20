@@ -1,0 +1,19 @@
+venv/
+db.sqlite3
+__pycache__/
+.env
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+*.pyc
+*.pyo
+
+*.log
