@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'rest_framework',
+    'rest_framework_simplejwt',
     'users',
 ]
 
@@ -123,3 +124,39 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5), # Default is 5 minutes
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Default is 1 day
+    'ROTATE_REFRESH_TOKENS': False, # Default is False. If True, a new refresh token is issued when you use a refresh token.
+    'BLACKLIST_AFTER_ROTATION': False, # Default is False. If True, old refresh tokens are blacklisted after rotation. Requires an additional app for blacklisting.
+    'UPDATE_LAST_LOGIN': False, # Default is False. If True, updates the user's last_login field.
+
+    'ALGORITHM': 'HS256', # Default
+    'SIGNING_KEY': SECRET_KEY, # Uses your Django SECRET_KEY by default.
+    'VERIFYING_KEY': None, # Default
+    'AUDIENCE': None, # Default
+    'ISSUER': None, # Default
+    'JWK_URL': None, # Default
+    'LEEWAY': 0, # Default
+
+    'AUTH_HEADER_TYPES': ('Bearer',), # Default is ('Bearer',). Defines the prefix for the Authorization header.
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION', # Default
+    'USER_ID_FIELD': 'id', # Default
+    'USER_ID_CLAIM': 'user_id', # Default
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',), # Default
+    'TOKEN_TYPE_CLAIM': 'token_type', # Default
+    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser', # Default
+
+    'JTI_CLAIM': 'jti', # Default
+}

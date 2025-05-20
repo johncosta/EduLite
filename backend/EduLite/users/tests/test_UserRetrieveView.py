@@ -48,7 +48,6 @@ class UserRetrieveViewTests(APITestCase): # Renamed to match the view
         response = self.client.get(self.not_found_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    @unittest.skip("TODO: Implement JWT authentication")
     def test_retrieve_user_unauthenticated(self):
         """Ensure unauthenticated users cannot retrieve user details."""
         # No self.client.force_authenticate()

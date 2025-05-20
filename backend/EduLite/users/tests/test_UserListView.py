@@ -84,7 +84,6 @@ class UserListViewTests(APITestCase):
         self.assertEqual(response.data['count'], self.total_users_in_db,
                          "A regular authenticated user should also see all users based on current view logic and User.objects.all().")
     
-    @unittest.skip("TODO: Implement JWT authentication")
     def test_unauthenticated_user_cannot_list_users(self):
         """
         Test that an unauthenticated request to list users is denied.
