@@ -50,7 +50,6 @@ class UserUpdateDeleteViewTests(APITestCase):
         response = self.client.put(self.detail_url, updated_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @unittest.skip("TODO: Implement JWT authentication")
     def test_unauthenticated_user_cannot_update_user_put(self):
         updated_data = {'email': 'unauthattempt@example.com'}
         response = self.client.put(self.detail_url, updated_data, format='json')
@@ -96,7 +95,7 @@ class UserUpdateDeleteViewTests(APITestCase):
 
     def test_unauthenticated_user_cannot_delete_user(self):
         response = self.client.delete(self.detail_url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_admin_delete_user_not_found(self):
         self.client.force_authenticate(user=self.admin_user)
