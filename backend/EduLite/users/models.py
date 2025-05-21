@@ -5,6 +5,7 @@ from .models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICE
 User = get_user_model()
 
 class UserProfile(models.Model):
+    # The signal in signals.py will create a UserProfile instance when a new User is created
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True, max_length=1000)
     occupation = models.CharField(

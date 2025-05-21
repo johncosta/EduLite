@@ -160,3 +160,5 @@ SIMPLE_JWT = {
 
     'JTI_CLAIM': 'jti', # Default
 }
+
+BLOCKED_EMAIL_DOMAINS = ['example.com', 'test.com'] # For testing

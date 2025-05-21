@@ -15,4 +15,8 @@ urlpatterns = [
     # Group URLs
     path('groups/', views.GroupListCreateView.as_view(), name='group-list-create'),
     path('groups/<int:pk>/', views.GroupRetrieveUpdateDestroyView.as_view(), name='group-detail'),
+
+    # Profile URLs
+    path('users/<int:pk>/profile/', views.UserProfileRetrieveUpdateView.as_view(), name='userprofile-detail'),
+
 ]

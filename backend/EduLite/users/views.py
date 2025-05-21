@@ -6,7 +6,11 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.pagination import PageNumberPagination # For list views
 
-from .serializers import UserSerializer, GroupSerializer, UserRegistrationSerializer
+from .models import UserProfile
+from .serializers import (
+    UserSerializer, GroupSerializer, UserRegistrationSerializer,
+    ProfileSerializer
+)
 
 # --- Base API View for users App ---
 class UsersAppBaseAPIView(APIView):
@@ -245,3 +249,61 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
         group = self.get_object(pk)
         group.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    
+## -- User Profile API Views -- ##
+
+
+class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
+    """
+    API view to retrieve, update, or delete a specific user profile by their PK.
+    Inherits from UsersAppBaseAPIView.
+    - GET: Retrieves a user profile.
+    - PUT: Updates a user profile.
+    - PATCH: Partially updates a user profile.
+    """
+    # TODO: Update permissions to allow users to view and update their own profile
+    permission_classes = [permissions.IsAuthenticated]
+    queryset_all = UserProfile.objects.all() # Base queryset for object lookup
+    serializer_class_instance = ProfileSerializer
+
+    def get_object(self, pk):
+        """
+        Helper method to retrieve the UserProfile object by its pk.
+        """
+        obj = get_object_or_404(self.queryset_all, pk=pk)
+        self.check_object_permissions(self.request, obj) # DRF's way to check permissions on the object
+        return obj
+    
+    def get(self, request, pk, *args, **kwargs): # Handles RETRIEVE
+        profile = self.get_object(pk)
+        serializer = self.serializer_class_instance(
+            profile, 
+            context=self.get_serializer_context()
+            )
+        return Response(serializer.data)
+
+    def put(self, request, pk, *args, **kwargs): # Handles UPDATE
+        profile = self.get_object(pk)
+        serializer = self.serializer_class_instance(
+            profile, 
+            data=request.data, 
+            context=self.get_serializer_context()
+            )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, *args, **kwargs): # Handles PARTIAL_UPDATE
+        profile = self.get_object(pk)
+        serializer = self.serializer_class_instance(
+            profile, 
+            data=request.data, 
+            partial=True, 
+            context=self.get_serializer_context()
+            )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
