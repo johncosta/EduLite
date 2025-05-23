@@ -1,6 +1,39 @@
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
+
+from .models import UserProfile
+
+User = get_user_model()
+
+
+## -- Profile Serializers -- ##
+
+
+class ProfileSerializer(serializers.HyperlinkedModelSerializer): # Or HyperlinkedModelSerializer if you prefer
+    """
+    Serializer for the UserProfile model.
+    """
+    user_url = serializers.HyperlinkedRelatedField(
+        source='user',
+        view_name='user-detail',
+        read_only=True,
+    )
+    class Meta:
+        model = UserProfile
+        fields = [
+            'url',       # URL for the UserProfile instance itself
+            'user_url',  # URL for the related User instance
+            'bio',
+            'occupation',
+            'country',
+            'preferred_language',
+            'secondary_language',
+            'picture',
+            'friends', 
+        ]
 
 
 ## -- User/Group Hyperlinked Serializers -- ##
@@ -17,21 +50,26 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         # 'url' is automatically configured by HyperlinkedModelSerializer
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer): # Or ModelSerializer
     """
-    Serializer for the User model.
-    Exposes 'url', 'username', 'email', and the 'groups' the user belongs to.
-    Relationships to groups are represented by hyperlinks.
+    Serializer for the User model, now including nested profile information.
     """
-    # If you wanted to customize how 'groups' are represented, you could explicitly define it:
-    # groups = GroupSerializer(many=True, read_only=True) # For full nested representation
-    # groups = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name') # For list of group names
-
+    profile_url = serializers.HyperlinkedRelatedField(
+        source='userprofile',
+        view_name='userprofile-detail', 
+        read_only=True, 
+    )
+    
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'groups']
-        # 'url' here links to the detail view for a specific user.
-        # 'groups' will be a list of hyperlinks to the groups the user is part of.
+        fields = [
+            'url',       # URL for the User instance itself
+            'profile_url', # URL for the UserProfile instance
+            'username',
+            'email',
+            'groups',    
+        ]
+
 
 
 ## -- Secure Password Hashing Serializers -- ##
