@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'users',
 ]
 
@@ -137,8 +138,8 @@ from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5), # Default is 5 minutes
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Default is 1 day
-    'ROTATE_REFRESH_TOKENS': False, # Default is False. If True, a new refresh token is issued when you use a refresh token.
-    'BLACKLIST_AFTER_ROTATION': False, # Default is False. If True, old refresh tokens are blacklisted after rotation. Requires an additional app for blacklisting.
+    'ROTATE_REFRESH_TOKENS': True, # If True, a new refresh token is issued when you use a refresh token.
+    'BLACKLIST_AFTER_ROTATION': True, # If True, old refresh tokens are blacklisted after rotation. Requires an additional app for blacklisting.
     'UPDATE_LAST_LOGIN': False, # Default is False. If True, updates the user's last_login field.
 
     'ALGORITHM': 'HS256', # Default
