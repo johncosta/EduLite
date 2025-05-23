@@ -36,7 +36,6 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer): # Or Hyperlinke
         ]
 
 
-
 ## -- User/Group Hyperlinked Serializers -- ##
 
 
