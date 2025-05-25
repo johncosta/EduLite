@@ -92,10 +92,10 @@ class TestUserProfileModel(TestCase):
         # Clean up the dummy file if it was actually saved to disk
         # (Django's test runner often handles media file cleanup in a test-specific media root)
         if updated_profile.picture:
-            # Check if the file exists before trying to delete, to avoid errors if not saved
-            if Path(settings.MEDIA_ROOT + '/' + updated_profile.picture.name).exists():
-                 Path(settings.MEDIA_ROOT + '/' + updated_profile.picture.name).unlink(missing_ok=True)
+            full_picture_path = settings.MEDIA_ROOT / updated_profile.picture.name
 
+            if full_picture_path.exists():
+                full_picture_path.unlink(missing_ok=True)
 
     def test_profile_friends_relationship(self):
         """Test adding, removing, and querying friends."""
