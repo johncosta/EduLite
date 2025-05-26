@@ -196,8 +196,6 @@ class GroupListCreateView(UsersAppBaseAPIView):
         serializer = self.serializer_class_instance(data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
             serializer.save()
-            # add the group id to the serializer data
-            serializer.data['id'] = serializer.instance.id
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
