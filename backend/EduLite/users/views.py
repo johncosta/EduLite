@@ -11,7 +11,7 @@ from .serializers import (
     UserSerializer, GroupSerializer, UserRegistrationSerializer,
     ProfileSerializer
 )
-from .permissions import IsProfileOwnerOrAdmin, IsUserOwnerOrAdmin
+from .permissions import IsProfileOwnerOrAdmin, IsUserOwnerOrAdmin, IsAdminUserOrReadOnly
 
 # --- Base API View for users App ---
 class UsersAppBaseAPIView(APIView):
@@ -155,7 +155,7 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
         user = self.get_object(pk)
         # Consider any pre-delete logic or checks here
         user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "User deleted successfully."}, status=status.HTTP_202_ACCEPTED)
 
 
 # --- Group API Views ---
@@ -167,6 +167,7 @@ class GroupListCreateView(UsersAppBaseAPIView):
     - GET: Returns a paginated list of groups.
     - POST: Creates a new group.
     """
+    permission_classes = [IsAdminUserOrReadOnly]
     queryset_all = Group.objects.all().order_by('name')
     serializer_class_instance = GroupSerializer
     pagination_class_instance = PageNumberPagination
@@ -195,6 +196,8 @@ class GroupListCreateView(UsersAppBaseAPIView):
         serializer = self.serializer_class_instance(data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
             serializer.save()
+            # add the group id to the serializer data
+            serializer.data['id'] = serializer.instance.id
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -208,6 +211,7 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     - PATCH: Partially updates a group.
     - DELETE: Deletes a group.
     """
+    permission_classes = [IsAdminUserOrReadOnly]
     queryset_all = Group.objects.all()
     serializer_class_instance = GroupSerializer
 
@@ -250,7 +254,7 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     def delete(self, request, pk, *args, **kwargs): # Handles DESTROY
         group = self.get_object(pk)
         group.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Group deleted successfully."}, status=status.HTTP_202_ACCEPTED)
     
     
 ## -- User Profile API Views -- ##

@@ -46,7 +46,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
     """
     class Meta:
         model = Group
-        fields = ['url', 'name']
+        fields = ['id','url', 'name']
         # 'url' is automatically configured by HyperlinkedModelSerializer
 
 
@@ -63,11 +63,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer): # Or ModelSerializ
     class Meta:
         model = User
         fields = [
+            'id',
             'url',       # URL for the User instance itself
             'profile_url', # URL for the UserProfile instance
             'username',
             'email',
-            'groups',    
+            'groups',   
+            'first_name',
+            'last_name',
         ]
 
 

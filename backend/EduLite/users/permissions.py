@@ -10,7 +10,7 @@ class IsProfileOwnerOrAdmin(permissions.BasePermission):
     """
 
     def has_permission(self, request, view) -> bool:
-        # This initial check can ensure the user is authenticated before has_object_permission is called.
+        # This initial check ensures the user is authenticated before has_object_permission is called.
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj: UserProfile) -> bool:
@@ -34,11 +34,11 @@ class IsUserOwnerOrAdmin(permissions.BasePermission):
     - Allows a user to update (PUT, PATCH) or delete (DELETE) their own User record.
     """
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, view) -> bool:
         # Ensure the user is authenticated for any operation.
         return request.user and request.user.is_authenticated
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, obj) -> bool:
         """
         'obj' here is the User instance (e.g., from get_user_model()).
         """
@@ -53,3 +53,22 @@ class IsUserOwnerOrAdmin(permissions.BasePermission):
 
         # For unsafe methods (PUT, PATCH, DELETE), the user must be the object itself.
         return obj == request.user
+    
+    
+class IsAdminUserOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to allow read-only access to any authenticated user,
+    but write/delete access only to admin users.
+    """
+
+    def has_permission(self, request, view) -> bool:
+        # First, ensure the user is authenticated for any access.
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        # Read permissions are allowed to any authenticated user (GET, HEAD or OPTIONS requests).
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Write permissions (POST, PUT, PATCH, DELETE) are only allowed to admin users.
+        return request.user.is_staff
