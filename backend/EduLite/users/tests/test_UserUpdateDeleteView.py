@@ -83,7 +83,7 @@ class UserUpdateDeleteViewTests(APITestCase):
         self.client.force_authenticate(user=self.admin_user)
         initial_user_count = User.objects.count()
         response = self.client.delete(self.detail_url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual(User.objects.count(), initial_user_count - 1)
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(pk=self.target_user_for_edit.pk)

@@ -11,6 +11,7 @@ from .serializers import (
     UserSerializer, GroupSerializer, UserRegistrationSerializer,
     ProfileSerializer
 )
+from .permissions import IsProfileOwnerOrAdmin, IsUserOwnerOrAdmin, IsAdminUserOrReadOnly
 
 # --- Base API View for users App ---
 class UsersAppBaseAPIView(APIView):
@@ -113,8 +114,7 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
     - PATCH: Partially updates a user.
     - DELETE: Deletes a user.
     """
-    permission_classes = [permissions.IsAdminUser]
-    # TODO: Update permissions to allow users to update their own profile
+    permission_classes = [IsUserOwnerOrAdmin]
     queryset_all = User.objects.all() # Base queryset for object lookup
     serializer_class_instance = UserSerializer
     
@@ -122,7 +122,9 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
         """
         Helper method to retrieve the user object or raise a 404 error.
         """
-        return get_object_or_404(self.queryset_all, pk=pk)
+        obj = get_object_or_404(self.queryset_all, pk=pk)
+        self.check_object_permissions(self.request, obj)
+        return obj
     
     def put(self, request, pk, *args, **kwargs): # Handles UPDATE
         user = self.get_object(pk)
@@ -153,7 +155,7 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
         user = self.get_object(pk)
         # Consider any pre-delete logic or checks here
         user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "User deleted successfully."}, status=status.HTTP_202_ACCEPTED)
 
 
 # --- Group API Views ---
@@ -165,6 +167,7 @@ class GroupListCreateView(UsersAppBaseAPIView):
     - GET: Returns a paginated list of groups.
     - POST: Creates a new group.
     """
+    permission_classes = [IsAdminUserOrReadOnly]
     queryset_all = Group.objects.all().order_by('name')
     serializer_class_instance = GroupSerializer
     pagination_class_instance = PageNumberPagination
@@ -206,6 +209,7 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     - PATCH: Partially updates a group.
     - DELETE: Deletes a group.
     """
+    permission_classes = [IsAdminUserOrReadOnly]
     queryset_all = Group.objects.all()
     serializer_class_instance = GroupSerializer
 
@@ -248,7 +252,7 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     def delete(self, request, pk, *args, **kwargs): # Handles DESTROY
         group = self.get_object(pk)
         group.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Group deleted successfully."}, status=status.HTTP_202_ACCEPTED)
     
     
 ## -- User Profile API Views -- ##
@@ -262,8 +266,7 @@ class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
     - PUT: Updates a user profile.
     - PATCH: Partially updates a user profile.
     """
-    # TODO: Update permissions to allow users to view and update their own profile
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsProfileOwnerOrAdmin]
     queryset_all = UserProfile.objects.all() # Base queryset for object lookup
     serializer_class_instance = ProfileSerializer
 

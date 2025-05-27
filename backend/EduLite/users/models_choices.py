@@ -4,13 +4,17 @@ import json
 from pathlib import Path
 from django.conf import settings
 
+from typing import List
+
 # get the parent of the BASE_DIR
 CHOICES_DATA_DIR = Path(settings.BASE_DIR).parent / 'project_choices_data'
 
-def load_choices_from_json(filename: str):
+def load_choices_from_json(filename: str) -> List[tuple]:
     """
     Loads a list of (value, label) tuples from a JSON file.
     Expects JSON to be a list of objects, each with "value" and "label" keys.
+    
+    Returns a list of tuples. [(value, label), ...]
     """
     file_path = CHOICES_DATA_DIR / filename
     choices_list = []
