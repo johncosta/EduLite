@@ -17,3 +17,11 @@ __pycache__/
 *.pyo
 
 *.log
+
+# Coverage
+.coverage
+htmlcov/
+
+# Django
+local_settings.py
+media/
