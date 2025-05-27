@@ -13,9 +13,11 @@ This is the backend part of EduLite – built with Django & Django REST Framewor
 ```
 backend/
 ├── EduLite/ # Django settings and project config
+├── EduLite/media/ # Contains media for profile pictures
 ├── EduLite/users # App for managing users, includes registration
 ├── EduLite/chat # App for managing the lightweight chat system
-├── README.md/ # backend documentation
+├── project_choices_data/ # contains occupations.json, countries.json, etc.
+├── README.md # backend documentation
 └── manage.py
 ```
 
@@ -32,8 +34,11 @@ python manage.py runserver
 ```
 
 ## 📌 Todo
- [] Define User, ChatRoom, Message models
 
- [] Setup authentication system
+The Current Main Quest is to create a Lightweight Chat System - https://github.com/ibrahim-sisar/EduLite/issues/19
+
+ [-] Define User, ChatRoom, Message models
+
+ [-] Setup authentication system
 
  [] Create APIs for messaging and assignments
