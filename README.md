@@ -117,8 +117,9 @@ MIT License – free to use, modify, and share.
 
 - **Ibrahim Abu Al-Roos** – Project Leader, backend dev  
 - **smattymatty** – backend developer  
-- **slaftamyr** – frontend developer  
-> with ❤️ from *Palestine*, *Canada*, *Sudan* and the global open-source community.
+- **slaftamyr** – frontend developer
+- **PacifistaPx0** - backend developer
+> with ❤️ from *Palestine*, *Canada*, *Sudan*, *Nigeria* and the global open-source community.
 
 ---
 
