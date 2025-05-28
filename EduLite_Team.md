@@ -20,6 +20,9 @@
 | [<img src="https://github.com/AbdElRahman9786.png" width="60" height="60" style="border-radius:50%"/>](https://github.com/AbdElRahman9786) | **Abdelrahman Ahmed** | Frontend Developer | 🇪🇬 Egypt |
 | [<img src="https://github.com/Mohamed-sherif-2002.png" width="60" height="60" style="border-radius:50%"/>](https://github.com/Mohamed-sherif-2002) | **Mohamed sherif farouk** | Frontend Developer | 🇪🇬 Egypt |
 | [<img src="https://github.com/abdoanwar404.png" width="60" height="60" style="border-radius:50%"/>](https://github.com/abdoanwar404) | **Abdulrhman Anwar Amin** | Frontend Developer | 🇪🇬 Egypt |
+|  | **Azeeza Elsayed** | UI/UX Designers | 🇪🇬 Egypt |
+| [<img src="https://github.com/YousefGHarara.png" width="60" height="60" style="border-radius:50%"/>](https://github.com/YousefGHarara) | **Yousef G. H. Harara** | Frontend Developer | 🇵🇸 Palestine |
+
 
 > 📝 **Note:** This list is always growing! If you're part of the EduLite team and not listed here yet, submit a pull request or contact the team.
 
