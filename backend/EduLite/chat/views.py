@@ -55,3 +55,4 @@ class MessageListCreateView(generics.ListCreateAPIView):
         serializer.save(chat_room=chat_room, sender=self.request.user)
 
 
+
