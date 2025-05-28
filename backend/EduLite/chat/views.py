@@ -5,14 +5,15 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from .models import ChatRoom, Message
-from .serializers import MessageSerializer, ChatRoomSerializer
+from .serializers import (MessageSerializer, ChatRoomSerializer)
+from .permissions import IsParticipant, IsMessageSender
 
 # Create your views here.
 
 """ List chat rooms the authenticated user is part of """
 class ChatRoomListView(generics.ListCreateAPIView):
     serializer_class = ChatRoomSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsParticipant]
 
     def get_queryset(self):
         # Return chat rooms where the user is a participant
@@ -26,11 +27,12 @@ class ChatRoomListView(generics.ListCreateAPIView):
 """ Retrieve details for a specific chat room (if user is a participant)"""
 class ChatRoomDetailView(generics.RetrieveAPIView):
     serializer_class = ChatRoomSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsParticipant]
+    
 
     def get_queryset(self):
-        # Only allow access to chat rooms the user participates in
-        return ChatRoom.objects.filter(participants=self.request.user)
+        
+        return ChatRoom.objects.all()
 
 """ List and Create Messages in a specific chat room """
 class MessageListCreateView(generics.ListCreateAPIView):
@@ -53,6 +55,18 @@ class MessageListCreateView(generics.ListCreateAPIView):
             participants=self.request.user
         )
         serializer.save(chat_room=chat_room, sender=self.request.user)
+
+""" Retrieve a specific message in a chat room (Message sender can update/delete)"""
+class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated, IsMessageSender]
+
+    def get_queryset(self):
+        chat_room_id = self.kwargs['chat_room_id']
+        return Message.objects.filter(
+            chat_room__id=chat_room_id, 
+            chat_room__participants=self.request.user
+        ).select_related('sender', 'chat_room')
 
 
 
