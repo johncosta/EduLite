@@ -19,10 +19,11 @@ class Command(BaseCommand):
             help=_('Define a common password for all dummy users. Default is "password123".')
         )
         # Add any other arguments you might need (e.g., --is_active, --group)
+        # TODO: Add more robust arguments as we add more features to users such as email verification, groups, new profile types, etc.
 
     def handle(self, *args, **options):
-        num_users_to_create = options['count']
-        common_password = options['password']
+        num_users_to_create: int = options['count']
+        common_password: str = options['password']
 
         if num_users_to_create <= 0:
             raise CommandError(_('The number of users to create must be a positive integer.'))
@@ -32,8 +33,6 @@ class Command(BaseCommand):
         ))
 
         try:
-            # Call your logic function
-            # This function should return some stats, e.g., number created, number failed
             created_count, failed_count = generate_dummy_users_data(
                 num_users=num_users_to_create,
                 password=common_password
@@ -53,9 +52,6 @@ class Command(BaseCommand):
                 ))
 
         except Exception as e:
-            # Catch any unexpected errors from the logic function
             self.stderr.write(self.style.ERROR(f'An unexpected error occurred: {e}'))
-            # Optionally re-raise as CommandError or log it
-            # raise CommandError(f'Process failed due to an unexpected error: {e}')
         
         self.stdout.write(self.style.NOTICE('Dummy user creation process finished.'))

@@ -3,20 +3,17 @@ from django.db import transaction, IntegrityError
 import random
 
 from users.models import UserProfile
-# Import your specific model choices if they are defined in models_choices.py
 
-# Updated import path based on your file structure
 from users.management.utils.faker_utils import (
     get_random_username,
     get_random_email,
     get_random_bio,
     get_random_first_name,
     get_random_last_name,
-    get_random_subject, # Keep if 'subjects_studying' uses it directly
     get_random_occupation,
     get_random_country,
     get_random_language,
-    get_random_profile_picture_path # If you implement this
+    get_random_profile_picture_path
 )
 
 User = get_user_model()
@@ -38,8 +35,8 @@ def generate_dummy_users_data(num_users: int, password: str):
     subjects_options = ["Mathematics", "Physics", "Computer Science", "History", "Literature", "Art", "Biology"]
     dummy_picture_paths = [
         'profile_pics/dummy/avatar1.png',
-        'profile_pics/dummy/avatar2.jpg',
-        'profile_pics/dummy/avatar3.jpeg',
+        'profile_pics/dummy/avatar2.png',
+        'profile_pics/dummy/avatar3.png',
     ]
 
 
@@ -83,11 +80,6 @@ def generate_dummy_users_data(num_users: int, password: str):
 
                 # Randomly decide whether a profile picture is set
                 if random.choice([True, False]):
-                    # Handle 'picture'
-                    # profile.picture = get_random_profile_picture_path(dummy_picture_paths)
-                    # If using this, ensure the files exist at these paths relative to MEDIA_ROOT
-                    # or handle ImageFieldFile assignment appropriately.
-                    # For simplicity, you might leave it blank if picture is not mandatory.
                     profile.picture = get_random_profile_picture_path(dummy_picture_paths)
 
                 profile.save()
@@ -101,7 +93,8 @@ def generate_dummy_users_data(num_users: int, password: str):
             print(f"An unexpected error occurred while creating user '{username}': {e}. Skipping.")
             failed_count += 1
 
-    # Friend connections logic (remains the same)
+    # Friend connections logic
+    # TODO: Add logic (perhaps functions a new FriendRequest model with serializers & views?) to send, find, and accept/decline friend requests
     if len(created_users_list) > 1:
         print("Establishing random friend connections...")
         for user_instance in created_users_list:

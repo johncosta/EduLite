@@ -54,8 +54,7 @@ def get_random_country(country_choices_list, faker_instance=None): # Renamed for
 def get_random_language(language_choices_list, faker_instance=None): # New generic language getter
     return get_random_choice_from_list(language_choices_list)
 
-# Add a function for profile picture if you have a list of dummy picture paths
 def get_random_profile_picture_path(picture_paths_list=None):
     if picture_paths_list:
         return get_random_choice_from_list(picture_paths_list)
-    return None # Or a default path like 'profile_pics/default_avatar.png'
+    return None
