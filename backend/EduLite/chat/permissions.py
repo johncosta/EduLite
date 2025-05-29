@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from .models import ChatRoom
 
 class IsParticipant(permissions.BasePermission):
     """
@@ -19,17 +20,34 @@ class IsParticipant(permissions.BasePermission):
             return obj.participants.filter(id=request.user.id).exists()
         
         # Write permissions are only allowed to the creator
-        # Fixed typo in 'created_by'
         return hasattr(obj, 'created_by') and obj.created_by == request.user
+
+class IsMessageSenderOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission class to control Message access.
     
-class IsMessageSender(permissions.BasePermission):
+    Allows:
+    - Message Sender: Full access (read/write/delete) to their own messages
+    - Chat Participants: Read-only access to messages in their rooms
+    - Others: No access
     """
-    Custom permission to allow only the sender of a message to delete it.
-    """
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+            
+        chat_room_id = view.kwargs.get('chat_room_id')
+        return ChatRoom.objects.filter(
+            id=chat_room_id,
+            participants=request.user
+        ).exists()
 
     def has_object_permission(self, request, view, obj):
-        # Only allow delete if the user is the sender
-        return request.user == obj.sender
+        # Allow read access for chat participants
+        if request.method in permissions.SAFE_METHODS:
+            return obj.chat_room.participants.filter(id=request.user.id).exists()
+        
+        # Write/Delete permissions only for message sender
+        return obj.sender == request.user
 
 
 
