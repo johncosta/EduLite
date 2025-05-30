@@ -1,6 +1,6 @@
 # EduLite Dockerized Development Environment
 
-This directory (`Docker-Files/`) contains the necessary configurations to set up and run the EduLite project (both backend and frontend) in a consistent, isolated Docker environment using Docker Compose.
+The directory (`Docker-Files/`) contains the necessary configurations to set up and run the EduLite project (both backend and frontend) in a consistent, isolated Docker environment using Docker Compose.
 
 This setup is designed to simplify dependency management and provide a reproducible development experience.
 
@@ -25,7 +25,7 @@ Before you begin, ensure you have the following installed on your system:
   * Common development tools (Git, curl, nano, etc.)
   * Python 3, pip, and venv (for the Django backend)
   * Node.js (v20.x) and npm (for the React/Vite frontend)
-  * Creates a non-root `user` with UID/GID matching your host user (passed as build arguments) for better volume mount permissions on Linux.
+  * Creates a non-root `user` for better volume mount permissions on Linux.
 * `docker-compose.yml`: Defines the services for the application:
   * `backend`: Runs the Django application.
   * `frontend`: Runs the React/Vite development server.
@@ -50,7 +50,7 @@ Before you begin, ensure you have the following installed on your system:
     *(Or ensure the `containers.sh` script, `Dockerfile`, and `docker-compose.yml` are in your current working directory when running commands, or adjust paths in the script if needed).*
 
 3.  **Build the Docker Images:**
-    The first time, or whenever you change the `Dockerfile` or need to rebuild with different build arguments (like UID/GID), run:
+    The first time, or whenever you change the `Dockerfile` or need to rebuild with different build arguments, run:
     ```bash
     ./containers.sh build
     ```
