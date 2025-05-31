@@ -61,16 +61,31 @@ LOGGING = {
         'simple': {
             'format': '\n%(levelname)s %(name)s: %(message)s'
         },
+        'none': {
+            'format': '%(message)s'
+        },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler', # Outputs to stderr by default
             'formatter': 'simple',
         },
+        'console-tests': {
+            'class': 'logging.StreamHandler', # Outputs to stderr by default
+            'formatter': 'none',
+        },
     },
     'loggers': {
+        # TESTS WILL  USE THE `console-tests` HANDLER
+        # FEEL FREE TO CHANGE THE LOG LEVELS TO DEBUG FOR MORE DETAILS
+        # OR TO WARNING TO ONLY SEE FAILURES
         'chat.tests': { 
-            'handlers': ['console'],
+            'handlers': ['console-tests'],
+            'level': 'DEBUG',
+            'propagate': False, 
+        },
+        'users.tests': { 
+            'handlers': ['console-tests'],
             'level': 'DEBUG',
             'propagate': False, 
         },

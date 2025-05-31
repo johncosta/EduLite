@@ -1,6 +1,9 @@
 # views.py
+
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -310,3 +313,46 @@ class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserSearchView(UsersAppBaseAPIView):
+    """
+    API view to search for users by username, first name, or last name.
+    Accepts a query parameter 'q'.
+    - GET: Returns a paginated list of matching active users.
+    """
+    serializer_class_instance = UserSerializer
+    pagination_class_instance = PageNumberPagination
+    
+    def get(self, request, *args, **kwargs):
+        search_query = request.query_params.get('q', '').strip()
+        
+        MIN_QUERY_LENGTH = 2 
+
+        paginator = self.pagination_class_instance()
+        paginator.page_size = 10  
+
+        if not search_query or len(search_query) < MIN_QUERY_LENGTH:
+            return Response(
+                {"detail": 
+                f"Search query must be at least {MIN_QUERY_LENGTH} characters long."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        queryset = User.objects.filter()
+        
+        # Apply search filters using Q objects for OR conditions
+        queryset = queryset.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        ).distinct().order_by('username') # Order results for consistency
+
+        page = paginator.paginate_queryset(queryset, request, view=self)
+        
+        if page is not None:
+            serializer = self.serializer_class_instance(page, many=True, context=self.get_serializer_context()) #
+            return paginator.get_paginated_response(serializer.data)
+            
+        # This part might not be reached if paginator always returns a page or raises an error for empty unpaginated list
+        serializer = self.serializer_class_instance(queryset, many=True, context=self.get_serializer_context()) #
+        return Response(serializer.data)
