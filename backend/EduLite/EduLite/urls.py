@@ -18,6 +18,6 @@ urlpatterns = [
     
     # Our own URLs
     path('api/', include('users.urls')), 
-    path('api/', include('chat.urls')),
+    path('api/chat/', include('chat.urls')),
 
 ]
