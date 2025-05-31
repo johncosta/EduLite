@@ -32,6 +32,7 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer): # Or Hyperlinke
             'preferred_language',
             'secondary_language',
             'picture',
+            'website_url',
             'friends', 
         ]
 

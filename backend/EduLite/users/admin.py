@@ -3,9 +3,9 @@ from .models import UserProfile
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('get_username', 'occupation', 'country', 'preferred_language', 'has_profile_picture')
+    list_display = ('get_username', 'occupation', 'country', 'preferred_language', 'website_url', 'has_profile_picture')
     
-    search_fields = ('user__username', 'user__email', 'occupation', 'country', 'bio')
+    search_fields = ('user__username', 'user__email', 'occupation', 'country', 'bio', 'website_url')
     
     list_filter = ('occupation', 'country', 'preferred_language')
     
@@ -16,7 +16,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             'fields': ('user',) # Display the linked user (read-only)
         }),
         ('Personal Information', {
-            'fields': ('bio', 'occupation', 'country', 'picture')
+            'fields': ('bio', 'occupation', 'country', 'picture', 'website_url')
         }),
         ('Language Preferences', {
             'fields': ('preferred_language', 'secondary_language')
