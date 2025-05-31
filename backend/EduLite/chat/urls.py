@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     # chat urls
-    path('rooms/', views.ChatRoomListView.as_view(), name='chat-room-list'),
+    path('rooms/', views.ChatRoomListCreateView.as_view(), name='chat-room-list'),
     path('rooms/<int:pk>/', views.ChatRoomDetailView.as_view(), name='chat-room-detail'),
 
     # messages urls

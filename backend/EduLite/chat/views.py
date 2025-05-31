@@ -9,11 +9,15 @@ from .serializers import (MessageSerializer, ChatRoomSerializer)
 from .permissions import IsParticipant, IsMessageSenderOrReadOnly
 from .pagination import ChatRoomPagination, MessageCursorPagination
 
-# Create your views here.
+# TODO: Rework to use APIView instead of generics
+# similar to https://github.com/ibrahim-sisar/EduLite/blob/main/backend/EduLite/users/views.py
+# This is to give us more control over each view, epecially since we want this
+# to be as lightweight as possible, we need fine-grained control over each method of each view
+
 
 """ List chat rooms the authenticated user is part of """
 
-class ChatRoomListView(generics.ListCreateAPIView):
+class ChatRoomListCreateView(generics.ListCreateAPIView):
     serializer_class = ChatRoomSerializer
     permission_classes = [IsAuthenticated, IsParticipant]
     pagination_class = ChatRoomPagination

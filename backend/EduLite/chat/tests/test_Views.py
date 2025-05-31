@@ -1,3 +1,5 @@
+import logging
+
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -5,6 +7,8 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from chat.models import ChatRoom, Message
 from chat.serializers import ChatRoomSerializer, MessageSerializer
+
+logger = logging.getLogger(__name__)
 
 class ChatRoomViewsTest(APITestCase):
     """Test suite for ChatRoom views custom logic"""
@@ -49,6 +53,10 @@ class ChatRoomViewsTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], self.chat_room.id)
 
     def test_create_room_adds_creator(self):
+        # TODO: Add a new field to the model for creator=ForeignKey(User)
+        #  - This should enable the creator to do things like add/remove participants
+        #  - and change room name/info
+        #     - Perhaps we can add a new editors field as well, for users who can edit
         """Test that perform_create adds creator as participant"""
         self.client.force_authenticate(user=self.user1)
         data = {
@@ -60,9 +68,53 @@ class ChatRoomViewsTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         new_room = ChatRoom.objects.get(id=response.data['id'])
         self.assertTrue(new_room.participants.filter(id=self.user1.id).exists())
+        
+    def test_create_room_and_add_other_participant(self):
+        # TODO: Add a 'invite' way to add other participants
+        # - We can still allow API consumers to add "participants" [id1, id2, id3]
+        # - but instead of adding them to the room,
+        # - it should send an 'invite' notification to each participant
+        # - the participant should be able to accept/reject the invite
+        #   - also, we can generate an `invite-slug` and create a link
+        #   - chatroom creators can share that link with participants
+        #   - perhaps `invite-slug` can be part of the ChatRoom model itself
+        
+        """Test that perform_create adds other participants"""
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'name': 'New Chat Room',
+            'room_type': 'GROUP',
+            'participants': [self.user2.id]
+        }
+        response = self.client.post(self.list_url, data)
+        
+        logger.debug(
+            f"test_create_room_and_add_other_participant():\n"
+            f"---\n"
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        new_room = ChatRoom.objects.get(id=response.data['id'])
+        
+        logger.debug(
+            f"--\tNew room: {new_room}\n"
+            f"--\tParticipants: {new_room.participants.all()}\n"
+        )
+        
+        self.assertTrue(new_room.participants.filter(id=self.user1.id).exists())
+        self.assertTrue(new_room.participants.filter(id=self.user2.id).exists())
 
 class MessageViewsTest(APITestCase):
     """Test suite for Message views custom logic"""
+    # TODO: Feature - Message Reactions (Initial thought for future tests)
+    #   - Consider adding a `Reaction` model related to `Message`.
+    #   - Future tests would cover:
+    #     - Adding a reaction to a message.
+    #     - Removing a reaction.
+    #     - Listing reactions for a message.
+    #     - Ensuring users can only react once with the same emoji (or defining reaction rules).
+    #   - This might take place in a seperate MessageReactionTest class/file.
 
     def setUp(self):
         """Set up test data"""
