@@ -6,8 +6,7 @@ class IsParticipant(permissions.BasePermission):
     Custom permission class to control ChatRoom access.
     
     Allows:
-    - Room Creator: Full access to their created rooms
-    - Participants: Read-only access to rooms they are part of
+    - Participants: Full access to rooms they are part of
     - Others: No access
     """
     def has_permission(self, request, view):
@@ -15,12 +14,8 @@ class IsParticipant(permissions.BasePermission):
         return bool(request.user and request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        # Allow read-only access for Chat Room participants
-        if request.method in permissions.SAFE_METHODS:
-            return obj.participants.filter(id=request.user.id).exists()
-        
-        # Write permissions are only allowed to the creator
-        return hasattr(obj, 'created_by') and obj.created_by == request.user
+        # Allow access only for Chat Room participants
+        return obj.participants.filter(id=request.user.id).exists()
 
 class IsMessageSenderOrReadOnly(permissions.BasePermission):
     """

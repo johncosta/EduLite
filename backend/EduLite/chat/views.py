@@ -76,3 +76,12 @@ class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
             chat_room__id=chat_room_id,
             chat_room__participants=self.request.user
         ).select_related('sender', 'chat_room')
+    
+    def perform_create(self, serializer):
+        # Ensure only participants can send messages and set sender
+        chat_room_id = self.kwargs['chat_room_id']
+        chat_room = ChatRoom.objects.get(
+            id=chat_room_id,
+            participants=self.request.user
+        )
+        serializer.save(chat_room=chat_room, sender=self.request.user)

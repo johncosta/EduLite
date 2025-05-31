@@ -23,10 +23,18 @@ class MessageSerializer(serializers.ModelSerializer):
                                                    )
 
     class Meta:
-        model = Message
-        fields = ['id', 'chat_room', 'sender', 'sender_id',
-                  'content', 'created_at', 'is_read']
-        read_only_fields = ['id', 'created_at', 'sender']
+        model = Message        
+        fields = ['id',
+                  'chat_room',
+                  'sender',
+                  'sender_id',
+                  'content',
+                  'created_at',
+                  'is_read']
+        read_only_fields = ['id',
+                            'created_at',
+                            'sender',
+                            'chat_room']
 
     def create(self, validated_data):
         # Use sender from validated_data or context (e.g., request.user)
@@ -46,6 +54,14 @@ class ChatRoomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChatRoom
-        fields = ['id', 'name', 'room_type', 'participants',
-                  'messages', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at', 'messages']
+        fields = ['id', 
+                  'name', 
+                  'room_type', 
+                  'participants',
+                  'messages', 
+                  'created_at', 
+                  'updated_at']
+        read_only_fields = ['id', 
+                            'created_at', 
+                            'updated_at', 
+                            'messages']

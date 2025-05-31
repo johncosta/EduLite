@@ -32,8 +32,10 @@ class MessageCursorPagination(CursorPagination):
     cursor_query_param = 'cursor'
 
     def get_paginated_response(self, data):
+        # Convert the reversed iterator to a list to make it serializable
+        reversed_data = list(reversed(data))
         return Response({
             'next': self.get_next_link(),
             'previous': self.get_previous_link(),
-            'results': reversed(data)  # Reverse to show oldest first in chat
+            'results': reversed_data  # Now it's a list, not an iterator
         })
