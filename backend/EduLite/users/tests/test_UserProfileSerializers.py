@@ -33,7 +33,9 @@ class TestProfileSerializer(APITestCase): # Or APITestCase if you need request c
 
 
     def test_profile_serialization(self):
-        """Test ProfileSerializer output."""
+        """Test ProfileSerializer output, including website_url."""
+        self.profile.website_url = "https://example.com/profileuser"
+        self.profile.save()
         serializer = ProfileSerializer(self.profile, context={'request': self.request})
         data = serializer.data
         # print(data) # Helpful for debugging expected output
@@ -45,6 +47,8 @@ class TestProfileSerializer(APITestCase): # Or APITestCase if you need request c
         self.assertIn('picture', data) # Will be None or URL string
         self.assertIn('friends', data) # Will be a list of URLs or PKs
         self.assertTrue(len(data['friends']) >= 1)
+        self.assertIn('website_url', data)
+        self.assertEqual(data['website_url'], "https://example.com/profileuser")
         # Add more assertions for other fields like language
 
 

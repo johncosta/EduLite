@@ -35,6 +35,7 @@ class UserProfile(models.Model):
         null=True
     )
     picture = models.ImageField(upload_to='profile_pics', blank=True, null=True) # Added null=True
+    website_url = models.URLField(max_length=200, blank=True, null=True)
 
     friends = models.ManyToManyField(User, related_name='friend_profiles', blank=True)
 
