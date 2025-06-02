@@ -41,3 +41,62 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+    
+    
+class ProfileFriendRequest(models.Model):
+    """
+    Represents a friend request sent from one UserProfile to another.
+    """
+    sender = models.ForeignKey(
+        'UserProfile',  # Use string 'UserProfile' to handle potential forward reference
+        on_delete=models.CASCADE,
+        related_name='sent_friend_requests'
+    )
+    receiver = models.ForeignKey(
+        'UserProfile',  # Use string 'UserProfile'
+        on_delete=models.CASCADE,
+        related_name='received_friend_requests'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Timestamp when the friend request was sent."
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['sender', 'receiver'],
+                name='unique_pending_friend_request'
+            )
+        ]
+        ordering = ['-created_at']
+        verbose_name = "Profile Friend Request"
+        verbose_name_plural = "Profile Friend Requests"
+
+    def __str__(self):
+        return f"Friend request from {self.sender.user.username} to {self.receiver.user.username}"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.sender == self.receiver:
+            raise ValidationError("Cannot send a friend request to oneself.")
+        super().clean()
+
+    def accept(self):
+        """
+        Accepts the friend request.
+        Adds sender and receiver to each other's friends list and deletes the request.
+        """
+        if self.sender and self.receiver: # Ensure sender and receiver profiles exist
+            self.receiver.friends.add(self.sender.user) # Assuming 'friends' is on UserProfile, links to User
+            self.sender.friends.add(self.receiver.user) # Assuming 'friends' is on UserProfile, links to User
+            self.delete()
+            return True
+        return False
+
+    def decline(self):
+        """
+        Declines (deletes) the friend request.
+        """
+        self.delete()
+        return True
