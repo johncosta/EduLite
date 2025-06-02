@@ -17,7 +17,7 @@ class UserProfilePermissionsIntegrationTests(APITestCase):
     def setUpTestData(cls):
         # Create users and profiles once for the test class for efficiency
         cls.user1 = User.objects.create_user(username='user1', password='password123', email='user1@example.com')
-        cls.profile1 = cls.user1.userprofile
+        cls.profile1 = cls.user1.profile
         cls.profile1_data = {'bio': 'User1 original bio', 'occupation': 'Tester'}
         cls.profile1.bio = cls.profile1_data['bio']
         cls.profile1.occupation = cls.profile1_data['occupation']
@@ -25,7 +25,7 @@ class UserProfilePermissionsIntegrationTests(APITestCase):
         cls.profile1_url = reverse('userprofile-detail', kwargs={'pk': cls.profile1.pk})
 
         cls.user2 = User.objects.create_user(username='user2', password='password123', email='user2@example.com')
-        cls.profile2 = cls.user2.userprofile
+        cls.profile2 = cls.user2.profile
         cls.profile2_data = {'bio': 'User2 original bio', 'country': 'Canada'}
         cls.profile2.bio = cls.profile2_data['bio']
         cls.profile2.country = cls.profile2_data['country']
@@ -33,7 +33,7 @@ class UserProfilePermissionsIntegrationTests(APITestCase):
         cls.profile2_url = reverse('userprofile-detail', kwargs={'pk': cls.profile2.pk})
 
         cls.admin_user = User.objects.create_superuser(username='adminuser', password='password123', email='admin@example.com')
-        cls.admin_profile = cls.admin_user.userprofile
+        cls.admin_profile = cls.admin_user.profile
         cls.admin_profile_url = reverse('userprofile-detail', kwargs={'pk': cls.admin_profile.pk})
 
         cls.update_data = {

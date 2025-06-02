@@ -1,12 +1,15 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import transaction, IntegrityError
+
+
 from .models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICES
 
 User = get_user_model()
 
 class UserProfile(models.Model):
     # The signal in signals.py will create a UserProfile instance when a new User is created
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(blank=True, null=True, max_length=1000)
     occupation = models.CharField(
         max_length=64,
@@ -41,19 +44,26 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
-    
-    
+
+# received_requests = my_profile.received_friend_requests.all()
+# sent_requests = my_profile.sent_friend_requests.all()
+
 class ProfileFriendRequest(models.Model):
     """
     Represents a friend request sent from one UserProfile to another.
+    
+    Methods:
+    
+    - accept(): Accepts the friend request. Deletes the request.
+    - decline(): Declines the friend request. Deletes the request.
     """
     sender = models.ForeignKey(
-        'UserProfile',  # Use string 'UserProfile' to handle potential forward reference
+        'UserProfile', 
         on_delete=models.CASCADE,
         related_name='sent_friend_requests'
     )
     receiver = models.ForeignKey(
-        'UserProfile',  # Use string 'UserProfile'
+        'UserProfile', 
         on_delete=models.CASCADE,
         related_name='received_friend_requests'
     )
@@ -80,23 +90,39 @@ class ProfileFriendRequest(models.Model):
         from django.core.exceptions import ValidationError
         if self.sender == self.receiver:
             raise ValidationError("Cannot send a friend request to oneself.")
+        # if they are already friends, throw an error
+        if self.sender.user.profile.friends.filter(id=self.receiver.user.id).exists():
+            raise ValidationError("Cannot send a friend request to a friend.")
+        if self.receiver.user.profile.friends.filter(id=self.sender.user.id).exists():
+            raise ValidationError("Cannot send a friend request to a friend.")
         super().clean()
-
+        
     def accept(self):
         """
         Accepts the friend request.
         Adds sender and receiver to each other's friends list and deletes the request.
-        """
-        if self.sender and self.receiver: # Ensure sender and receiver profiles exist
-            self.receiver.friends.add(self.sender.user) # Assuming 'friends' is on UserProfile, links to User
-            self.sender.friends.add(self.receiver.user) # Assuming 'friends' is on UserProfile, links to User
-            self.delete()
+         """
+        try:
+            with transaction.atomic():
+                # Re-fetch with `select_for_update` to guard against races
+                req = type(self).objects.select_for_update().get(pk=self.pk)
+                req.receiver.friends.add(req.sender.user)
+                req.sender.friends.add(req.receiver.user)
+                req.delete()
             return True
-        return False
+        except (type(self).DoesNotExist, IntegrityError):
+            return False
 
     def decline(self):
         """
-        Declines (deletes) the friend request.
+        Declines the friend request.
+        Deletes the request.
         """
-        self.delete()
-        return True
+        try:
+            with transaction.atomic():
+                # Re-fetch with `select_for_update` to guard against races
+                req = type(self).objects.select_for_update().get(pk=self.pk)
+                req.delete()
+            return True
+        except (type(self).DoesNotExist, IntegrityError):
+            return False

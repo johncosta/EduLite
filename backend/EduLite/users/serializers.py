@@ -56,7 +56,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer): # Or ModelSerializ
     Serializer for the User model, now including nested profile information.
     """
     profile_url = serializers.HyperlinkedRelatedField(
-        source='userprofile',
+        source='profile',
         view_name='userprofile-detail', 
         read_only=True, 
     )
