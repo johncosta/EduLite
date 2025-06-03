@@ -48,7 +48,7 @@ class TestUserProfileModel(TestCase):
     def test_profile_str_representation(self):
         """Test the __str__ method of the UserProfile."""
         profile = self.user1.profile
-        self.assertEqual(str(profile), f"{self.user1.username}'s Profile")
+        self.assertEqual(str(profile), f"{self.user1.username}")
 
     def test_profile_default_blank_null_fields(self):
         """Test that fields that can be blank/null are indeed so by default."""

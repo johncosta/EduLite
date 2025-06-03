@@ -1,10 +1,11 @@
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 from rest_framework import serializers
 
-from .models import UserProfile
+from .models import UserProfile, ProfileFriendRequest
 
 User = get_user_model()
 
@@ -167,3 +168,46 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             is_active=True, # TODO: Setup email verification, or other means of account activation
         )
         return user
+
+
+## -- Friend Request Serializers -- ##
+
+
+class ProfileFriendRequestSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the ProfileFriendRequest model.
+    Represents a friend request for API output, including profile URLs.
+    """    
+    # Using SerializerMethodField to generate URLs
+    sender_profile_url = serializers.SerializerMethodField()
+    receiver_profile_url = serializers.SerializerMethodField()
+
+    created_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M:%S")
+
+    class Meta:
+        model = ProfileFriendRequest
+        fields = [
+            'id',
+            'sender',    # Uses __str__ of UserProfile
+            'receiver',  # Uses __str__ of UserProfile
+            'sender_profile_url',
+            'receiver_profile_url',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+
+    def get_sender_profile_url(self, obj: ProfileFriendRequest) -> str | None:
+        request = self.context.get('request')
+        if request and obj.sender:
+            return request.build_absolute_uri(
+                reverse('userprofile-detail', kwargs={'pk': obj.sender.pk})
+            )
+        return None
+
+    def get_receiver_profile_url(self, obj: ProfileFriendRequest) -> str | None:
+        request = self.context.get('request')
+        if request and obj.receiver:
+            return request.build_absolute_uri(
+                reverse('userprofile-detail', kwargs={'pk': obj.receiver.pk})
+            )
+        return None
