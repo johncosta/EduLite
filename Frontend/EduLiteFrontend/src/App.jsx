@@ -2,6 +2,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
+import BackToTopButton from './components/common/BackToTopButton'
+
 function App() {
   return (
     <Router>
@@ -11,6 +13,7 @@ function App() {
           <Route path="/" element={<h1 className="text-2xl font-bold"><Home /></h1>} />
           <Route path="/about" element={<h1 className="text-2xl font-bold">About Page</h1>} />
         </Routes>
+        <BackToTopButton />
       </div>
     </Router>
   )
