@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaLinkedinIn, FaEnvelope, FaCheckCircle } from "react-icons/fa";
-import heroImg from "../assets/heroimg.png"; 
+import heroImg from "../assets/heroimg.png";
 
 const Home = () => {
   const { t } = useTranslation();
@@ -67,7 +67,7 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="bg-gray-100 dark:bg-gray-800 px-6 md:px-16 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-600 dark:text-gray-300">
-        <p>© 2025 EduLite. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} EduLite. All rights reserved.</p>
         <div className="flex items-center gap-4 text-lg">
           <a href="#" className="hover:text-blue-600"><FaLinkedinIn /></a>
           <a href="#" className="hover:text-blue-600"><FaFacebookF /></a>
@@ -78,4 +78,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Home;  
