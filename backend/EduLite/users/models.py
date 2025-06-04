@@ -43,8 +43,16 @@ class UserProfile(models.Model):
     friends = models.ManyToManyField(User, related_name='friend_profiles', blank=True)
 
     def __str__(self):
-        return f"{self.user.username}'s Profile"
+        ret_str = f"{self.user.username}"
+        if self.user.first_name and self.user.last_name:
+            ret_str += f" {self.user.first_name} {self.user.last_name}"
+        elif self.user.first_name:
+            ret_str += f" ({self.user.first_name})"
+        elif self.user.last_name:
+            ret_str += f" {self.user.last_name}"
+        return f"{ret_str}"
 
+# Example of how to get friend requests from a UserProfile:
 # received_requests = my_profile.received_friend_requests.all()
 # sent_requests = my_profile.sent_friend_requests.all()
 
@@ -91,9 +99,9 @@ class ProfileFriendRequest(models.Model):
         if self.sender == self.receiver:
             raise ValidationError("Cannot send a friend request to oneself.")
         # if they are already friends, throw an error
-        if self.sender.user.profile.friends.filter(id=self.receiver.user.id).exists():
+        if self.sender.friends.filter(id=self.receiver.user.id).exists():
             raise ValidationError("Cannot send a friend request to a friend.")
-        if self.receiver.user.profile.friends.filter(id=self.sender.user.id).exists():
+        if self.receiver.friends.filter(id=self.sender.user.id).exists():
             raise ValidationError("Cannot send a friend request to a friend.")
         super().clean()
         
