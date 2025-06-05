@@ -50,7 +50,7 @@ class PendingFriendRequestListViewTests(APITestCase):
         # User B should have received 2 requests (from A and C)
         self.assertEqual(response.data['count'], 2)
         # Verify the senders are correct
-        sender_usernames = {item['sender'] for item in response.data['results']}
+        sender_usernames = {item['sender_id'] for item in response.data['results']}
         self.assertEqual(sender_usernames, {1,3})
 
     def test_list_received_requests_explicitly(self):
@@ -69,7 +69,7 @@ class PendingFriendRequestListViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # User B sent 1 request (to C)
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['receiver'], self.profile_c.user.id)
+        self.assertEqual(response.data['results'][0]['receiver_id'], self.profile_c.user.id)
 
     def test_list_with_invalid_direction(self):
         """Test that an invalid direction parameter returns an empty list."""
@@ -103,8 +103,8 @@ class PendingFriendRequestListViewTests(APITestCase):
         # Check for key fields defined in ProfileFriendRequestSerializer
         expected_keys = [
             'id', 
-            'sender', 
-            'receiver', 
+            'sender_id', 
+            'receiver_id', 
             'sender_profile_url', 
             'receiver_profile_url', 
             'created_at'
@@ -139,4 +139,4 @@ class PendingFriendRequestListViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # User B sent 1 request, so the count should be 1
         self.assertEqual(response.data['count'], 1)
-        self.assertEqual(response.data['results'][0]['receiver'], self.profile_c.user.id)
+        self.assertEqual(response.data['results'][0]['receiver_id'], self.profile_c.user.id)

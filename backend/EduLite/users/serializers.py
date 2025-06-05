@@ -188,8 +188,8 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
         model = ProfileFriendRequest
         fields = [
             'id',
-            'sender',    # Uses __str__ of UserProfile
-            'receiver',  # Uses __str__ of UserProfile
+            'sender_id',   
+            'receiver_id',  
             'sender_profile_url',
             'receiver_profile_url',
             'created_at'
