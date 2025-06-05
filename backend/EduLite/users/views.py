@@ -533,8 +533,14 @@ class SendFriendRequestView(UsersAppBaseAPIView):
 
             serializer = ProfileFriendRequestSerializer(friend_request, context=self.get_serializer_context())
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except ValidationError as e: # Catch ValidationError from model's clean() if called
-            return Response({"detail": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            # Handle different ValidationError formats
+            if hasattr(e, 'message_dict'):
+                return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
+            elif hasattr(e, 'messages'):
+                return Response({"detail": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except IntegrityError: # Catch IntegrityError from UniqueConstraint
             return Response(
                 {"detail": "A friend request between these users already exists or another integrity issue occurred."},
