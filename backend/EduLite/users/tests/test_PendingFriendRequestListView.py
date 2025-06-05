@@ -107,7 +107,9 @@ class PendingFriendRequestListViewTests(APITestCase):
             'receiver_id', 
             'sender_profile_url', 
             'receiver_profile_url', 
-            'created_at'
+            'created_at',
+            'accept_url',
+            'decline_url',
         ]
         self.assertEqual(set(first_result.keys()), set(expected_keys))
 

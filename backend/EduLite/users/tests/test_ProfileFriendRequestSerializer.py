@@ -54,7 +54,9 @@ class ProfileFriendRequestSerializerTests(TestCase):
             'receiver_id', 
             'sender_profile_url', 
             'receiver_profile_url', 
-            'created_at'
+            'created_at',
+            'accept_url',
+            'decline_url',
         ]
         self.assertEqual(set(data.keys()), set(expected_keys))
 
