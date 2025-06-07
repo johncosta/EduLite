@@ -18,7 +18,7 @@ class TestProfileSerializer(APITestCase): # Or APITestCase if you need request c
     def setUpTestData(cls):
         cls.user = User.objects.create_user(username='profileuser', password='password123', email='profile@example.com')
         # UserProfile is auto-created by signal
-        cls.profile = cls.user.userprofile
+        cls.profile = cls.user.profile
         cls.profile.bio = "Test bio"
         cls.profile.occupation = OCCUPATION_CHOICES[0][0]
         cls.profile.country = COUNTRY_CHOICES[0][0]
@@ -60,9 +60,9 @@ class TestUserSerializer(TestCase): # Or APITestCase
             username='userwithprofile', password='password123', email='user@example.com'
         )
         # Profile should be auto-created
-        cls.user_with_profile.userprofile.bio = "A detailed bio."
-        cls.user_with_profile.userprofile.occupation = OCCUPATION_CHOICES[1][0]
-        cls.user_with_profile.userprofile.save()
+        cls.user_with_profile.profile.bio = "A detailed bio."
+        cls.user_with_profile.profile.occupation = OCCUPATION_CHOICES[1][0]
+        cls.user_with_profile.profile.save()
 
         cls.factory = APIRequestFactory()
         cls.request = cls.factory.get('/')
