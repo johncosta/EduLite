@@ -8,7 +8,7 @@ from ...management.logic import establish_random_friendships
 
 User = get_user_model()
 
-LOGIC_MODULE_PATH = 'users.management.logic'
+LOGIC_MODULE_PATH = "users.management.logic"
 
 
 class EstablishRandomFriendshipsTests(TestCase):
@@ -20,8 +20,8 @@ class EstablishRandomFriendshipsTests(TestCase):
         """Create a list of mock User objects for use in tests."""
         self.mock_users = [MagicMock(spec=User) for _ in range(5)]
 
-    @patch(f'{LOGIC_MODULE_PATH}._process_pending_friend_requests')
-    @patch(f'{LOGIC_MODULE_PATH}._create_pending_friend_requests')
+    @patch(f"{LOGIC_MODULE_PATH}._process_pending_friend_requests")
+    @patch(f"{LOGIC_MODULE_PATH}._create_pending_friend_requests")
     def test_orchestration_flow_with_enough_users(
         self, mock_create_requests, mock_process_requests
     ):
@@ -30,10 +30,13 @@ class EstablishRandomFriendshipsTests(TestCase):
         """
         # --- Setup Mocks ---
         # Define what the helper functions should return when called
-        mock_pending_requests = [MagicMock(), MagicMock()] # A dummy list of request objects
+        mock_pending_requests = [
+            MagicMock(),
+            MagicMock(),
+        ]  # A dummy list of request objects
         mock_create_requests.return_value = mock_pending_requests
-        
-        mock_stats = {'accepted_count': 1, 'declined_count': 1}
+
+        mock_stats = {"accepted_count": 1, "declined_count": 1}
         mock_process_requests.return_value = mock_stats
 
         # --- Action ---
@@ -42,12 +45,12 @@ class EstablishRandomFriendshipsTests(TestCase):
         # --- Assertions ---
         # 1. Verify that the first helper was called once with the list of users
         mock_create_requests.assert_called_once_with(self.mock_users)
-        
+
         # 2. Verify that the second helper was called once with the result from the first helper
         mock_process_requests.assert_called_once_with(mock_pending_requests)
 
-    @patch(f'{LOGIC_MODULE_PATH}._process_pending_friend_requests')
-    @patch(f'{LOGIC_MODULE_PATH}._create_pending_friend_requests')
+    @patch(f"{LOGIC_MODULE_PATH}._process_pending_friend_requests")
+    @patch(f"{LOGIC_MODULE_PATH}._create_pending_friend_requests")
     def test_returns_early_if_user_list_is_too_small(
         self, mock_create_requests, mock_process_requests
     ):
@@ -59,18 +62,18 @@ class EstablishRandomFriendshipsTests(TestCase):
         establish_random_friendships([self.mock_users[0]])
         mock_create_requests.assert_not_called()
         mock_process_requests.assert_not_called()
-        
+
         # Reset mocks to test the next scenario
         mock_create_requests.reset_mock()
         mock_process_requests.reset_mock()
-        
+
         # --- Action & Assertions for an empty list ---
         establish_random_friendships([])
         mock_create_requests.assert_not_called()
         mock_process_requests.assert_not_called()
 
-    @patch(f'{LOGIC_MODULE_PATH}._process_pending_friend_requests')
-    @patch(f'{LOGIC_MODULE_PATH}._create_pending_friend_requests')
+    @patch(f"{LOGIC_MODULE_PATH}._process_pending_friend_requests")
+    @patch(f"{LOGIC_MODULE_PATH}._create_pending_friend_requests")
     def test_flow_when_no_requests_are_created(
         self, mock_create_requests, mock_process_requests
     ):
@@ -79,15 +82,15 @@ class EstablishRandomFriendshipsTests(TestCase):
         """
         # --- Setup Mocks ---
         # Simulate the case where _create_pending_friend_requests runs but creates nothing
-        mock_create_requests.return_value = [] # Return an empty list
-        mock_process_requests.return_value = {'accepted_count': 0, 'declined_count': 0}
+        mock_create_requests.return_value = []  # Return an empty list
+        mock_process_requests.return_value = {"accepted_count": 0, "declined_count": 0}
 
         # --- Action ---
         establish_random_friendships(self.mock_users)
-        
+
         # --- Assertions ---
         # 1. Verify that the creation helper was called
         mock_create_requests.assert_called_once_with(self.mock_users)
-        
+
         # 2. Verify that the processing helper was still called, but with an empty list
         mock_process_requests.assert_called_once_with([])

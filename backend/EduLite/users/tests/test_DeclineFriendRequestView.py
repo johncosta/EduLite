@@ -7,6 +7,7 @@ from ..models import UserProfile, ProfileFriendRequest
 
 User = get_user_model()
 
+
 class DeclineFriendRequestViewTests(APITestCase):
     """
     Test suite for the DeclineFriendRequestView.
@@ -16,21 +17,28 @@ class DeclineFriendRequestViewTests(APITestCase):
     def setUpTestData(cls):
         """Set up data for the whole test class."""
         # Create users and get their profiles (created via signal)
-        cls.user_sender = User.objects.create_user(username='sender_user', password='password123')
+        cls.user_sender = User.objects.create_user(
+            username="sender_user", password="password123"
+        )
         cls.profile_sender = UserProfile.objects.get(user=cls.user_sender)
 
-        cls.user_receiver = User.objects.create_user(username='receiver_user', password='password123')
+        cls.user_receiver = User.objects.create_user(
+            username="receiver_user", password="password123"
+        )
         cls.profile_receiver = UserProfile.objects.get(user=cls.user_receiver)
 
-        cls.user_unrelated = User.objects.create_user(username='unrelated_user', password='password123')
+        cls.user_unrelated = User.objects.create_user(
+            username="unrelated_user", password="password123"
+        )
         cls.profile_unrelated = UserProfile.objects.get(user=cls.user_unrelated)
-        
+
         # Create a persistent friend request for most tests
         cls.friend_request = ProfileFriendRequest.objects.create(
-            sender=cls.profile_sender,
-            receiver=cls.profile_receiver
+            sender=cls.profile_sender, receiver=cls.profile_receiver
         )
-        cls.decline_url = reverse('friend-request-decline', kwargs={'request_pk': cls.friend_request.pk})
+        cls.decline_url = reverse(
+            "friend-request-decline", kwargs={"request_pk": cls.friend_request.pk}
+        )
 
     def test_decline_request_unauthenticated(self):
         """
@@ -47,7 +55,9 @@ class DeclineFriendRequestViewTests(APITestCase):
         response = self.client.post(self.decline_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], "Friend request declined successfully.")
+        self.assertEqual(
+            response.data["detail"], "Friend request declined successfully."
+        )
 
         # Verify the request object has been deleted
         with self.assertRaises(ProfileFriendRequest.DoesNotExist):
@@ -61,10 +71,14 @@ class DeclineFriendRequestViewTests(APITestCase):
         response = self.client.post(self.decline_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], "Friend request canceled successfully.")
+        self.assertEqual(
+            response.data["detail"], "Friend request canceled successfully."
+        )
 
         # Verify the request object has been deleted
-        self.assertFalse(ProfileFriendRequest.objects.filter(pk=self.friend_request.pk).exists())
+        self.assertFalse(
+            ProfileFriendRequest.objects.filter(pk=self.friend_request.pk).exists()
+        )
 
     def test_unrelated_user_cannot_decline_request(self):
         """
@@ -80,7 +94,7 @@ class DeclineFriendRequestViewTests(APITestCase):
         Test that attempting to decline a request that doesn't exist returns a 404.
         """
         self.client.force_authenticate(user=self.user_sender)
-        nonexistent_url = reverse('friend-request-decline', kwargs={'request_pk': 9999})
+        nonexistent_url = reverse("friend-request-decline", kwargs={"request_pk": 9999})
         response = self.client.post(nonexistent_url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -110,5 +124,5 @@ class DeclineFriendRequestViewTests(APITestCase):
         Test that using PUT on the decline endpoint is not allowed.
         """
         self.client.force_authenticate(user=self.user_receiver)
-        response = self.client.put(self.decline_url, {}, format='json')
+        response = self.client.put(self.decline_url, {}, format="json")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

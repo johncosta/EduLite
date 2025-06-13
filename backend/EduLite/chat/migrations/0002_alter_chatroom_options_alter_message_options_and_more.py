@@ -4,23 +4,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('chat', '0001_initial'),
+        ("chat", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='chatroom',
-            options={'ordering': ['-updated_at'], 'verbose_name': 'Chat Room', 'verbose_name_plural': 'Chat Rooms'},
+            name="chatroom",
+            options={
+                "ordering": ["-updated_at"],
+                "verbose_name": "Chat Room",
+                "verbose_name_plural": "Chat Rooms",
+            },
         ),
         migrations.AlterModelOptions(
-            name='message',
-            options={'ordering': ['created_at'], 'verbose_name': 'Message', 'verbose_name_plural': 'Messages'},
+            name="message",
+            options={
+                "ordering": ["created_at"],
+                "verbose_name": "Message",
+                "verbose_name_plural": "Messages",
+            },
         ),
         migrations.AlterField(
-            model_name='chatroom',
-            name='room_type',
-            field=models.CharField(choices=[('ONE_TO_ONE', 'One to One'), ('GROUP', 'Group'), ('COURSE', 'Course Group')], max_length=20),
+            model_name="chatroom",
+            name="room_type",
+            field=models.CharField(
+                choices=[
+                    ("ONE_TO_ONE", "One to One"),
+                    ("GROUP", "Group"),
+                    ("COURSE", "Course Group"),
+                ],
+                max_length=20,
+            ),
         ),
     ]
