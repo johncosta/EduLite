@@ -5,7 +5,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from .models import ChatRoom, Message
-from .serializers import (MessageSerializer, ChatRoomSerializer)
+from .serializers import MessageSerializer, ChatRoomSerializer
 from .permissions import IsParticipant, IsMessageSenderOrReadOnly
 from .pagination import ChatRoomPagination, MessageCursorPagination
 
@@ -16,6 +16,7 @@ from .pagination import ChatRoomPagination, MessageCursorPagination
 
 
 """ List chat rooms the authenticated user is part of """
+
 
 class ChatRoomListCreateView(generics.ListCreateAPIView):
     serializer_class = ChatRoomSerializer
@@ -45,6 +46,7 @@ class ChatRoomDetailView(generics.RetrieveAPIView):
 
 """ List and Create Messages in a specific chat room """
 
+
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsMessageSenderOrReadOnly]
@@ -52,40 +54,37 @@ class MessageListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         # Return messages for the given chat room if user is a participant
-        chat_room_id = self.kwargs['chat_room_id']
+        chat_room_id = self.kwargs["chat_room_id"]
         return Message.objects.filter(
-            chat_room__id=chat_room_id,
-            chat_room__participants=self.request.user
-        ).select_related('sender', 'chat_room')
+            chat_room__id=chat_room_id, chat_room__participants=self.request.user
+        ).select_related("sender", "chat_room")
 
     def perform_create(self, serializer):
         # Ensure only participants can send messages and set sender
-        chat_room_id = self.kwargs['chat_room_id']
+        chat_room_id = self.kwargs["chat_room_id"]
         chat_room = ChatRoom.objects.get(
-            id=chat_room_id,
-            participants=self.request.user
+            id=chat_room_id, participants=self.request.user
         )
         serializer.save(chat_room=chat_room, sender=self.request.user)
 
 
 """ Retrieve a specific message in a chat room (Message sender can update/delete)"""
 
+
 class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsMessageSenderOrReadOnly]
 
     def get_queryset(self):
-        chat_room_id = self.kwargs['chat_room_id']
+        chat_room_id = self.kwargs["chat_room_id"]
         return Message.objects.filter(
-            chat_room__id=chat_room_id,
-            chat_room__participants=self.request.user
-        ).select_related('sender', 'chat_room')
-    
+            chat_room__id=chat_room_id, chat_room__participants=self.request.user
+        ).select_related("sender", "chat_room")
+
     def perform_create(self, serializer):
         # Ensure only participants can send messages and set sender
-        chat_room_id = self.kwargs['chat_room_id']
+        chat_room_id = self.kwargs["chat_room_id"]
         chat_room = ChatRoom.objects.get(
-            id=chat_room_id,
-            participants=self.request.user
+            id=chat_room_id, participants=self.request.user
         )
         serializer.save(chat_room=chat_room, sender=self.request.user)

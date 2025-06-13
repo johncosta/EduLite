@@ -3,6 +3,7 @@
 from rest_framework import permissions
 from .models import UserProfile, ProfileFriendRequest
 
+
 class IsProfileOwnerOrAdmin(permissions.BasePermission):
     """
     Custom permission to only allow owners of a UserProfile or admins to edit it.
@@ -53,8 +54,8 @@ class IsUserOwnerOrAdmin(permissions.BasePermission):
 
         # For unsafe methods (PUT, PATCH, DELETE), the user must be the object itself.
         return obj == request.user
-    
-    
+
+
 class IsAdminUserOrReadOnly(permissions.BasePermission):
     """
     Custom permission to allow read-only access to any authenticated user,
@@ -81,8 +82,9 @@ class IsFriendRequestReceiver(permissions.BasePermission):
     """
     Allows access only if the request.user.profile is the receiver of the ProfileFriendRequest.
     """
-    def has_object_permission(self, request, view, obj: ProfileFriendRequest): 
-        if hasattr(request.user, 'profile'):
+
+    def has_object_permission(self, request, view, obj: ProfileFriendRequest):
+        if hasattr(request.user, "profile"):
             return obj.receiver == request.user.profile
         return False
 
@@ -92,14 +94,17 @@ class IsFriendRequestReceiverOrSender(permissions.BasePermission):
     Custom permission to only allow the receiver or the sender of a friend request
     to perform an action on it (e.g., decline or cancel).
     """
-    message = "You do not have permission to perform this action on this friend request."
+
+    message = (
+        "You do not have permission to perform this action on this friend request."
+    )
 
     def has_object_permission(self, request, view, obj):
         if not isinstance(obj, ProfileFriendRequest):
-            return False 
+            return False
 
         # Check if the request.user has a 'profile' attribute
-        if not hasattr(request.user, 'profile'):
+        if not hasattr(request.user, "profile"):
             return False
 
         user_profile = request.user.profile

@@ -5,25 +5,57 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0004_userprofile_website_url'),
+        ("users", "0004_userprofile_website_url"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProfileFriendRequest',
+            name="ProfileFriendRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='Timestamp when the friend request was sent.')),
-                ('receiver', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='received_friend_requests', to='users.userprofile')),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sent_friend_requests', to='users.userprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="Timestamp when the friend request was sent.",
+                    ),
+                ),
+                (
+                    "receiver",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="received_friend_requests",
+                        to="users.userprofile",
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sent_friend_requests",
+                        to="users.userprofile",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Profile Friend Request',
-                'verbose_name_plural': 'Profile Friend Requests',
-                'ordering': ['-created_at'],
-                'constraints': [models.UniqueConstraint(fields=('sender', 'receiver'), name='unique_pending_friend_request')],
+                "verbose_name": "Profile Friend Request",
+                "verbose_name_plural": "Profile Friend Requests",
+                "ordering": ["-created_at"],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("sender", "receiver"),
+                        name="unique_pending_friend_request",
+                    )
+                ],
             },
         ),
     ]

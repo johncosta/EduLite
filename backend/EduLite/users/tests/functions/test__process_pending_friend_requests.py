@@ -5,7 +5,8 @@ from unittest.mock import patch, MagicMock
 
 from ...management.logic import _process_pending_friend_requests
 
-LOGIC_MODULE_PATH = 'users.management.logic'
+LOGIC_MODULE_PATH = "users.management.logic"
+
 
 class ProcessPendingFriendRequestsTests(TestCase):
     """
@@ -20,8 +21,8 @@ class ProcessPendingFriendRequestsTests(TestCase):
         self.mock_requests = []
         for i in range(5):
             mock_request = MagicMock()
-            mock_request.sender.user.username = f'sender{i}'
-            mock_request.receiver.user.username = f'receiver{i}'
+            mock_request.sender.user.username = f"sender{i}"
+            mock_request.receiver.user.username = f"receiver{i}"
             # The accept and decline methods will also be mocks that we can track calls on
             self.mock_requests.append(mock_request)
 
@@ -30,11 +31,11 @@ class ProcessPendingFriendRequestsTests(TestCase):
         Test that the function handles an empty list of requests gracefully.
         """
         result = _process_pending_friend_requests([])
-        
-        # It should return zero counts for both
-        self.assertEqual(result, {'accepted_count': 0, 'declined_count': 0})
 
-    @patch(f'{LOGIC_MODULE_PATH}.random.choice')
+        # It should return zero counts for both
+        self.assertEqual(result, {"accepted_count": 0, "declined_count": 0})
+
+    @patch(f"{LOGIC_MODULE_PATH}.random.choice")
     def test_all_requests_are_accepted(self, mock_random_choice):
         """
         Test the scenario where all pending requests are accepted.
@@ -53,9 +54,9 @@ class ProcessPendingFriendRequestsTests(TestCase):
             req.decline.assert_not_called()
 
         # Verify the final statistics are correct
-        self.assertEqual(stats, {'accepted_count': 5, 'declined_count': 0})
+        self.assertEqual(stats, {"accepted_count": 5, "declined_count": 0})
 
-    @patch(f'{LOGIC_MODULE_PATH}.random.choice')
+    @patch(f"{LOGIC_MODULE_PATH}.random.choice")
     def test_all_requests_are_declined(self, mock_random_choice):
         """
         Test the scenario where all pending requests are declined.
@@ -63,11 +64,16 @@ class ProcessPendingFriendRequestsTests(TestCase):
         # --- Setup Mock ---
         # Make random.choice return False for the 'accept' check, and True for the 'decline' check
         mock_random_choice.side_effect = [
-            False, True,  # Request 1: Not accepted, is declined
-            False, True,  # Request 2: Not accepted, is declined
-            False, True,  # Request 3: Not accepted, is declined
-            False, True,  # Request 4: Not accepted, is declined
-            False, True,  # Request 5: Not accepted, is declined
+            False,
+            True,  # Request 1: Not accepted, is declined
+            False,
+            True,  # Request 2: Not accepted, is declined
+            False,
+            True,  # Request 3: Not accepted, is declined
+            False,
+            True,  # Request 4: Not accepted, is declined
+            False,
+            True,  # Request 5: Not accepted, is declined
         ]
 
         # --- Action ---
@@ -80,9 +86,9 @@ class ProcessPendingFriendRequestsTests(TestCase):
             req.decline.assert_called_once()
 
         # Verify the final statistics are correct (This will fail until you fix the return statement)
-        self.assertEqual(stats, {'accepted_count': 0, 'declined_count': 5})
-        
-    @patch(f'{LOGIC_MODULE_PATH}.random.choice')
+        self.assertEqual(stats, {"accepted_count": 0, "declined_count": 5})
+
+    @patch(f"{LOGIC_MODULE_PATH}.random.choice")
     def test_all_requests_are_ignored(self, mock_random_choice):
         """
         Test the scenario where all pending requests are ignored.
@@ -90,7 +96,7 @@ class ProcessPendingFriendRequestsTests(TestCase):
         # --- Setup Mock ---
         # Make random.choice always return False for both checks
         mock_random_choice.return_value = False
-        
+
         # --- Action ---
         stats = _process_pending_friend_requests(self.mock_requests)
 
@@ -99,11 +105,11 @@ class ProcessPendingFriendRequestsTests(TestCase):
         for req in self.mock_requests:
             req.accept.assert_not_called()
             req.decline.assert_not_called()
-        
-        # Verify the final statistics are correct
-        self.assertEqual(stats, {'accepted_count': 0, 'declined_count': 0})
 
-    @patch(f'{LOGIC_MODULE_PATH}.random.choice')
+        # Verify the final statistics are correct
+        self.assertEqual(stats, {"accepted_count": 0, "declined_count": 0})
+
+    @patch(f"{LOGIC_MODULE_PATH}.random.choice")
     def test_mixed_outcomes(self, mock_random_choice):
         """
         Test a mixed scenario of accept, decline, and ignore actions.
@@ -111,16 +117,19 @@ class ProcessPendingFriendRequestsTests(TestCase):
         # --- Setup Mock ---
         # Define a specific sequence of random choices
         mock_random_choice.side_effect = [
-            True,           # Request 1: Accept
-            False, True,    # Request 2: Decline
-            False, False,   # Request 3: Ignore
-            True,           # Request 4: Accept
-            False, True,    # Request 5: Decline
+            True,  # Request 1: Accept
+            False,
+            True,  # Request 2: Decline
+            False,
+            False,  # Request 3: Ignore
+            True,  # Request 4: Accept
+            False,
+            True,  # Request 5: Decline
         ]
-        
+
         # --- Action ---
         stats = _process_pending_friend_requests(self.mock_requests)
-        
+
         # --- Assertions ---
         # Check calls for each mock request individually
         self.mock_requests[0].accept.assert_called_once()
@@ -137,6 +146,6 @@ class ProcessPendingFriendRequestsTests(TestCase):
 
         self.mock_requests[4].accept.assert_not_called()
         self.mock_requests[4].decline.assert_called_once()
-        
+
         # Verify the final statistics are correct (This will also fail until you fix the return statement)
-        self.assertEqual(stats, {'accepted_count': 2, 'declined_count': 2})
+        self.assertEqual(stats, {"accepted_count": 2, "declined_count": 2})
