@@ -578,11 +578,13 @@ class SendFriendRequestView(UsersAppBaseAPIView):
             friend_request = ProfileFriendRequest.objects.create(
                 sender=sender_profile, receiver=receiver_profile
             )
-
-            serializer = ProfileFriendRequestSerializer(
-                friend_request, context=self.get_serializer_context()
+            return Response(
+                {
+                    "detail": "Friend request sent successfully.",
+                    "request_id": friend_request.id
+                },
+                status=status.HTTP_201_CREATED
             )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as e:
             # Handle different ValidationError formats
             if hasattr(e, "message_dict"):

@@ -46,9 +46,9 @@ class SendFriendRequestViewTests(APITestCase):
             ).exists()
         )
         # Check response data structure based on your ProfileFriendRequestSerializer
-        self.assertIn("id", response.data)
+        self.assertIn("request_id", response.data)
         self.assertEqual(
-            response.data["sender_id"], self.profile_sender.user.id
+            response.data["detail"], "Friend request sent successfully."
         )  # Or username if serializer outputs that
 
     def test_send_request_missing_receiver_id(self):

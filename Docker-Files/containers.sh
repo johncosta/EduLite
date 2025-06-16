@@ -151,7 +151,7 @@ build_services() {
     --build-arg HOST_GID="${current_gid}" \
     "$@" # Pass any additional args (e.g., service name, --no-cache)
   echo "Build process completed."
-  echo "You may want to run './edulite-dev-env.sh up --force-recreate' to use the new images."
+  echo "You may want to run './containers.sh up --force-recreate' to use the new images."
 }
 
 restart_services() {
