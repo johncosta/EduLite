@@ -25,3 +25,5 @@ htmlcov/
 # Django
 local_settings.py
 media/
+
+pyrightconfig.json
