@@ -177,12 +177,11 @@ class CreateNotificationOnFriendRequestTests(TestCase):
         # Verify that an error was logged
         mock_logger.error.assert_called_once()
 
-        # Verify the error log contains relevant information
-        log_call_args = mock_logger.error.call_args[0][0]
-        self.assertIn(str(friend_request.id), log_call_args)
-        self.assertIn(self.sender_user.username, log_call_args)
-        self.assertIn(self.receiver_user.username, log_call_args)
-        self.assertIn(error_message, log_call_args)
+        # Verify the error log contains relevant information (parameterized logging)
+        log_call_args = mock_logger.error.call_args[0]
+        self.assertIn("Failed to create notification for friend request", log_call_args[0])
+        self.assertEqual(log_call_args[1], friend_request.id)  # %s parameter
+        self.assertEqual(str(log_call_args[2]), error_message)  # Exception parameter
 
     @patch("users.signals.logger")
     @patch("notifications.models.Notification")
@@ -193,6 +192,7 @@ class CreateNotificationOnFriendRequestTests(TestCase):
         # --- Setup Mock ---
         mock_notification_instance = MagicMock()
         mock_notification_model.objects.create.return_value = mock_notification_instance
+        mock_logger.isEnabledFor.return_value = True
 
         # --- Action ---
         friend_request = ProfileFriendRequest.objects.create(
@@ -201,14 +201,15 @@ class CreateNotificationOnFriendRequestTests(TestCase):
         )
 
         # --- Assertions ---
-        # Verify that a debug log was created
+        # Verify that debug logging was called
         mock_logger.debug.assert_called_once()
 
-        # Verify the debug log contains relevant information
-        log_call_args = mock_logger.debug.call_args[0][0]
-        self.assertIn(str(friend_request.id), log_call_args)
-        self.assertIn(self.sender_user.username, log_call_args)
-        self.assertIn(self.receiver_user.username, log_call_args)
+        # Verify the debug log contains relevant information (parameterized logging)
+        debug_call_args = mock_logger.debug.call_args[0]
+        self.assertIn("Notification created for friend request", debug_call_args[0])
+        self.assertEqual(debug_call_args[1], friend_request.id)        # friend request ID
+        self.assertEqual(debug_call_args[2], self.sender_user.username)    # sender username
+        self.assertEqual(debug_call_args[3], self.receiver_user.username)  # receiver username
 
     @patch("notifications.models.Notification")
     def test_notification_links_correct_user_relationships(self, mock_notification_model):
