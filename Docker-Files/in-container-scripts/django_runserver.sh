@@ -21,10 +21,8 @@ VENV_PIP_EXEC="${VENV_DIR}/bin/pip"
 VENV_ACTIVATE_SCRIPT="${VENV_DIR}/bin/activate"
 
 echo "${BLUE}${SCRIPT_NAME} Starting EduLite Backend Service...${NC}"
-# ... (Initial path echo statements are good) ...
 
 # --- 1. Sanity Check: Django Project Files ---
-# ... (Keep your existing project structure checks - they seem to be working) ...
 echo "${BLUE}${SCRIPT_NAME} Verifying Django project structure...${NC}"
 if [ ! -d "${ACTUAL_DJANGO_PROJECT_DIR}" ] || [ ! -f "${ACTUAL_DJANGO_PROJECT_DIR}/manage.py" ]; then
     echo "${RED}${SCRIPT_NAME} CRITICAL ERROR: Django project structure invalid.${NC}" >&2
@@ -115,16 +113,14 @@ else
 fi
 
 # --- 4. Change to Django Project Directory ---
-# ... (Keep this section as is, it was correct) ...
 echo "${BLUE}${SCRIPT_NAME} Changing to Django project directory: '${ACTUAL_DJANGO_PROJECT_DIR}'...${NC}"
-cd "$ACTUAL_DJANGO_PROJECT_DIR" || { 
-    echo "${RED}${SCRIPT_NAME} CRITICAL ERROR: Failed to change directory to '${ACTUAL_DJANGO_PROJECT_DIR}'.${NC}"; 
-    exit 1; 
+cd "$ACTUAL_DJANGO_PROJECT_DIR" || {
+    echo "${RED}${SCRIPT_NAME} CRITICAL ERROR: Failed to change directory to '${ACTUAL_DJANGO_PROJECT_DIR}'.${NC}";
+    exit 1;
 }
 echo "${GREEN}${SCRIPT_NAME} Current directory: $(pwd)${NC}"
 
 # --- 5. Run Django Migrations ---
-# ... (Keep this section using VENV_PYTHON_EXEC, it was correct) ...
 echo "${BLUE}${SCRIPT_NAME} Running Django migrations using ${VENV_PYTHON_EXEC}...${NC}"
 if "$VENV_PYTHON_EXEC" manage.py migrate --noinput; then
     echo "${GREEN}${SCRIPT_NAME} Django migrations completed successfully.${NC}"
@@ -135,5 +131,4 @@ fi
 
 # --- 6. Start Django Development Server ---
 DEFAULT_RUNSERVER_ADDRESS="0.0.0.0:8000"
-# ...
 exec "$VENV_PYTHON_EXEC" manage.py runserver "$DEFAULT_RUNSERVER_ADDRESS"

@@ -27,3 +27,6 @@ local_settings.py
 media/
 
 pyrightconfig.json
+
+# Ruff
+.ruff_cache/

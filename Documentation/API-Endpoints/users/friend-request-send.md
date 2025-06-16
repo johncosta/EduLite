@@ -45,35 +45,23 @@ The request body must be a JSON object containing the friend request details.
 
 **Status Code:** `201 Created`
 
-The response will contain a JSON object representing the created friend request with all relevant details and action URLs.
+The response will contain a simple confirmation message with the friend request ID.
 
 **Example JSON Response:**
 
 	```json
 	{
-	    "id": 12,
-	    "sender_id": 3,
-	    "receiver_id": 5,
-	    "sender_profile_url": "/api/users/3/profile/",
-	    "receiver_profile_url": "/api/users/5/profile/",
-	    "created_at": "2024-01-15 14:30:25",
-	    "accept_url": "/api/friend-requests/12/accept/",
-	    "decline_url": "/api/friend-requests/12/decline/"
+	    "detail": "Friend request sent successfully.",
+	    "request_id": 12
 	}
 	```
 
 **Response Fields:**
 
-| Field                    | Type   | Description                                                               |
-| :----------------------- | :----- | :------------------------------------------------------------------------ |
-| `id`                     | Integer| The unique identifier of the friend request.                             |
-| `sender_id`              | Integer| The unique identifier of the sender's user profile.                      |
-| `receiver_id`            | Integer| The unique identifier of the receiver's user profile.                    |
-| `sender_profile_url`     | String | The hyperlink to the sender's profile resource.                          |
-| `receiver_profile_url`   | String | The hyperlink to the receiver's profile resource.                        |
-| `created_at`             | String | The timestamp when the friend request was created (format: YYYY-MM-DD HH:MM:SS). |
-| `accept_url`             | String | The hyperlink to accept this friend request.                             |
-| `decline_url`            | String | The hyperlink to decline this friend request.                            |
+| Field        | Type    | Description                                           |
+| :----------- | :------ | :---------------------------------------------------- |
+| `detail`     | String  | Confirmation message that the request was sent.      |
+| `request_id` | Integer | The unique identifier of the created friend request. |
 
 ## Error Responses
 
