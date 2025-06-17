@@ -67,6 +67,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
         view_name="userprofile-detail",
         read_only=True,
     )
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -79,7 +80,19 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
             "groups",
             "first_name",
             "last_name",
+            "full_name",
         ]
+        
+    def get_full_name(self, obj):
+        first = obj.first_name
+        last = obj.last_name
+        if first and last:
+            return f"{first} {last}"
+        elif first:
+            return first
+        elif last:
+            return last
+        return "" 
 
 
 ## -- Secure Password Hashing Serializers -- ##
