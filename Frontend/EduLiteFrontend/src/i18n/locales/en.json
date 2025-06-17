@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Home",
+    "about": "About",
     "conversations": "Conversations",
     "chapters": "Chapters",
     "profile": "Profile",
@@ -10,7 +11,7 @@
     "login": "Login",
     "logout": "Logout"
   },
- "home": {
+  "home": {
     "title": "A lightweight, student-first learning platform",
     "intro":"Easily connect with teachers and students, and enjoy a complete and seamless remote learning experience — anytime, anywhere",
     "about": "EduLite is a lightweight digital education platform designed for areas with weak internet and real-life challenges for students and teachers.",
@@ -28,5 +29,56 @@
     "openSourceTitle": "Open-Source Collaboration",
     "openSourceText": "EduLite is an open-source project. We welcome contributors from all over the world to join us on our mission.",
     "joinGithub": "Join on GitHub"
+  },
+  "about": {
+    "title": "About EduLite",
+    "subtitle": "A student-first learning platform, built for areas with weak internet and real challenges.",
+    "backToHome": "Back to Home",
+    "heroFeature1": "Student-Focused",
+    "heroFeature2": "Global Access",
+    "heroFeature3": "Lightning Fast",
+    "storyTitle": "Our Story",
+    "storySubtitle": "From real challenges came real solutions",
+    "storyCardTitle": "The Journey That Changed Everything",
+    "storyCardSubtitle": "From frustration to inspiration, from crisis to solution",
+    "pandemic": {
+      "title": "The Personal Struggle",
+      "description": "Picture this: A young student struggling with Microsoft Teams during the pandemic. Slow loading, confusing interface, constant crashes. That frustration sparked a thought: 'Why is education technology so... broken?'"
+    },
+    "gaza": {
+      "title": "The Breaking Point",
+      "description": "Then came 2023. War erupted in Gaza. Over a million students cut off from education for more than a year. Watching this unfold, one question burned brighter than ever:"
+    },
+    "visionQuote": "Why aren't we building something made for students?",
+    "solution": {
+      "title": "The EduLite Solution",
+      "description": "That's when everything clicked. EduLite wasn't just born from an idea — it was forged from real pain, real struggles, and a burning desire to build something that actually works for students who need it most."
+    },
+    "globalImpact": {
+      "title": "Global Community",
+      "description": "Built by passionate volunteers from Palestine, Canada, Sudan, Nigeria and developers worldwide who believe education should be accessible to everyone."
+    },
+    "missionTitle": "Our Mission",
+    "mission1Title": "Student-First Design",
+    "mission1Description": "Every feature is designed with students in mind, ensuring ease of use and accessibility for learners of all ages and technical backgrounds.",
+    "mission2Title": "Global Accessibility",
+    "mission2Description": "Built to work seamlessly even in areas with weak internet connectivity and limited resources, ensuring no student is left behind.",
+    "specialTitle": "What Makes EduLite Special",
+    "feature1Title": "Lightweight & Fast",
+    "feature1Description": "Extremely lightweight design that works even with poor connectivity, ensuring no student is left behind due to technical limitations.",
+    "feature2Title": "Real-time Communication",
+    "feature2Description": "Seamless messaging between students and teachers to maintain constant educational support and build stronger learning communities.",
+    "feature3Title": "Complete Learning Suite",
+    "feature3Description": "Assignment creation, exam submission, lecture scheduling, and calendar integration all in one place for a unified learning experience.",
+    "feature4Title": "Smart Anti-Cheating",
+    "feature4Description": "Advanced anti-cheating system to maintain academic integrity while keeping the focus on learning and growth.",
+    "communityTitle": "Built by the Community",
+    "communityDescription": "EduLite is a 100% volunteer-driven open source project. There is no funding or salaries involved. Everyone contributes out of passion for learning and helping others.",
+    "communityOrigin": "Made with ❤️ from Palestine, Canada, Sudan, Nigeria and the global open-source community.",
+    "joinTitle": "Join Us",
+    "joinDescription": "We welcome everyone — beginner or expert! Help us build something that matters for students worldwide.",
+    "contributeButton": "Contribute on GitHub",
+    "backToHomeButton": "Back to Home",
+    "finalQuote": "EduLite is for every student who just wants to learn — no matter where they are."
   }
 }
