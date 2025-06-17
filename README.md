@@ -2,7 +2,7 @@
 
 ![EduLite](https://img.shields.io/badge/EduLite-Education%20for%20All-blue)
 ![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)
-![MIT License](https://img.shields.io/badge/license-MIT-yellow)
+[![MIT License](https://img.shields.io/badge/license-MIT-yellow)](https://github.com/ibrahim-sisar/EduLite/blob/main/LICENSE)
 ![Volunteer Project](https://img.shields.io/badge/Volunteer-Project-orange)
 ![No Funding](https://img.shields.io/badge/Open%20Source-No%20Funding-red)
 
