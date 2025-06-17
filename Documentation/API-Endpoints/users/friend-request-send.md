@@ -1,6 +1,6 @@
 # Send Friend Request
 
-Allows an authenticated user to send a friend request to another user.
+Allows an authenticated user to send a friend request to another user. When a friend request is successfully sent, the recipient will automatically receive a notification.
 
 ## Endpoint URL
 
@@ -45,7 +45,7 @@ The request body must be a JSON object containing the friend request details.
 
 **Status Code:** `201 Created`
 
-The response will contain a simple confirmation message with the friend request ID.
+The response will contain a simple confirmation message with the friend request ID for reference.
 
 **Example JSON Response:**
 
@@ -62,6 +62,13 @@ The response will contain a simple confirmation message with the friend request 
 | :----------- | :------ | :---------------------------------------------------- |
 | `detail`     | String  | Confirmation message that the request was sent.      |
 | `request_id` | Integer | The unique identifier of the created friend request. |
+
+## Automatic Notifications
+
+When a friend request is successfully sent, the system automatically:
+- Creates a notification for the recipient
+- The notification will appear in the recipient's notification feed
+- The recipient can view pending friend requests via the [List Pending Friend Requests](./friend-request-list-pending.md) endpoint
 
 ## Error Responses
 
@@ -140,3 +147,16 @@ The response will contain a simple confirmation message with the friend request 
 	    "detail": "A friend request between these users already exists or another integrity issue occurred."
 	}
 	```
+
+## Usage Flow
+
+1. **Send Request**: User A sends a friend request to User B
+2. **Automatic Notification**: System creates a notification for User B
+3. **User B Receives**: User B sees the notification and can check pending requests
+4. **Response**: User B can accept or decline using the respective endpoints
+
+## Related Endpoints
+
+- [List Pending Friend Requests](./friend-request-list-pending.md) - View pending requests
+- [Accept Friend Request](./friend-request-accept.md) - Accept a received request
+- [Decline Friend Request](./friend-request-decline.md) - Decline or cancel a request
