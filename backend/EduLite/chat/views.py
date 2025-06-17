@@ -36,20 +36,24 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
     permission_classes = [IsAuthenticated, IsParticipant]
     pagination_class = ChatRoomPagination
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """List chat rooms where user is a participant"""
         queryset = ChatRoom.objects.filter(participants=request.user)
 
-        # Handle pagination
-        page = self.pagination_class().paginate_queryset(queryset, request)
-        if page is not None:
-            serializer = ChatRoomSerializer(page, many=True, context=self.get_serializer_context())
-            return self.pagination_class().get_paginated_response(serializer.data)
-
-        serializer = ChatRoomSerializer(queryset, many=True, context=self.get_serializer_context())
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Initialize paginator and paginate queryset
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(queryset, request, view=self)
+        
+        # Serialize paginated data
+        serializer = ChatRoomSerializer(
+            paginated_queryset, 
+            many=True, 
+            context=self.get_serializer_context()
+        )
+        
+        return paginator.get_paginated_response(serializer.data)
     
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """Create a new chat room and add creator as participant"""
         serializer = ChatRoomSerializer(data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
@@ -73,7 +77,7 @@ class ChatRoomDetailView(ChatAppBaseAPIView):
         """Helper method to retrieve the chat room object or raise a 404 error"""
         return get_object_or_404(ChatRoom.objects.all(), pk=pk)
 
-    def get(self, request, pk):
+    def get(self, request, pk, *args, **kwargs):
         """Retrieve details of a specific chat room"""
         chat_room = self.get_object(pk)
         self.check_object_permissions(request, chat_room)
@@ -98,25 +102,30 @@ class MessageListCreateView(ChatAppBaseAPIView):
             participants=self.request.user
         )
 
-    def get(self, request, chat_room_id):
-        """List messages for a specific chat room"""
-        # Verify chat room exists and user is participant
+    def get(self, request, chat_room_id, *args, **kwargs):
+        """
+        List messages for a specific chat room.
+        """
         chat_room = self.get_chat_room(chat_room_id)
         
         queryset = Message.objects.filter(
             chat_room=chat_room
         ).select_related("sender", "chat_room")
         
-        # Handle pagination
-        page = self.pagination_class().paginate_queryset(queryset, request)
-        if page is not None:
-            serializer = MessageSerializer(page, many=True, context=self.get_serializer_context())
-            return self.pagination_class().get_paginated_response(serializer.data)
+        # Initialize paginator and paginate queryset
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(queryset, request, view=self)
         
-        serializer = MessageSerializer(queryset, many=True, context=self.get_serializer_context())
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Serialize paginated data
+        serializer = MessageSerializer(
+            paginated_queryset, 
+            many=True, 
+            context=self.get_serializer_context()
+        )
+        
+        return paginator.get_paginated_response(serializer.data)
 
-    def post(self, request, chat_room_id):
+    def post(self, request, chat_room_id, *args, **kwargs):
         """Create a new message in the chat room"""
         # Verify chat room exists and user is participant
         chat_room = self.get_chat_room(chat_room_id)
@@ -156,13 +165,13 @@ class MessageDetailView(ChatAppBaseAPIView):
             chat_room__participants=self.request.user
         )
 
-    def get(self, request, chat_room_id, pk):
+    def get(self, request, chat_room_id, pk, *args, **kwargs):
         """Retrieve a specific message"""
         message = self.get_object(chat_room_id, pk)
         serializer = MessageSerializer(message, context=self.get_serializer_context())
         return Response(serializer.data)
 
-    def put(self, request, chat_room_id, pk):
+    def put(self, request, chat_room_id, pk, *args, **kwargs):
         """Update a message (full update)"""
         message = self.get_object(chat_room_id, pk)
         self.check_object_permissions(request, message)
@@ -177,7 +186,7 @@ class MessageDetailView(ChatAppBaseAPIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, chat_room_id, pk):
+    def patch(self, request, chat_room_id, pk, *args, **kwargs):
         """Update a message (partial update)"""
         message = self.get_object(chat_room_id, pk)
         self.check_object_permissions(request, message)
@@ -193,7 +202,7 @@ class MessageDetailView(ChatAppBaseAPIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, chat_room_id, pk):
+    def delete(self, request, chat_room_id, pk, *args, **kwargs):
         """Delete a message"""
         message = self.get_object(chat_room_id, pk)
         self.check_object_permissions(request, message)
