@@ -1,4 +1,5 @@
 # users/views.py
+import logging
 
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
@@ -12,7 +13,7 @@ from rest_framework import status, permissions
 from rest_framework.pagination import PageNumberPagination  # For list views
 from rest_framework.permissions import IsAuthenticated
 
-from .models import UserProfile, ProfileFriendRequest
+from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
 from .serializers import (
     UserSerializer,
     GroupSerializer,
@@ -29,6 +30,7 @@ from .permissions import (
     IsFriendRequestReceiverOrSender,
 )
 
+logger = logging.getLogger(__name__)
 
 # --- Base API View for users App ---
 class UsersAppBaseAPIView(APIView):
