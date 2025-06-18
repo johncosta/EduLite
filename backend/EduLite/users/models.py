@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db import transaction, IntegrityError
+from django.core.exceptions import ValidationError
 
 
 from .models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICES
@@ -32,6 +33,15 @@ class UserProfile(models.Model):
     website_url = models.URLField(max_length=200, blank=True, null=True)
 
     friends = models.ManyToManyField(User, related_name="friend_profiles", blank=True)
+
+
+    def clean(self):
+        super().clean()  # Call parent clean()
+        if self.preferred_language and self.secondary_language:
+            if self.preferred_language == self.secondary_language:
+                raise ValidationError({
+                    'secondary_language': "Secondary language cannot be the same as the preferred language."
+                })
 
     def __str__(self):
         ret_str = f"{self.user.username}"
