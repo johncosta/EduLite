@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from .models import UserProfile, ProfileFriendRequest
+from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
 
 # Try to import Notification at module level
 try:
@@ -27,6 +27,23 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     """
     if created:
         UserProfile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=UserProfile)
+def create_user_profile_privacy_settings(sender, instance, created, **kwargs):
+    """
+    Signal handler to create privacy settings for user profiles.
+    - Creates a UserProfilePrivacySettings instance when a new UserProfile is created.
+    """
+    if created:
+        try:
+            UserProfilePrivacySettings.objects.create(user_profile=instance)
+            logger.debug("Created privacy settings for user profile %s", instance.id)
+        except Exception as e:
+            logger.error(
+                "Failed to create privacy settings for user profile %s: %s",
+                instance.id, e
+            )
 
 
 @receiver(post_save, sender=ProfileFriendRequest)

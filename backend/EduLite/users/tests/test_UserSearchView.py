@@ -87,11 +87,11 @@ class UserSearchViewTests(APITestCase):
     def test_search_with_empty_query(self):
         """
         Test that an empty query string returns a 400 Bad Request.
-        (Based on your UserSearchView implementation detail for empty/short query)
         """
         response = self.client.get(self.search_url, {"q": ""})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("Search query must be at least", response.data.get("detail", ""))
+        self.assertIn("Search query is required", response.data.get("detail", ""))
+
 
     def test_search_with_short_query(self):
         """

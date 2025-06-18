@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from rest_framework import serializers
 
-from .models import UserProfile, ProfileFriendRequest
+from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
 
 User = get_user_model()
 
@@ -82,7 +82,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
             "last_name",
             "full_name",
         ]
-        
+
     def get_full_name(self, obj):
         first = obj.first_name
         last = obj.last_name
@@ -92,7 +92,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
             return first
         elif last:
             return last
-        return "" 
+        return ""
 
 
 ## -- Secure Password Hashing Serializers -- ##
@@ -265,3 +265,83 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
                 reverse("friend-request-decline", kwargs={"request_pk": obj.pk})
             )
         return None
+
+
+# -- Privacy Settings Serializers -- ##
+
+
+class UserProfilePrivacySettingsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the UserProfilePrivacySettings model.
+    Allows users to view and update their privacy settings.
+    """
+
+    user_profile_url = serializers.HyperlinkedRelatedField(
+        source="user_profile",
+        view_name="userprofile-detail",
+        read_only=True,
+    )
+
+    class Meta:
+        model = UserProfilePrivacySettings
+        fields = [
+            "id",
+            "user_profile_url",
+            "search_visibility",
+            "profile_visibility",
+            "show_full_name",
+            "show_email",
+            "allow_friend_requests",
+            "allow_chat_invites",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        """
+        Validate privacy settings for logical consistency.
+        """
+        search_visibility = attrs.get('search_visibility')
+        profile_visibility = attrs.get('profile_visibility')
+
+        # If search visibility is 'nobody', profile should be private or friends_only
+        if search_visibility == 'nobody' and profile_visibility == 'public':
+            raise serializers.ValidationError(
+                "Profile cannot be public if search visibility is set to nobody."
+            )
+
+        return attrs
+
+
+class UserProfilePrivacySettingsReadOnlySerializer(serializers.ModelSerializer):
+    """
+    Read-only serializer for privacy settings that includes choice labels.
+    Used for displaying privacy settings with human-readable labels.
+    """
+
+    search_visibility_display = serializers.CharField(
+        source='get_search_visibility_display',
+        read_only=True
+    )
+    profile_visibility_display = serializers.CharField(
+        source='get_profile_visibility_display',
+        read_only=True
+    )
+
+    class Meta:
+        model = UserProfilePrivacySettings
+        fields = [
+            "id",
+            "search_visibility",
+            "search_visibility_display",
+            "profile_visibility",
+            "profile_visibility_display",
+            "show_full_name",
+            "show_email",
+            "allow_friend_requests",
+            "allow_chat_invites",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]

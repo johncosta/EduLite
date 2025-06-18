@@ -1,11 +1,32 @@
+# backend/EduLite/users/models.py
+# Contains user profile models, friend request models, and privacy settings models
+
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db import transaction, IntegrityError
-
+from django.core.exceptions import ValidationError
+from typing import TYPE_CHECKING
 
 from .models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICES
 
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
+
 User = get_user_model()
+
+# Privacy Settings Choices
+SEARCH_VISIBILITY_CHOICES = [
+    ('everyone', 'Everyone'),
+    ('friends_of_friends', 'Friends of Friends'),
+    ('friends_only', 'Friends Only'),
+    ('nobody', 'Nobody'),
+]
+
+PROFILE_VISIBILITY_CHOICES = [
+    ('public', 'Public'),
+    ('friends_only', 'Friends Only'),
+    ('private', 'Private'),
+]
 
 
 class UserProfile(models.Model):
@@ -33,7 +54,7 @@ class UserProfile(models.Model):
 
     friends = models.ManyToManyField(User, related_name="friend_profiles", blank=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         ret_str = f"{self.user.username}"
         if self.user.first_name and self.user.last_name:
             ret_str += f" {self.user.first_name} {self.user.last_name}"
@@ -42,6 +63,186 @@ class UserProfile(models.Model):
         elif self.user.last_name:
             ret_str += f" {self.user.last_name}"
         return f"{ret_str}"
+
+
+class UserProfilePrivacySettings(models.Model):
+    """
+    Privacy settings for user profiles.
+    Controls visibility, discoverability, and interaction permissions.
+
+    The signal in signals.py will create a UserProfilePrivacySettings instance
+    when a new UserProfile is created.
+    """
+
+    user_profile = models.OneToOneField(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name="privacy_settings"
+    )
+
+    # Search and Discovery Settings
+    search_visibility = models.CharField(
+        max_length=20,
+        choices=SEARCH_VISIBILITY_CHOICES,
+        default='everyone',
+        help_text="Who can find you in search results"
+    )
+
+    # Profile Information Visibility
+    profile_visibility = models.CharField(
+        max_length=20,
+        choices=PROFILE_VISIBILITY_CHOICES,
+        default='friends_only',
+        help_text="Who can view your full profile details"
+    )
+
+    show_full_name = models.BooleanField(
+        default=True,
+        help_text="Show your first and last name in search results and profile"
+    )
+
+    show_email = models.BooleanField(
+        default=False,
+        help_text="Show your email address in your profile (not recommended)"
+    )
+
+    # Interaction Settings
+    allow_friend_requests = models.BooleanField(
+        default=True,
+        help_text="Allow other users to send you friend requests"
+    )
+
+    allow_chat_invites = models.BooleanField(
+        default=True,
+        help_text="Allow other users to send you chat invitations"
+    )
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "User Profile Privacy Settings"
+        verbose_name_plural = "User Profile Privacy Settings"
+        ordering = ['-updated_at']
+
+    def __str__(self) -> str:
+        return f"Privacy settings for {self.user_profile.user.username}"
+
+    def clean(self) -> None:
+        """
+        Validate privacy settings for logical consistency.
+        """
+        super().clean()
+
+        # If search visibility is 'nobody', profile should be private or friends_only
+        if self.search_visibility == 'nobody' and self.profile_visibility == 'public':
+            raise ValidationError(
+                "Profile cannot be public if search visibility is set to nobody."
+            )
+
+    def can_be_found_by_user(self, requesting_user: 'AbstractUser') -> bool:
+        """
+        Check if this user profile can be found in search by the requesting user.
+
+        Args:
+            requesting_user: The user performing the search
+
+        Returns:
+            bool: True if the profile should appear in search results
+        """
+        if not requesting_user or not requesting_user.is_authenticated:
+            return self.search_visibility == 'everyone'
+
+        # User can always find themselves
+        if requesting_user == self.user_profile.user:
+            return True
+
+        if self.search_visibility == 'everyone':
+            return True
+        elif self.search_visibility == 'nobody':
+            return False
+        elif self.search_visibility == 'friends_only':
+            return self.user_profile.friends.filter(id=requesting_user.id).exists()
+        elif self.search_visibility == 'friends_of_friends':
+            # Check if requesting user is a friend of friends
+            user_friends = self.user_profile.friends.all()
+            requesting_user_friends = requesting_user.friend_profiles.all()
+
+            # Check if they are direct friends first
+            if user_friends.filter(id=requesting_user.id).exists():
+                return True
+
+            # Check for mutual friends
+            mutual_friends = user_friends.filter(
+                id__in=requesting_user_friends.values_list('id', flat=True)
+            )
+            return mutual_friends.exists()
+
+        return False
+
+    def can_profile_be_viewed_by_user(self, requesting_user: 'AbstractUser') -> bool:
+        """
+        Check if the full profile can be viewed by the requesting user.
+
+        Args:
+            requesting_user: The user requesting to view the profile
+
+        Returns:
+            bool: True if the full profile can be viewed
+        """
+        if not requesting_user or not requesting_user.is_authenticated:
+            return self.profile_visibility == 'public'
+
+        # User can always view their own profile
+        if requesting_user == self.user_profile.user:
+            return True
+
+        if self.profile_visibility == 'public':
+            return True
+        elif self.profile_visibility == 'private':
+            return False
+        elif self.profile_visibility == 'friends_only':
+            return self.user_profile.friends.filter(id=requesting_user.id).exists()
+
+        return False
+
+    def can_receive_friend_request_from_user(self, requesting_user: 'AbstractUser') -> bool:
+        """
+        Check if this user can receive a friend request from the requesting user.
+
+        Args:
+            requesting_user: The user wanting to send a friend request
+
+        Returns:
+            bool: True if friend request can be sent
+        """
+        if not requesting_user or not requesting_user.is_authenticated:
+            return False
+
+        # Cannot send friend request to oneself
+        if requesting_user == self.user_profile.user:
+            return False
+
+        # Check if friend requests are allowed
+        if not self.allow_friend_requests:
+            return False
+
+        # Check if they are already friends
+        if self.user_profile.friends.filter(id=requesting_user.id).exists():
+            return False
+
+        # Check if there's already a pending request
+        from .models import ProfileFriendRequest
+        existing_request = ProfileFriendRequest.objects.filter(
+            sender__user=requesting_user,
+            receiver=self.user_profile
+        ).exists()
+
+        if existing_request:
+            return False
+
+        return True
 
 
 # Example of how to get friend requests from a UserProfile:
@@ -79,12 +280,10 @@ class ProfileFriendRequest(models.Model):
         verbose_name = "Profile Friend Request"
         verbose_name_plural = "Profile Friend Requests"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Friend request from {self.sender.user.username} to {self.receiver.user.username}"
 
-    def clean(self):
-        from django.core.exceptions import ValidationError
-
+    def clean(self) -> None:
         if self.sender == self.receiver:
             raise ValidationError("Cannot send a friend request to oneself.")
         # if they are already friends, throw an error
@@ -94,7 +293,7 @@ class ProfileFriendRequest(models.Model):
             raise ValidationError("Cannot send a friend request to a friend.")
         super().clean()
 
-    def accept(self):
+    def accept(self) -> bool:
         """
         Accepts the friend request.
         Adds sender and receiver to each other's friends list and deletes the request.
@@ -110,7 +309,7 @@ class ProfileFriendRequest(models.Model):
         except (type(self).DoesNotExist, IntegrityError):
             return False
 
-    def decline(self):
+    def decline(self) -> bool:
         """
         Declines the friend request.
         Deletes the request.
