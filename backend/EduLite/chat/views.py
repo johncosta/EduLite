@@ -36,9 +36,17 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
     permission_classes = [IsAuthenticated, IsParticipant]
     pagination_class = ChatRoomPagination
 
+    def get_queryset(self):
+        """"Get the queryset of chat rooms where the user is a participant"""
+        return (
+            ChatRoom.objects.filter(participants=self.request.user)
+            .select_related("creator")
+            .prefetch_related("participants")
+        )
+
     def get(self, request, *args, **kwargs):
         """List chat rooms where user is a participant"""
-        queryset = ChatRoom.objects.filter(participants=request.user)
+        queryset = self.get_queryset()
 
         # Initialize paginator and paginate queryset
         paginator = self.pagination_class()

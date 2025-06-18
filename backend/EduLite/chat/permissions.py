@@ -1,6 +1,12 @@
 from rest_framework import permissions
 from .models import ChatRoom
 
+class IsChatRoomCreatorOrEditor(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        """
+        Allow access if user is the creator or an editor of the chat room.
+        """
+        return obj.can_manage(request.user)
 
 class IsParticipant(permissions.BasePermission):
     """
