@@ -31,12 +31,12 @@ urlpatterns = [
     # Privacy Settings URLs
     path(
         "privacy-settings/",
-        views.UserPrivacySettingsRetrieveUpdateView.as_view(),
+        views.UserProfilePrivacySettingsRetrieveUpdateView.as_view(),
         name="privacy-settings",
     ),
     path(
         "privacy-settings/choices/",
-        views.UserPrivacySettingsChoicesView.as_view(),
+        views.UserProfilePrivacySettingsChoicesView.as_view(),
         name="privacy-settings-choices",
     ),
     # Friend Request URLs

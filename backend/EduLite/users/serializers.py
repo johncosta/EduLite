@@ -10,7 +10,7 @@ from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySetting
 User = get_user_model()
 
 
-## -- Profile Serializers -- ##
+# -- Profile Serializers -- ##
 
 
 class ProfileSerializer(

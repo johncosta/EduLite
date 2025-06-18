@@ -600,7 +600,7 @@ class SendFriendRequestView(UsersAppBaseAPIView):
 # -- Privacy Settings API Views -- ##
 
 
-class UserPrivacySettingsRetrieveUpdateView(UsersAppBaseAPIView):
+class UserProfilePrivacySettingsRetrieveUpdateView(UsersAppBaseAPIView):
     """
     API view to retrieve and update user privacy settings.
     - GET: Returns the current user's privacy settings.
@@ -670,7 +670,7 @@ class UserPrivacySettingsRetrieveUpdateView(UsersAppBaseAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserPrivacySettingsChoicesView(UsersAppBaseAPIView):
+class UserProfilePrivacySettingsChoicesView(UsersAppBaseAPIView):
     """
     API view to get available privacy setting choices.
     - GET: Returns the available choices for privacy settings fields.

@@ -211,7 +211,7 @@ class ExecuteUserSearchTests(TestCase):
             search_query="test",
             requesting_user=self.user1,
             request=request,
-            view_instance=self.mock_view,
+            view_instance=self.view,
             page_size=5
         )
 
