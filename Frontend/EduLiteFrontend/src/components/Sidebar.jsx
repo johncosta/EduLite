@@ -37,6 +37,13 @@ export default function SidebarMenu({ open, onClose }) {
           {t("nav.home")}
         </Link>
         <Link
+          to="/about"
+          onClick={onClose}
+          className="block text-gray-700 dark:text-gray-200 hover:text-blue-600"
+        >
+          {t("nav.about")}
+        </Link>
+        <Link
           to="/conversations"
           onClick={onClose}
           className="block text-gray-700 dark:text-gray-200 hover:text-blue-600"
