@@ -174,7 +174,8 @@ def execute_user_search(
     request: HttpRequest,
     view_instance,
     min_query_length: int = 2,
-    page_size: int = 10
+    page_size: int = 10,
+    bypass_privacy_filters: bool=False
 ) -> Tuple[bool, Optional[QuerySet], Optional[PageNumberPagination], Optional[Response]]:
     """
     Main function that orchestrates the user search process with privacy controls.
@@ -186,50 +187,7 @@ def execute_user_search(
         view_instance: The view instance for context
         min_query_length: Minimum required length for search query
         page_size: Number of results per page
-
-    Returns:
-        Tuple of (success, queryset_or_none, paginator_or_none, error_response_or_none)
-        - If successful with pagination: (True, full_queryset, paginator_instance, None)
-        - If successful without pagination: (True, full_queryset, None, None)
-        - If error: (False, None, None, error_response)
-    """
-    # Step 1: Validate search query
-    is_valid, error_response = validate_search_query(search_query, min_query_length)
-    if not is_valid:
-        return False, None, None, error_response
-
-    # Step 2: Build base search queryset
-    base_queryset = build_base_search_queryset(search_query)
-
-    # Step 3: Apply privacy filters
-    final_queryset = apply_privacy_filters(base_queryset, requesting_user)
-
-    # Step 4: Handle pagination
-    queryset, paginator = paginate_search_results(
-        final_queryset, request, view_instance, page_size
-    )
-
-    return True, queryset, paginator, None
-
-
-def execute_user_search(
-    search_query: str,
-    requesting_user: Optional[User],
-    request: HttpRequest,
-    view_instance,
-    min_query_length: int = 2,
-    page_size: int = 10
-) -> Tuple[bool, Optional[QuerySet], Optional[PageNumberPagination], Optional[Response]]:
-    """
-    Main function that orchestrates the user search process with privacy controls.
-
-    Args:
-        search_query: The search query string
-        requesting_user: The user performing the search
-        request: The HTTP request object
-        view_instance: The view instance for context
-        min_query_length: Minimum required length for search query
-        page_size: Number of results per page
+        bypass_privacy_filters: Whether to bypass privacy filters (default: False)
 
     Returns:
         Tuple of (success, queryset_or_none, paginator_or_none, error_response_or_none)
@@ -244,9 +202,11 @@ def execute_user_search(
 
     # Step 2: Build base search queryset
     base_queryset = build_base_search_queryset(search_query)
-
-    # Step 3: Apply privacy filters
-    final_queryset = apply_privacy_filters(base_queryset, requesting_user)
+    if bypass_privacy_filters:
+        final_queryset = base_queryset
+    else:
+        # Step 3: Apply privacy filters
+        final_queryset = apply_privacy_filters(base_queryset, requesting_user)
 
     # Step 4: Handle pagination
     page_or_queryset, paginator = paginate_search_results(

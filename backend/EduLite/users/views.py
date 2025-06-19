@@ -355,6 +355,12 @@ class UserSearchView(UsersAppBaseAPIView):
         search_query = request.query_params.get("q", "").strip()
         requesting_user = request.user if request.user.is_authenticated else None
 
+        # Check if admin should bypass privacy filters
+        bypass_privacy = requesting_user and requesting_user.is_superuser
+
+        if not bypass_privacy:
+            bypass_privacy = False
+
         # Execute the search with privacy controls using logic functions
         success, queryset, paginator, error_response = execute_user_search(
             search_query=search_query,
@@ -362,7 +368,8 @@ class UserSearchView(UsersAppBaseAPIView):
             request=request,
             view_instance=self,
             min_query_length=2,
-            page_size=10
+            page_size=10,
+            bypass_privacy_filters=bypass_privacy
         )
 
         # Return error response if validation failed
