@@ -179,7 +179,7 @@ If you're a UI/UX designer:
 * **Python (Backend):**
     * Follow PEP 8 guidelines.
     * Write clear and well-commented code, especially for complex logic.
-    * (TODO: Specify any linters like Flake8 or formatters like Black if adopted).
+    * [Link to Backend CODING_STANDARDS.md](backend/CODING_STANDARDS.md)
 * **JavaScript/React (Frontend):**
     * Follow standard React best practices.
     * (TODO: Specify any linters like ESLint or formatters like Prettier if adopted).
