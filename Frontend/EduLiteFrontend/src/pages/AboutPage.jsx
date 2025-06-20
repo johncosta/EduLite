@@ -6,6 +6,7 @@ import {
   FaUsers,
   FaLightbulb,
   FaArrowLeft,
+  FaArrowRight,
   FaRocket,
   FaComments,
   FaBookOpen,
@@ -16,375 +17,707 @@ import {
 } from "react-icons/fa";
 
 const AboutPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
 
   return (
-    <div className="text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-900 min-h-screen overflow-hidden">
-      {/* Animated Hero Section */}
+    <div
+      className={`text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-900 min-h-screen overflow-hidden ${
+        isRTL ? "rtl" : "ltr"
+      }`}
+    >
+      {/* Apple-Style Hero Section - Mobile Responsive */}
       <section
-        className="relative h-screen flex items-center justify-center px-6 md:px-16 overflow-hidden"
-        style={{ height: "calc(100vh - 80px)" }}
+        className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-16 overflow-hidden pt-20"
+        style={{ minHeight: "calc(100vh - 0px)" }}
       >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 opacity-10 dark:opacity-5">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl animate-pulse"></div>
-          <div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "1s" }}
-          ></div>
-          <div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-green-500 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "2s" }}
-          ></div>
-        </div>
-
-        {/* Floating Educational Icons */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute top-32 left-20 text-blue-500 opacity-20 animate-bounce"
-            style={{ animationDelay: "0s" }}
-          >
-            <FaGraduationCap className="text-4xl" />
-          </div>
-          <div
-            className="absolute top-48 right-32 text-purple-500 opacity-20 animate-bounce"
-            style={{ animationDelay: "1s" }}
-          >
-            <FaBookOpen className="text-3xl" />
-          </div>
-          <div
-            className="absolute bottom-32 left-32 text-green-500 opacity-20 animate-bounce"
-            style={{ animationDelay: "2s" }}
-          >
-            <FaCode className="text-3xl" />
-          </div>
-          <div
-            className="absolute bottom-48 right-20 text-orange-500 opacity-20 animate-bounce"
-            style={{ animationDelay: "1.5s" }}
-          >
-            <FaHandsHelping className="text-4xl" />
-          </div>
-        </div>
-
-        <div className="relative max-w-6xl mx-auto text-center z-10">
-          <div className="mb-8">
-            <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl shadow-2xl mb-8">
-              <FaGraduationCap className="text-4xl text-white" />
+        <div className="max-w-6xl mx-auto w-full">
+          {/* Hero Content */}
+          <div className="text-center">
+            {/* Floating Icon - Properly Responsive */}
+            <div className="mb-8 sm:mb-12 md:mb-8 mt-6 md:mt-12 lg:mt-16">
+              <div className="inline-flex items-center justify-center w-24 h-24 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-36 lg:h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8 shadow-lg dark:shadow-gray-900/20 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/30">
+                <FaGraduationCap className="text-gray-600 dark:text-gray-400 text-6xl sm:text-6xl md:text-6xl lg:text-8xl fill-black dark:fill-white" />
+              </div>
             </div>
-          </div>
 
-          <h1 className="text-6xl md:text-8xl font-black mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent leading-tight animate-fade-in">
-            {t("about.title")}
-          </h1>
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-light text-gray-900 dark:text-white mb-6 sm:mb-8 md:mb-12 tracking-tight leading-tight sm:leading-none">
+              {t("about.title")}
+            </h1>
 
-          <p className="text-2xl md:text-3xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto font-light mb-12">
-            {t("about.subtitle")}
-          </p>
+            {/* Subtitle */}
+            <p className="text-lg sm:text-xl md:text-3xl lg:text-4xl text-gray-500 dark:text-gray-400 font-light leading-relaxed max-w-2xl sm:max-w-4xl lg:max-w-5xl mx-auto mb-10 sm:mb-16 md:mb-20 px-2">
+              {t("about.subtitle")}
+            </p>
 
-          <div className="flex justify-center gap-8 text-gray-400 dark:text-gray-500">
-            <div className="text-center">
-              <FaUsers className="text-3xl mx-auto mb-2" />
-              <span className="block text-sm">{t("about.heroFeature1")}</span>
+            {/* Feature Pills - Fixed RTL alignment */}
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 md:mb-20 px-2">
+              <div className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded-full px-4 sm:px-6 py-2 sm:py-3 border border-gray-100 dark:border-gray-800">
+                <FaUsers
+                  className={`text-white text-sm sm:text-lg ${
+                    isRTL ? "ml-2 sm:ml-3" : "mr-2 sm:mr-3"
+                  }`}
+                />
+                <span className="text-white font-light text-sm sm:text-base">
+                  {t("about.heroFeature1")}
+                </span>
+              </div>
+              <div className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded-full px-4 sm:px-6 py-2 sm:py-3 border border-gray-100 dark:border-gray-800">
+                <FaGlobe
+                  className={`text-white text-sm sm:text-lg ${
+                    isRTL ? "ml-2 sm:ml-3" : "mr-2 sm:mr-3"
+                  }`}
+                />
+                <span className="text-white font-light text-sm sm:text-base">
+                  {t("about.heroFeature2")}
+                </span>
+              </div>
+              <div className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded-full px-4 sm:px-6 py-2 sm:py-3 border border-gray-100 dark:border-gray-800">
+                <FaRocket
+                  className={`text-white text-sm sm:text-lg ${
+                    isRTL ? "ml-2 sm:ml-3" : "mr-2 sm:mr-3"
+                  }`}
+                />
+                <span className="text-white font-light text-sm sm:text-base">
+                  {t("about.heroFeature3")}
+                </span>
+              </div>
             </div>
-            <div className="text-center">
-              <FaGlobe className="text-3xl mx-auto mb-2" />
-              <span className="block text-sm">{t("about.heroFeature2")}</span>
-            </div>
-            <div className="text-center">
-              <FaRocket className="text-3xl mx-auto mb-2" />
-              <span className="block text-sm">{t("about.heroFeature3")}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll Indicator - Desktop Only */}
-        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:block">
-          <div className="w-6 h-10 border-2 border-gray-400 dark:border-gray-600 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gray-400 dark:bg-gray-600 rounded-full mt-2 animate-pulse"></div>
           </div>
         </div>
       </section>
 
-      {/* The Story Section - Minimalistic */}
-      <section className="relative px-6 md:px-16 py-24 bg-gradient-to-b from-white to-blue-50/30 dark:bg-gradient-to-b dark:from-gray-900 dark:to-blue-900/10">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-3xl mb-8 shadow-2xl">
-              <FaLightbulb className="text-white text-3xl" />
+      {/* Hero Story Section - Apple Style */}
+      <section className="relative px-6 md:px-12 py-28 bg-white dark:bg-black">
+        <div className="max-w-6xl mx-auto">
+          {/* Minimalist Header */}
+          <div className="text-center mb-32">
+            <div className="mb-12">
+              <div className="inline-flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-full bg-amber-100 dark:bg-gray-900 mb-8">
+                <FaLightbulb className="text-gray-600 dark:text-gray-400 text-5xl md:text-6xl fill-amber-400" />
+              </div>
             </div>
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+            <h2 className="text-6xl md:text-8xl font-light text-gray-900 dark:text-white mb-8 tracking-tight">
               {t("about.storyTitle")}
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
+            <p className="text-2xl md:text-3xl text-gray-500 dark:text-gray-400 font-light max-w-4xl mx-auto leading-relaxed">
               {t("about.storySubtitle")}
             </p>
           </div>
 
-          <div className="space-y-12">
-            {/* Story Header */}
-            <div className="text-center">
-              <h3 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                {t("about.storyCardTitle")}
-              </h3>
-              <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
-                {t("about.storyCardSubtitle")}
-              </p>
-            </div>
-
-            {/* Timeline */}
-            <div className="space-y-8">
-              {/* 2020 */}
-              <div className="flex gap-6 group">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800 rounded-xl flex items-center justify-center">
-                    <span className="text-red-600 dark:text-red-400 font-bold text-sm">
-                      2020
-                    </span>
-                  </div>
-                </div>
-                <div className="flex-grow pt-2">
-                  <h4 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-                    {t("about.pandemic.title")}
-                  </h4>
-                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {t("about.pandemic.description")}
-                  </p>
-                </div>
-              </div>
-
-              {/* Connector */}
-              <div className="flex justify-start ml-6">
-                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
-              </div>
-
-              {/* 2023 */}
-              <div className="flex gap-6 group">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-center">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">
-                      2023
-                    </span>
-                  </div>
-                </div>
-                <div className="flex-grow pt-2">
-                  <h4 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-                    {t("about.gaza.title")}
-                  </h4>
-                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                    {t("about.gaza.description")}
-                  </p>
-
-                  <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-500 rounded-r-lg p-4">
-                    <p className="text-xl italic text-amber-800 dark:text-amber-200 font-medium leading-relaxed">
-                      "{t("about.visionQuote")}"
+          {/* Apple-style Timeline */}
+          <div className="space-y-32">
+            {/* 2020 - Pandemic */}
+            <div className="relative">
+              <div className="max-w-4xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-16 items-center">
+                  <div
+                    className={`${
+                      isRTL ? "order-1 md:order-2" : "order-2 md:order-1"
+                    }`}
+                  >
+                    <div className="inline-block px-4 py-2 bg-red-50 dark:bg-red-900/20 rounded-full mb-8">
+                      <span className="text-red-600 dark:text-red-400 text-sm font-medium">
+                        {t("about.timeline.pandemic.year")}
+                      </span>
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-light text-gray-900 dark:text-white mb-8 leading-tight">
+                      {t("about.timeline.pandemic.title")}
+                    </h3>
+                    <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+                      {t("about.timeline.pandemic.description")}
                     </p>
                   </div>
-                </div>
-              </div>
-
-              {/* Connector */}
-              <div className="flex justify-start ml-6">
-                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
-              </div>
-
-              {/* Solution */}
-              <div className="flex gap-6 group">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 border-2 border-green-200 dark:border-green-800 rounded-xl flex items-center justify-center">
-                    <FaRocket className="text-green-600 dark:text-green-400 text-lg" />
+                  <div
+                    className={`${
+                      isRTL ? "order-2 md:order-1" : "order-1 md:order-2"
+                    }`}
+                  >
+                    <div className="relative">
+                      <div className="w-full h-80 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/20 dark:to-red-800/20 rounded-3xl flex items-center justify-center backdrop-blur-sm">
+                        <div className="w-32 h-32 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-2xl">
+                          <FaGraduationCap className="text-4xl text-red-500" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex-grow pt-2">
-                  <h4 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-                    {t("about.solution.title")}
-                  </h4>
-                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {t("about.solution.description")}
+              </div>
+            </div>
+
+            {/* Connector Line */}
+            <div className="flex justify-center">
+              <div className="w-px h-24 bg-gradient-to-b from-gray-200 to-gray-100 dark:from-gray-700 dark:to-gray-800"></div>
+            </div>
+
+            {/* 2023 - Gaza */}
+            <div className="relative">
+              <div className="max-w-4xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-16 items-center">
+                  <div>
+                    <div className="relative">
+                      <div className="w-full h-80 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/20 dark:to-blue-800/20 rounded-3xl flex items-center justify-center backdrop-blur-sm">
+                        <div className="w-32 h-32 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-2xl">
+                          <FaHeart className="text-4xl text-blue-500" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="inline-block px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-full mb-8">
+                      <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">
+                        {t("about.timeline.gaza.year")}
+                      </span>
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-light text-gray-900 dark:text-white mb-8 leading-tight">
+                      {t("about.timeline.gaza.title")}
+                    </h3>
+                    <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-light mb-8">
+                      {t("about.timeline.gaza.description")}
+                    </p>
+
+                    {/* Apple-style Quote Block */}
+                    <div className="relative p-8 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                      <div
+                        className={`absolute -top-2 w-4 h-4 bg-amber-400 rounded-full ${
+                          isRTL ? "-right-2" : "-left-2"
+                        }`}
+                      ></div>
+                      <blockquote className="text-2xl text-gray-800 dark:text-gray-200 font-light italic leading-relaxed">
+                        "{t("about.educationQuote")}"
+                      </blockquote>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Connector Line */}
+            <div className="flex justify-center">
+              <div className="w-px h-24 bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700"></div>
+            </div>
+
+            {/* Solution */}
+            <div className="relative">
+              <div className="max-w-4xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-16 items-center">
+                  <div
+                    className={`${
+                      isRTL ? "order-1 md:order-2" : "order-2 md:order-1"
+                    }`}
+                  >
+                    <div className="inline-block px-4 py-2 bg-green-50 dark:bg-green-900/20 rounded-full mb-8">
+                      <span className="text-green-600 dark:text-green-400 text-sm font-medium">
+                        {t("about.timeline.solution.year")}
+                      </span>
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-light text-gray-900 dark:text-white mb-8 leading-tight">
+                      {t("about.timeline.solution.title")}
+                    </h3>
+                    <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+                      {t("about.timeline.solution.description")}
+                    </p>
+                  </div>
+                  <div
+                    className={`${
+                      isRTL ? "order-2 md:order-1" : "order-1 md:order-2"
+                    }`}
+                  >
+                    <div className="relative">
+                      <div className="w-full h-80 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/20 dark:to-green-800/20 rounded-3xl flex items-center justify-center backdrop-blur-sm">
+                        <div className="w-32 h-32 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-2xl">
+                          <FaRocket className="text-4xl text-green-500" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Apple-style Bottom CTA */}
+          <div className="text-center mt-32 pt-32 border-t border-gray-100 dark:border-gray-800">
+            <h3 className="text-3xl md:text-4xl font-light text-gray-900 dark:text-white mb-8">
+              {t("about.readyToJoin")}
+            </h3>
+            <p className="text-xl text-gray-500 dark:text-gray-400 font-light mb-12 max-w-2xl mx-auto">
+              {t("about.experienceEducation")}
+            </p>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+              {t("about.getStarted")}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Apple-Style Mission Section */}
+      <section className="relative px-6 md:px-12 py-32 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-6xl mx-auto">
+          {/* Mission Header */}
+          <div className="text-center mb-24">
+            <h2 className="text-6xl md:text-7xl font-light text-gray-900 dark:text-white mb-8 tracking-tight">
+              {t("about.missionTitle")}
+            </h2>
+            <p className="text-2xl text-gray-500 dark:text-gray-400 font-light max-w-3xl mx-auto leading-relaxed">
+              {t("about.missionSubtitle")}
+            </p>
+          </div>
+
+          {/* Mission Cards - Apple Style */}
+          <div className="space-y-20">
+            {/* Mission 1 - Community Building */}
+            <div className="relative">
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white dark:bg-black rounded-3xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
+                  <div className="grid md:grid-cols-2">
+                    {/* Content */}
+                    <div className="p-12 md:p-16 flex flex-col justify-center">
+                      <div className="mb-8">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-2xl mb-6">
+                          <FaUsers className="text-blue-600 dark:text-blue-400 text-2xl" />
+                        </div>
+                        <h3 className="text-4xl md:text-5xl font-light text-gray-900 dark:text-white mb-6 leading-tight">
+                          {t("about.mission.community.title")}
+                        </h3>
+                      </div>
+                      <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+                        {t("about.mission.community.description")}
+                      </p>
+                    </div>
+
+                    {/* Visual */}
+                    <div className="relative h-80 md:h-auto">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 dark:from-blue-900/20 dark:via-blue-800/10 dark:to-purple-900/20">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {/* Floating Community Elements */}
+                          <div className="relative w-48 h-48">
+                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center">
+                              <FaUsers className="text-blue-500 text-lg" />
+                            </div>
+                            <div className="absolute top-16 left-8 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center">
+                              <FaUsers className="text-blue-400 text-sm" />
+                            </div>
+                            <div className="absolute top-16 right-8 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center">
+                              <FaUsers className="text-blue-400 text-sm" />
+                            </div>
+                            <div className="absolute bottom-8 left-1/4 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center">
+                              <FaUsers className="text-blue-300 text-xs" />
+                            </div>
+                            <div className="absolute bottom-8 right-1/4 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center">
+                              <FaUsers className="text-blue-300 text-xs" />
+                            </div>
+                            {/* Connection Lines */}
+                            <div className="absolute top-6 left-1/2 w-px h-8 bg-blue-200 dark:bg-blue-700 transform -translate-x-1/2"></div>
+                            <div className="absolute top-12 left-1/2 w-16 h-px bg-blue-200 dark:bg-blue-700 transform -translate-x-1/2 rotate-45"></div>
+                            <div className="absolute top-12 left-1/2 w-16 h-px bg-blue-200 dark:bg-blue-700 transform -translate-x-1/2 -rotate-45"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mission 2 - Global Accessibility */}
+            <div className="relative">
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white dark:bg-black rounded-3xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
+                  <div className="grid md:grid-cols-2">
+                    {/* Visual */}
+                    <div
+                      className={`relative h-80 md:h-auto ${
+                        isRTL ? "order-1 md:order-2" : "order-2 md:order-1"
+                      }`}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-100 via-green-50 to-teal-100 dark:from-green-900/20 dark:via-green-800/10 dark:to-teal-900/20">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {/* Globe with Connection Points */}
+                          <div className="relative w-48 h-48">
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center">
+                              <FaGlobe className="text-green-500 text-3xl" />
+                            </div>
+                            {/* Orbiting Elements */}
+                            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center">
+                              <FaGraduationCap className="text-green-400 text-sm" />
+                            </div>
+                            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center">
+                              <FaGraduationCap className="text-green-400 text-sm" />
+                            </div>
+                            <div className="absolute top-1/2 left-4 transform -translate-y-1/2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center">
+                              <FaGraduationCap className="text-green-400 text-sm" />
+                            </div>
+                            <div className="absolute top-1/2 right-4 transform -translate-y-1/2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center">
+                              <FaGraduationCap className="text-green-400 text-sm" />
+                            </div>
+                            {/* Orbital Lines */}
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-green-200 dark:border-green-700 rounded-full opacity-30"></div>
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-green-300 dark:border-green-600 rounded-full opacity-40"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div
+                      className={`p-12 md:p-16 flex flex-col justify-center ${
+                        isRTL ? "order-2 md:order-1" : "order-1 md:order-2"
+                      }`}
+                    >
+                      <div className="mb-8">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-2xl mb-6">
+                          <FaGlobe className="text-green-600 dark:text-green-400 text-2xl" />
+                        </div>
+                        <h3 className="text-4xl md:text-5xl font-light text-gray-900 dark:text-white mb-6 leading-tight">
+                          {t("about.mission.access.title")}
+                        </h3>
+                      </div>
+                      <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+                        {t("about.mission.access.description")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mission Statement */}
+          <div className="text-center mt-32 pt-20">
+            <div className="max-w-4xl mx-auto">
+              <p className="text-3xl md:text-4xl font-light text-gray-800 dark:text-gray-200 leading-relaxed mb-12">
+                "{t("about.bridgeQuote")}"
+              </p>
+              <p className="text-xl text-gray-500 dark:text-gray-400 font-light leading-relaxed">
+                {t("about.bridgeDescription")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Apple-Style Features Section */}
+      <section className="relative px-6 md:px-12 py-32 bg-white dark:bg-black">
+        <div className="max-w-7xl mx-auto">
+          {/* Features Header */}
+          <div className="text-center mb-24">
+            <h2 className="text-6xl md:text-7xl font-light text-gray-900 dark:text-white mb-8 tracking-tight">
+              {t("about.featuresTitle")}
+            </h2>
+            <p className="text-2xl text-gray-500 dark:text-gray-400 font-light max-w-4xl mx-auto leading-relaxed">
+              {t("about.featuresSubtitle")}
+            </p>
+          </div>
+
+          {/* Features Grid - Apple Style */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+            {/* Feature 1 - Interactive Learning */}
+            <div className="group">
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl overflow-hidden h-full border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-500">
+                <div className="p-12">
+                  {/* Icon Header */}
+                  <div className="mb-8">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl mb-6">
+                      <FaRocket className="text-orange-500 text-3xl" />
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-light text-gray-900 dark:text-white mb-4 leading-tight">
+                      {t("about.features.interactive.title")}
+                    </h3>
+                  </div>
+
+                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-light mb-8">
+                    {t("about.features.interactive.description")}
                   </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Mission Section */}
-      <section className="px-4 sm:px-6 md:px-16 py-20 sm:py-24">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-16 sm:mb-20">
-            {t("about.missionTitle")}
-          </h2>
-
-          <div className="grid gap-10 md:grid-cols-2">
-            {/* Mission 1 */}
-            <div className="group">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-6 sm:p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-blue-200 dark:border-blue-800">
-                <div className="flex items-center gap-4 sm:gap-6 mb-6">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <FaUsers className="text-white text-2xl sm:text-3xl" />
+                  {/* Visual Element */}
+                  <div className="relative h-40 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/10 dark:to-red-900/10 rounded-2xl flex items-center justify-center">
+                    <div className="relative">
+                      {/* Animated Elements */}
+                      <div className="flex space-x-4">
+                        <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
+                          <FaRocket className="text-orange-500 text-lg" />
+                        </div>
+                        <div
+                          className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform duration-300"
+                          style={{ animationDelay: "0.1s" }}
+                        >
+                          <FaBookOpen className="text-orange-400 text-lg" />
+                        </div>
+                        <div
+                          className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform duration-300"
+                          style={{ animationDelay: "0.2s" }}
+                        >
+                          <FaGraduationCap className="text-orange-400 text-lg" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">
-                    {t("about.mission1Title")}
-                  </h3>
                 </div>
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {t("about.mission1Description")}
-                </p>
               </div>
             </div>
 
-            {/* Mission 2 */}
+            {/* Feature 2 - Real-time Collaboration */}
             <div className="group">
-              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-6 sm:p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-green-200 dark:border-green-800">
-                <div className="flex items-center gap-4 sm:gap-6 mb-6">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <FaGlobe className="text-white text-2xl sm:text-3xl" />
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl overflow-hidden h-full border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-500">
+                <div className="p-12">
+                  {/* Icon Header */}
+                  <div className="mb-8">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl mb-6">
+                      <FaComments className="text-blue-500 text-3xl" />
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-light text-gray-900 dark:text-white mb-4 leading-tight">
+                      {t("about.features.collaboration.title")}
+                    </h3>
                   </div>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">
-                    {t("about.mission2Title")}
-                  </h3>
+
+                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-light mb-8">
+                    {t("about.features.collaboration.description")}
+                  </p>
+
+                  {/* Visual Element */}
+                  <div className="relative h-40 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl flex items-center justify-center">
+                    <div className="relative w-full">
+                      {/* Chat Bubbles */}
+                      <div className="space-y-3">
+                        <div
+                          className={`flex ${
+                            isRTL ? "justify-end" : "justify-start"
+                          }`}
+                        >
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl px-4 py-2 shadow-sm max-w-32">
+                            <div className="flex items-center space-x-2">
+                              <FaUsers className="text-blue-400 text-sm" />
+                              <div className="w-12 h-2 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          className={`flex ${
+                            isRTL ? "justify-start" : "justify-end"
+                          }`}
+                        >
+                          <div className="bg-blue-500 rounded-2xl px-4 py-2 shadow-sm max-w-32">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-16 h-2 bg-blue-300 rounded"></div>
+                              <FaComments className="text-white text-sm" />
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          className={`flex ${
+                            isRTL ? "justify-end" : "justify-start"
+                          }`}
+                        >
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl px-4 py-2 shadow-sm max-w-28">
+                            <div className="flex items-center space-x-2">
+                              <FaHeart className="text-red-400 text-sm" />
+                              <div className="w-8 h-2 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {t("about.mission2Description")}
-                </p>
               </div>
+            </div>
+
+            {/* Feature 3 - Rich Content Library */}
+            <div className="group">
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl overflow-hidden h-full border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-500">
+                <div className="p-12">
+                  {/* Icon Header */}
+                  <div className="mb-8">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-100 to-teal-100 dark:from-green-900/30 dark:to-teal-900/30 rounded-2xl mb-6">
+                      <FaBookOpen className="text-green-500 text-3xl" />
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-light text-gray-900 dark:text-white mb-4 leading-tight">
+                      {t("about.features.content.title")}
+                    </h3>
+                  </div>
+
+                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-light mb-8">
+                    {t("about.features.content.description")}
+                  </p>
+
+                  {/* Visual Element */}
+                  <div className="relative h-40 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/10 dark:to-teal-900/10 rounded-2xl flex items-center justify-center">
+                    <div className="relative">
+                      {/* Book Stack */}
+                      <div className="flex items-end space-x-2">
+                        <div className="w-8 h-20 bg-green-400 rounded-t-lg shadow-lg transform rotate-2"></div>
+                        <div className="w-8 h-24 bg-green-500 rounded-t-lg shadow-lg flex items-center justify-center">
+                          <FaBookOpen className="text-white text-sm" />
+                        </div>
+                        <div className="w-8 h-16 bg-green-300 rounded-t-lg shadow-lg transform -rotate-1"></div>
+                        <div className="w-8 h-28 bg-teal-500 rounded-t-lg shadow-lg transform rotate-1"></div>
+                        <div className="w-8 h-18 bg-teal-400 rounded-t-lg shadow-lg"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 4 - Safe Learning Environment */}
+            <div className="group">
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl overflow-hidden h-full border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-500">
+                <div className="p-12">
+                  {/* Icon Header */}
+                  <div className="mb-8">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl mb-6">
+                      <FaShieldAlt className="text-purple-500 text-3xl" />
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-light text-gray-900 dark:text-white mb-4 leading-tight">
+                      {t("about.features.safety.title")}
+                    </h3>
+                  </div>
+
+                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-light mb-8">
+                    {t("about.features.safety.description")}
+                  </p>
+
+                  {/* Visual Element */}
+                  <div className="relative h-40 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-2xl flex items-center justify-center">
+                    <div className="relative">
+                      {/* Shield with Protection Elements */}
+                      <div className="relative">
+                        <div className="w-20 h-24 bg-white dark:bg-gray-800 rounded-t-full rounded-b-lg shadow-lg flex items-center justify-center">
+                          <FaShieldAlt className="text-purple-500 text-2xl" />
+                        </div>
+                        {/* Floating Protection Icons */}
+                        <div className="absolute -top-2 -left-6 w-6 h-6 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        </div>
+                        <div className="absolute top-4 -right-6 w-6 h-6 bg-pink-100 dark:bg-pink-900/50 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                        </div>
+                        <div className="absolute bottom-2 -left-4 w-6 h-6 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        </div>
+                        <div className="absolute bottom-4 -right-4 w-6 h-6 bg-pink-100 dark:bg-pink-900/50 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Statement */}
+          <div className="text-center pt-16 border-t border-gray-100 dark:border-gray-800">
+            <div className="max-w-4xl mx-auto">
+              <p className="text-2xl md:text-3xl font-light text-gray-800 dark:text-gray-200 leading-relaxed mb-8">
+                "{t("about.technologyQuote")}"
+              </p>
+              <p className="text-lg text-gray-500 dark:text-gray-400 font-light leading-relaxed">
+                {t("about.technologyDescription")}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 px-6 md:px-16 py-24">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-bold text-center mb-20">
-            {t("about.specialTitle")}
-          </h2>
+      {/* Community Section - Apple Style */}
+      <section className="relative px-6 md:px-12 py-32 bg-gray-50 dark:bg-gray-900">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-pink-500/5 pointer-events-none"></div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="group hover:scale-105 transition-all duration-300 h-full">
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-2xl border border-orange-200 dark:border-orange-800 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                <div className="flex items-center gap-4 mb-4">
-                  <FaRocket className="text-3xl text-orange-500" />
-                  <h3 className="text-xl font-bold">
-                    {t("about.feature1Title")}
-                  </h3>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed flex-grow">
-                  {t("about.feature1Description")}
-                </p>
-              </div>
+        <div className="relative max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-red-500 to-pink-500 rounded-3xl mb-12 shadow-xl">
+              <FaHeart className="text-white text-3xl" />
             </div>
-
-            <div className="group hover:scale-105 transition-all duration-300 h-full">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-6 rounded-2xl border border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                <div className="flex items-center gap-4 mb-4">
-                  <FaComments className="text-3xl text-blue-500" />
-                  <h3 className="text-xl font-bold">
-                    {t("about.feature2Title")}
-                  </h3>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed flex-grow">
-                  {t("about.feature2Description")}
-                </p>
-              </div>
-            </div>
-
-            <div className="group hover:scale-105 transition-all duration-300 h-full">
-              <div className="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-6 rounded-2xl border border-green-200 dark:border-green-800 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                <div className="flex items-center gap-4 mb-4">
-                  <FaBookOpen className="text-3xl text-green-500" />
-                  <h3 className="text-xl font-bold">
-                    {t("about.feature3Title")}
-                  </h3>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed flex-grow">
-                  {t("about.feature3Description")}
-                </p>
-              </div>
-            </div>
-
-            <div className="group hover:scale-105 transition-all duration-300 h-full">
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                <div className="flex items-center gap-4 mb-4">
-                  <FaShieldAlt className="text-3xl text-purple-500" />
-                  <h3 className="text-xl font-bold">
-                    {t("about.feature4Title")}
-                  </h3>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed flex-grow">
-                  {t("about.feature4Description")}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Community Section */}
-      <section className="relative px-6 md:px-16 py-24 overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-500 rounded-full blur-3xl animate-pulse"></div>
-          <div
-            className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "1s" }}
-          ></div>
-        </div>
-
-        <div className="relative max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-red-500 to-pink-500 rounded-3xl mb-12 shadow-2xl">
-            <FaHeart className="text-white text-3xl" />
+            <h2 className="text-6xl md:text-7xl font-light text-gray-900 dark:text-white mb-8 tracking-tight">
+              {t("about.communityTitle")}
+            </h2>
+            <p className="text-2xl text-gray-500 dark:text-gray-400 font-light max-w-4xl mx-auto leading-relaxed">
+              {t("about.communitySubtitle")}
+            </p>
           </div>
 
-          <h2 className="text-5xl md:text-6xl font-bold mb-12">
-            {t("about.communityTitle")}
-          </h2>
-
-          <div className="space-y-12">
-            <div className="bg-white dark:bg-gray-800 rounded-3xl p-10 md:p-16 shadow-2xl border border-gray-100 dark:border-gray-700">
-              <p className="text-2xl md:text-3xl text-gray-700 dark:text-gray-300 leading-relaxed font-medium mb-12">
+          {/* Content Cards */}
+          <div className="space-y-8">
+            {/* Main Description Card */}
+            <div className="bg-white dark:bg-black rounded-3xl p-12 md:p-16 shadow-sm border border-gray-100 dark:border-gray-800">
+              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed font-light mb-8 text-center">
                 {t("about.communityDescription")}
               </p>
-
-              <p className="text-xl md:text-2xl text-gray-500 dark:text-gray-400 leading-relaxed font-light italic">
+              <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed font-light italic text-center">
                 {t("about.communityOrigin")}
               </p>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-12 md:p-16 text-white shadow-2xl">
-              <h3 className="text-4xl font-bold mb-8">
-                {t("about.joinTitle")}
-              </h3>
-              <p className="text-xl md:text-2xl mb-12 opacity-90 leading-relaxed">
-                {t("about.joinDescription")}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <a
-                  href="https://github.com/ibrahim-sisar/EduLite"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-white text-blue-600 px-10 py-5 rounded-2xl text-lg font-bold hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-lg"
-                >
-                  {t("about.contributeButton")}
-                </a>
-                <Link
-                  to="/"
-                  className="bg-gray-800 bg-opacity-20 backdrop-blur-sm text-white px-10 py-5 rounded-2xl text-lg font-bold hover:bg-opacity-30 transition-all duration-300 hover:scale-105 border border-white border-opacity-20"
-                >
-                  {t("about.backToHomeButton")}
-                </Link>
+            {/* CTA Card */}
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-12 md:p-16 text-white shadow-xl">
+              <div className="text-center">
+                <h3 className="text-3xl md:text-4xl font-light mb-6">
+                  {t("about.joinTitle")}
+                </h3>
+                <p className="text-xl opacity-90 leading-relaxed mb-12 max-w-3xl mx-auto">
+                  {t("about.joinDescription")}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <a
+                    href="https://github.com/ibrahim-sisar/EduLite"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="bg-white text-blue-600 px-10 py-4 rounded-full text-lg font-medium hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-lg flex items-center justify-center group"
+                  >
+                    {t("about.contributeButton")}
+                    {isRTL ? (
+                      <FaArrowRight
+                        className={`${
+                          isRTL ? "mr-3" : "ml-3"
+                        } text-sm group-hover:${
+                          isRTL ? "translate-x-1" : "-translate-x-1"
+                        } transition-transform duration-300`}
+                      />
+                    ) : (
+                      <FaArrowLeft
+                        className={`${
+                          isRTL ? "mr-3" : "ml-3"
+                        } text-sm group-hover:${
+                          isRTL ? "translate-x-1" : "-translate-x-1"
+                        } transition-transform duration-300 rotate-180`}
+                      />
+                    )}
+                  </a>
+                  <Link
+                    to="/"
+                    className="bg-white/10 backdrop-blur-sm text-white px-10 py-4 rounded-full text-lg font-medium hover:bg-white/20 transition-all duration-300 hover:scale-105 border border-white/20"
+                  >
+                    {t("about.backToHomeButton")}
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer Quote */}
-      <section className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 px-6 md:px-16 py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <blockquote className="text-3xl md:text-4xl italic text-white font-light leading-relaxed">
-            "{t("about.finalQuote")}"
-          </blockquote>
+      {/* Final Quote Section - Apple Style */}
+      <section className="relative px-6 md:px-12 py-32 bg-white dark:bg-black">
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Quote Card */}
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl p-12 md:p-20 border border-gray-100 dark:border-gray-800">
+            <div className="mb-8">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto mb-8 flex items-center justify-center">
+                <span className="text-white text-2xl font-light">"</span>
+              </div>
+            </div>
+            <blockquote className="text-3xl md:text-4xl font-light text-gray-800 dark:text-gray-200 leading-relaxed italic mb-8">
+              {t("about.finalQuote")}
+            </blockquote>
+            <div className="text-lg text-gray-500 dark:text-gray-400 font-light">
+              {t("about.teamSignature")}
+            </div>
+          </div>
         </div>
       </section>
     </div>
