@@ -8,11 +8,11 @@ from rest_framework.test import (
 )  # For providing request context if needed
 from rest_framework import serializers  # For ValidationError
 
-from ..models import UserProfile
-from ..serializers import ProfileSerializer, UserSerializer, UserRegistrationSerializer
+from ...models import UserProfile
+from ...serializers import ProfileSerializer, UserSerializer, UserRegistrationSerializer
 
 # Import your choices if needed for creating valid test data
-from ..models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICES
+from ...models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICES
 
 User = get_user_model()
 
@@ -45,7 +45,11 @@ class TestProfileSerializer(
         """Test ProfileSerializer output, including website_url."""
         self.profile.website_url = "https://example.com/profileuser"
         self.profile.save()
-        serializer = ProfileSerializer(self.profile, context={"request": self.request})
+        # Pass the profile owner as test_user so they can see their own profile
+        serializer = ProfileSerializer(
+            self.profile,
+            context={"request": self.request, "test_user": self.user}
+        )
         data = serializer.data
         # print(data) # Helpful for debugging expected output
 
@@ -58,7 +62,7 @@ class TestProfileSerializer(
         self.assertTrue(len(data["friends"]) >= 1)
         self.assertIn("website_url", data)
         self.assertEqual(data["website_url"], "https://example.com/profileuser")
-        # Add more assertions for other fields like language
+
 
 
 class TestUserSerializer(TestCase):  # Or APITestCase

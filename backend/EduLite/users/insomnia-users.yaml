@@ -1,21 +1,21 @@
 type: collection.insomnia.rest/5.0
 name: Edulite User/Profile/Groups Collection
 meta:
-  id: wrk_177e4f85c2e34161b8c79f252de89a7e
-  created: 1750309616744
-  modified: 1750309616744
+  id: wrk_77e5e20f0c8947d4903c7227e04e3993
+  created: 1750317780609
+  modified: 1750317780609
 collection:
   - name: Profile Management
     meta:
-      id: fld_e8e44459f12548a292956066bad60b22
+      id: fld_a96816fa59d64413b6711a74fa2ed2af
       created: 1748225830707
-      modified: 1750309720519
+      modified: 1750389697051
       sortKey: -1748225908342
     children:
       - url: http://localhost:8000/api/users/user_id/profile
         name: Request Own Profile
         meta:
-          id: req_7ef893edccc14316b24063d22fd34082
+          id: req_353175c22b754c27a97acde78dd8082e
           created: 1747860374693
           modified: 1748718147664
           isPrivate: false
@@ -72,7 +72,7 @@ collection:
       - url: http://localhost:8000/api/users/user_id/profile/
         name: Try to Change Own Profile
         meta:
-          id: req_d68112728ec248f58f4e86998c03ad73
+          id: req_4287fe0cd07640a2be166b59b4ffd9dc
           created: 1748181698703
           modified: 1748718212078
           isPrivate: false
@@ -141,7 +141,7 @@ collection:
       - url: http://localhost:8000/api/users/user_id/profile/
         name: Try to Change Other Profile
         meta:
-          id: req_466b09778e1a4c7db84c9d244a48722e
+          id: req_922e5fd265554f779252ba45fa6cc385
           created: 1748225074762
           modified: 1748229304393
           isPrivate: false
@@ -196,9 +196,9 @@ collection:
       - url: http://localhost:8000/api/users/user_id/profile
         name: Request Other Profile
         meta:
-          id: req_a97de0cc2f79488eb1c7102577b7b897
+          id: req_300359e348464d09a1084801ab015aaa
           created: 1748229794033
-          modified: 1748718156436
+          modified: 1750386909785
           isPrivate: false
           sortKey: -1748225852210
         method: GET
@@ -235,12 +235,16 @@ collection:
 
             insomnia.test('Check if response has keys', () => {
 
-            insomnia.expect(jsonBody).to.have.all.keys(
-            	"url", "user_url", "bio", "occupation", "country",
+            insomnia.expect(jsonBody).to.not.have.any.keys(
+            	"bio", "occupation", "country",
             	"preferred_language", "secondary_language", "picture", "website_url",
             	"friends"
             	);
             });
+
+
+
+            insomnia.expect({a: 1, b: 2}).to.not.have.any.keys('c', 'd');
 
         settings:
           renderRequestBody: true
@@ -252,15 +256,15 @@ collection:
           rebuildPath: true
   - name: Registration/Login
     meta:
-      id: fld_a588c84820a44a0b9e5a86d6845b7bc4
+      id: fld_643837bc01ba4650810f014ddf74b9ba
       created: 1748225908142
-      modified: 1750309720122
+      modified: 1750389696668
       sortKey: -1748225908442
     children:
       - url: localhost:8000/api/token/
         name: Token As newuser
         meta:
-          id: req_4753457a83cd46bebda5a11f98d78bd1
+          id: req_29599801dfd14978a56ff4e378744519
           created: 1747860044711
           modified: 1748225921382
           isPrivate: false
@@ -318,7 +322,7 @@ collection:
       - url: localhost:8000/api/register/
         name: Register newuser
         meta:
-          id: req_0b1f4dbc110247c195ed906589acb383
+          id: req_dd8f552059ee44f1a491638038b22ef5
           created: 1747861158849
           modified: 1748231750604
           isPrivate: false
@@ -376,7 +380,7 @@ collection:
       - url: localhost:8000/api/register/
         name: Register dummyuser
         meta:
-          id: req_71d630ae94a049e0991cdc1360c3a772
+          id: req_4d160827be444023935d9c6e28398e33
           created: 1748238209052
           modified: 1748238240091
           isPrivate: false
@@ -429,7 +433,7 @@ collection:
       - url: localhost:8000/api/register/
         name: Register dummyuser again
         meta:
-          id: req_0b7e708d5b0f4edcb26c3df1234861c2
+          id: req_99b5489c357c4158a1c3ee44aec345d8
           created: 1749144551300
           modified: 1749144551300
           isPrivate: false
@@ -481,15 +485,15 @@ collection:
           rebuildPath: true
   - name: User Management
     meta:
-      id: fld_088e402bda7b4cf6bbfae4f5e6519222
+      id: fld_e7d693607e984131816dcd47f40fc8fe
       created: 1748229436084
-      modified: 1750309721043
+      modified: 1750389697639
       sortKey: -1748225908329.5
     children:
       - url: http://localhost:8000/api/users/user_id
         name: Request Own User
         meta:
-          id: req_e34cfd609c054bc8993ad8f07f54d398
+          id: req_121e9279c6ce477aa4703f9390daa2fc
           created: 1748229436084
           modified: 1750261100796
           isPrivate: false
@@ -542,7 +546,7 @@ collection:
       - url: http://localhost:8000/api/users/user_id/update/
         name: Try to Change Other User
         meta:
-          id: req_4669451be2ba40a1b10b56157f65ff91
+          id: req_7f8210b9f71043c8bbc7fcd65c2f0806
           created: 1748229436086
           modified: 1748231354044
           isPrivate: false
@@ -594,7 +598,7 @@ collection:
       - url: http://localhost:8000/api/users/user_id/update/
         name: Try to Change Own User
         meta:
-          id: req_69e124d4d60647b3869e9e95ea7bd245
+          id: req_aa341a83907d43a6b0688ae0b747a484
           created: 1748229436086
           modified: 1750261213634
           isPrivate: false
@@ -656,9 +660,9 @@ collection:
       - url: http://localhost:8000/api/users/user_id
         name: Request Other User
         meta:
-          id: req_b02a08c930d2459cb1ed914d79930a1a
+          id: req_d10fe1f533374141b2d07f67689b9d1f
           created: 1748229823552
-          modified: 1750261123758
+          modified: 1750387278293
           isPrivate: false
           sortKey: -1748225852235
         method: GET
@@ -693,7 +697,7 @@ collection:
 
             insomnia.test('Check if response has keys', () => {
             insomnia.expect(jsonBody).to.have.all.keys(
-            	"url", "profile_url", "username", "email", "groups",
+            	"url", "profile_url", "username", "groups",
             	"first_name", "last_name", "id", 'full_name'
             	);
             });
@@ -709,7 +713,7 @@ collection:
       - url: http://localhost:8000/api/users/
         name: Request All Users
         meta:
-          id: req_b347508593334e11aa99e8482b4f14ca
+          id: req_9b3e32c4211d4bf4a01c23629ccecee0
           created: 1748235235531
           modified: 1750261117238
           isPrivate: false
@@ -764,9 +768,9 @@ collection:
       - url: http://localhost:8000/api/users/search?q=dum
         name: Search for Users
         meta:
-          id: req_a27669a0695f4e90955f28f8722a6728
+          id: req_bd4f9fc20da641b6b0b8ac0984dedbda
           created: 1748719379029
-          modified: 1750261130884
+          modified: 1750387376985
           isPrivate: false
           sortKey: -1748225852222.5
         method: GET
@@ -799,7 +803,7 @@ collection:
 
             insomnia.test('Check if response has keys', () => {
             insomnia.expect(jsonBody.results[0]).to.have.all.keys(
-            	"url", "profile_url", "username", "email", "groups",
+            	"url", "profile_url", "username", "groups",
             	"first_name", "last_name", "id", "full_name"
             	);
             });
@@ -814,20 +818,19 @@ collection:
           rebuildPath: true
   - name: Admin (createsuperuser first)
     meta:
-      id: fld_636a93e0e73140a3bbbb244297159fb5
+      id: fld_da6389d74efd49afaba665262c177573
       created: 1748229983405
-      modified: 1750309724995
+      modified: 1750389701773
       sortKey: -1748225908326.375
     children:
       - url: localhost:8000/api/token/
         name: Token As admin (credentials here!)
         meta:
-          id: req_07c1fa76130d49cdafb2191d7b7424c3
+          id: req_e5949dcf2259452f83bb991f695999ba
           created: 1748230052182
           modified: 1748230324116
           isPrivate: false
-          description:
-            Do not run this in production. You should not have an account with
+          description: Do not run this in production. You should not have an account with
             these credentials in production. This is for DEBUG TESTS only!
           sortKey: -1748230024749
         method: POST
@@ -876,7 +879,7 @@ collection:
       - url: http://localhost:8000/api/users/user_id/profile/
         name: (admin) Try to Change Other Profile
         meta:
-          id: req_a1adf35418d84b4fb3e6bf7c7ed4b092
+          id: req_5c475471ed484ebda5d425946ef1d6a9
           created: 1748230830355
           modified: 1748231446016
           isPrivate: false
@@ -931,7 +934,7 @@ collection:
       - url: http://localhost:8000/api/users/user_id/update/
         name: (admin) Try to Change Other User
         meta:
-          id: req_d58f0c9bd9534d06ac8835f001d8a31b
+          id: req_b95285a6478942ae8cb4b821fe268b25
           created: 1748231365970
           modified: 1748231452295
           isPrivate: false
@@ -983,7 +986,7 @@ collection:
       - url: localhost:8000/api/groups/
         name: (admin) Create a Group
         meta:
-          id: req_50c392a23b114cfaa34f4b7a6e2d336e
+          id: req_526aafd9e1fc4e79af4426b5eaed095b
           created: 1748232654972
           modified: 1748234272604
           isPrivate: false
@@ -1037,7 +1040,7 @@ collection:
       - url: localhost:8000/api/groups/group_id
         name: (admin) Edit a Group
         meta:
-          id: req_da09989744c24f748e224a26fa3f5667
+          id: req_20a4487f66964dbab3f96e3195cb81b2
           created: 1748234091145
           modified: 1748234516713
           isPrivate: false
@@ -1095,7 +1098,7 @@ collection:
       - url: localhost:8000/api/register/
         name: Register newuser (to be deleted)
         meta:
-          id: req_07f20467de1d456b9829c7936eda783b
+          id: req_9ee7e4693008442dbd739c3a82b16d87
           created: 1748236495101
           modified: 1748236585239
           isPrivate: false
@@ -1153,7 +1156,7 @@ collection:
       - url: localhost:8000/api/users/user_id/update/
         name: (admin) Delete TBD_newuser
         meta:
-          id: req_2624f22b8cda486baab8d47d2a10397c
+          id: req_2624f68707274562ae643c30af2bfa2f
           created: 1748236874630
           modified: 1748239331866
           isPrivate: false
@@ -1205,7 +1208,7 @@ collection:
       - url: localhost:8000/api/groups/
         name: (admin) Create a Group (to be deleted)
         meta:
-          id: req_393bcd198f9441b78102ed8627b7fff2
+          id: req_718f6c7047b9416f96b24eab8b90c16b
           created: 1748239284477
           modified: 1748239488008
           isPrivate: false
@@ -1259,7 +1262,7 @@ collection:
       - url: localhost:8000/api/groups/group_id/
         name: (admin) Delete TBD_newgroup
         meta:
-          id: req_f890f7efd9f641b78ecb5e5b254ffc5b
+          id: req_ee6dddc85efc4587b50bb46e2e580174
           created: 1748239341743
           modified: 1748239388644
           isPrivate: false
@@ -1311,7 +1314,7 @@ collection:
       - url: localhost:8000/api/groups/
         name: (admin) Create a Group
         meta:
-          id: req_a6af8f32b69843b9aa0d65ee21c31175
+          id: req_306fc6eaf2cf4c08b5430ebbfb96607c
           created: 1749163236093
           modified: 1749163236093
           isPrivate: false
@@ -1364,15 +1367,15 @@ collection:
           rebuildPath: true
   - name: Group Management (back to newuser)
     meta:
-      id: fld_6be1a759475549c38af939ec47de214e
+      id: fld_6d83bb9cf7d24379b827f4cd531d7cb5
       created: 1748234574876
-      modified: 1750309726109
+      modified: 1750389702843
       sortKey: -1748225908325.5938
     children:
       - url: localhost:8000/api/token/
         name: Token As newuser (again)
         meta:
-          id: req_194d940e19f84cddacf0cc2a0a906930
+          id: req_5a8b175a19ed42398a99b27d18545ff1
           created: 1748234602098
           modified: 1748235148556
           isPrivate: false
@@ -1430,7 +1433,7 @@ collection:
       - url: localhost:8000/api/groups/
         name: (newuser) Create a Group
         meta:
-          id: req_a44c8cbe44da45c5899d5ac97194aa7f
+          id: req_80268b2797974df793f710b3da1afbab
           created: 1748234643913
           modified: 1748235076618
           isPrivate: false
@@ -1476,7 +1479,7 @@ collection:
       - url: localhost:8000/api/groups/group_id
         name: (new_user) Edit a Group
         meta:
-          id: req_0eb90f5ea974421995f359fa6110d44f
+          id: req_93dc9954bf894afca748f756e7b2ddfa
           created: 1748234657806
           modified: 1748235184142
           isPrivate: false
@@ -1526,7 +1529,7 @@ collection:
       - url: http://localhost:8000/api/groups/
         name: Request All Groups
         meta:
-          id: req_d9002a63ca374038b4c3c1f6288df717
+          id: req_fa9cd9dc7e76440c81ff4823ea0b6865
           created: 1748235559721
           modified: 1748235847926
           isPrivate: false
@@ -1579,15 +1582,15 @@ collection:
           rebuildPath: true
   - name: Chat Room Management
     meta:
-      id: fld_09be4831022e4fa7b577c1526bee2dad
+      id: fld_3f20e2b44c704772a06c7bbb2c6290b6
       created: 1748712617189
-      modified: 1750309726574
+      modified: 1750389703270
       sortKey: -1748225908325.3984
     children:
       - url: http://localhost:8000/api/chat/rooms
         name: Request All Chat Rooms
         meta:
-          id: req_aa148136b30c4966969fd69933c26254
+          id: req_e9e7fb7ea9914d3bbe3a1bcabdb96e0f
           created: 1748712643665
           modified: 1748714351587
           isPrivate: false
@@ -1647,7 +1650,7 @@ collection:
       - url: http://localhost:8000/api/chat/rooms/
         name: Create a Chat Room (chatroom_id)
         meta:
-          id: req_08fc3a523e9147d2ae4d0d4dafdf29d6
+          id: req_44d67ad725e3496cafc0a314f4b85d7d
           created: 1748712778180
           modified: 1749093013916
           isPrivate: false
@@ -1716,7 +1719,7 @@ collection:
       - url: http://localhost:8000/api/chat/rooms/<pk>
         name: Request Own (chatroom_id)
         meta:
-          id: req_3d61b1e2f8794b3db6f91c471e8aef14
+          id: req_61e1c8ed598f47af8463c4d52fd7ca78
           created: 1748714762889
           modified: 1748715134775
           isPrivate: false
@@ -1773,15 +1776,15 @@ collection:
           rebuildPath: true
   - name: Message Management
     meta:
-      id: fld_05cf924d4ba94cfe91b586be3ff37183
+      id: fld_d9f6b0c0a700412f9f35a85a80c83d4a
       created: 1748714372942
-      modified: 1750309726855
+      modified: 1750389703487
       sortKey: -1748225908325.3496
     children:
       - url: http://localhost:8000/api/chat/rooms/<chatroom_id>/messages/
         name: Create a Message (chatroom_id)
         meta:
-          id: req_b3f6a01a170c47249745da65048e3ca0
+          id: req_f7915ec2465e48bf9f6ed6802a3f51d4
           created: 1748714400684
           modified: 1748715166275
           isPrivate: false
@@ -1842,7 +1845,7 @@ collection:
       - url: http://localhost:8000/api/chat/rooms/<chatroom_id>/messages/
         name: Request All Messages (chatroom_id)
         meta:
-          id: req_75a9ac2454d044f4954848b5ee5f59f7
+          id: req_d9623ec12110439cb73bf4ba46facc55
           created: 1748714599061
           modified: 1748715194806
           isPrivate: false
@@ -1898,15 +1901,15 @@ collection:
           rebuildPath: true
   - name: Friend Requests
     meta:
-      id: fld_5fd4eb0d635748dc92b0fc986e1aefb5
+      id: fld_41a4ac23810849b6b792b315293badb6
       created: 1749142972839
-      modified: 1750309736297
+      modified: 1750389711962
       sortKey: -1748225908325.3008
     children:
       - url: localhost:8000/api/register/
         name: Register sending_user
         meta:
-          id: req_ebeaf54a6da344ba8b64a302a8d7223c
+          id: req_95140f47c0f34db4b7568ca917ac2746
           created: 1749142990024
           modified: 1749144284140
           isPrivate: false
@@ -1963,7 +1966,7 @@ collection:
       - url: localhost:8000/api/register/
         name: Register receiving_user
         meta:
-          id: req_94bcbab545264e8496c3ac4da1343677
+          id: req_69dfb5ca17214eb0aa02a1c6454e1886
           created: 1749143281215
           modified: 1749144271960
           isPrivate: false
@@ -2021,7 +2024,7 @@ collection:
       - url: localhost:8000/api/token/
         name: Token As sending_user
         meta:
-          id: req_31fda8c2f64f4a28bb15f01925526192
+          id: req_d7d8bc3bf5b84bc581665577a1364b01
           created: 1749144497004
           modified: 1749144537136
           isPrivate: false
@@ -2079,7 +2082,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/send/
         name: Send Friend Request
         meta:
-          id: req_24ef3dbb8c324ac39aac5acf57484889
+          id: req_4910ce72b13b43a28109f922b0d4a0ae
           created: 1749144582015
           modified: 1750043103188
           isPrivate: false
@@ -2149,7 +2152,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/send/
         name: Send Friend Request again
         meta:
-          id: req_dab2fdc035f44900b6c25117d8880220
+          id: req_218b93e7d3f442039d3e139251cd6cd2
           created: 1749145172850
           modified: 1749145335519
           isPrivate: false
@@ -2212,7 +2215,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/pending/?direction=sent
         name: List Sent Friend Requests
         meta:
-          id: req_b8937f00a8bc4a6cb6fc1a4aa0ed1dc0
+          id: req_74075b10f5614c809f2a7fcd7ebf9165
           created: 1749151000000
           modified: 1749164452117
           isPrivate: false
@@ -2293,7 +2296,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/send/
         name: Send Friend Request
         meta:
-          id: req_37a8d404fb194245b9441bca72c652ed
+          id: req_e9c1687f946f464bbe40ce6f5d8bd818
           created: 1749151502618
           modified: 1750043151437
           isPrivate: false
@@ -2363,7 +2366,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/<request_pk>/decline/
         name: (Sender) Cancel Sent Friend Request
         meta:
-          id: req_879798e90c134c50b9353ae435f1305a
+          id: req_d4d6f91015874af98a868ba9f5641860
           created: 1749152000000
           modified: 1749152000000
           isPrivate: false
@@ -2419,7 +2422,7 @@ collection:
       - url: localhost:8000/api/token/
         name: Token As receiving_user
         meta:
-          id: req_e2ed80ba2f4d430eafea03ac4245d75f
+          id: req_f825f1f248de4b7f81553e39a843d1ca
           created: 1749152612218
           modified: 1749152658615
           isPrivate: false
@@ -2477,7 +2480,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/pending/
         name: List Sent Friend Requests as receiver
         meta:
-          id: req_6892b301df2d4a9e95619122678e833c
+          id: req_216f26a2df1848a58c6c44de27c71be7
           created: 1749152667831
           modified: 1749164597741
           isPrivate: false
@@ -2558,7 +2561,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/pending/?direction=sent
         name: List Sent Requests Again (Expect Empty)
         meta:
-          id: req_e8238404136f421d85589672ddf17a63
+          id: req_c99c70bf2b774ee7af3154fd67a47759
           created: 1749153000000
           modified: 1749153000000
           isPrivate: false
@@ -2612,7 +2615,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/<request_pk>/accept/
         name: (Receiver) Accept Friend Request
         meta:
-          id: req_0a579ad3c3b840dfa941eb7dee3799eb
+          id: req_16b94f8370c541998b57c4ea17f45ac5
           created: 1749154100000
           modified: 1749154100000
           isPrivate: false
@@ -2663,7 +2666,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/send/
         name: Send Friend Request as old user
         meta:
-          id: req_afa7830db4a3410ab477b1af0f9ef42e
+          id: req_b0868d45e7534df1ba4d4da7077c1565
           created: 1749158473401
           modified: 1750042953104
           isPrivate: false
@@ -2733,7 +2736,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/<request_pk>/accept/
         name: (Receiver) Try Accepting Again
         meta:
-          id: req_a2ce5c5dba5241ef915920de609ef3a8
+          id: req_83d8c9bd8e8745e795f784fa7965df07
           created: 1749158493366
           modified: 1749158931712
           isPrivate: false
@@ -2784,7 +2787,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/pending/
         name: List Sent Friend Requests as receiver again
         meta:
-          id: req_92e8315004a942869dcc4440a1a1c97f
+          id: req_f327ba69ff36438b8116ec3f942d4ac8
           created: 1749158582324
           modified: 1749164523350
           isPrivate: false
@@ -2884,7 +2887,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/<request_pk>/decline/
         name: (Receiver) Decline Friend Request
         meta:
-          id: req_38f1dec3031849dc97344ae0c481e24b
+          id: req_1b0ed9a6f92d460589db57f1b6c292f0
           created: 1749161100000
           modified: 1749161064941
           isPrivate: false
@@ -2937,7 +2940,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/send/
         name: (Receiver) Send Request to newuser
         meta:
-          id: req_26fc41b2a24c46b9b1adcd7ff6cf2624
+          id: req_8d6120ce15e544feaa671455cb955ca8
           created: 1749162000000
           modified: 1750042875849
           isPrivate: false
@@ -3003,7 +3006,7 @@ collection:
       - url: localhost:8000/api/token/
         name: Token As sending_user (again)
         meta:
-          id: req_0c5073c5330c4a06803cce4255c873a7
+          id: req_f7e8f4dc97cc4a4c9ee11d664b5cf0d5
           created: 1749162100000
           modified: 1749162100000
           isPrivate: false
@@ -3045,7 +3048,7 @@ collection:
       - url: http://localhost:8000/api/friend-requests/<request_pk>/accept/
         name: (Sender) Try to Accept Request (Expect 403)
         meta:
-          id: req_31c64c396c634b498a8062c2de224cee
+          id: req_e44a0cd44be949dc80f356eb2f6ab3b5
           created: 1749162200000
           modified: 1750042786209
           isPrivate: false
@@ -3097,17 +3100,17 @@ collection:
           rebuildPath: true
   - name: User Search and Privacy
     meta:
-      id: fld_0ff7897d8c0c4af19c45fe15e0b351cf
+      id: fld_41e2bd6fdb70444a933ef27222429b27
       created: 1749162000000
-      modified: 1750310428560
-      sortKey: -1748225908324
+      modified: 1750389724103
+      sortKey: -1748225908324.9756
     children:
       - url: localhost:8000/api/token/
         name: "CLEANUP: Login as admin"
         meta:
-          id: req_04c91f6818d449758131afa79a056938
+          id: req_9c00fcd55fe446bbaf38f1c5c7670efc
           created: 1749161900000
-          modified: 1750305742900
+          modified: 1750377374523
           isPrivate: false
           sortKey: -1749162500000
         method: POST
@@ -3170,7 +3173,7 @@ collection:
       - url: http://localhost:8000/api/users/search/?q=TestUser
         name: "CLEANUP: Find and delete all existing test users"
         meta:
-          id: req_c01747580c004343a5db4e8519d8ba14
+          id: req_1bfcb123dee445b2874cba53a6ce9646
           created: 1749161950000
           modified: 1750309132855
           isPrivate: false
@@ -3272,7 +3275,7 @@ collection:
       - url: http://localhost:8000/api/register/
         name: "SETUP: Register UserA (Everyone Privacy)"
         meta:
-          id: req_1521f2416ea145619becbe4882a56249
+          id: req_a1eab12e8941450eb6a9dc92a2297a9b
           created: 1749162100000
           modified: 1750309154406
           isPrivate: false
@@ -3321,7 +3324,7 @@ collection:
       - url: http://localhost:8000/api/register/
         name: "SETUP: Register UserB (Friends Privacy)"
         meta:
-          id: req_61c26c21862f4491ac14e21812732986
+          id: req_8b1b399abf50449eb61c61d98a2507eb
           created: 1749162150000
           modified: 1750309158244
           isPrivate: false
@@ -3370,7 +3373,7 @@ collection:
       - url: http://localhost:8000/api/register/
         name: "SETUP: Register UserC (Friends Privacy)"
         meta:
-          id: req_7768048844dd437f85d19d6c6eea573e
+          id: req_1212f44c8454426a987b03e88d571b44
           created: 1749162200000
           modified: 1750309160524
           isPrivate: false
@@ -3420,7 +3423,7 @@ collection:
       - url: http://localhost:8000/api/register/
         name: "SETUP: Register UserD (Nobody Privacy)"
         meta:
-          id: req_bc84c13fd75a4627958a0cc912fa1ef6
+          id: req_f4886c586a28410c95e1482b617256f0
           created: 1749162250000
           modified: 1750309164589
           isPrivate: false
@@ -3469,7 +3472,7 @@ collection:
       - url: http://localhost:8000/api/token/
         name: "SETUP: Login as UserA"
         meta:
-          id: req_c8b302bb7631428eb155015aec390b0c
+          id: req_782fe801146f40b0a8d4727856c0b35f
           created: 1749162300000
           modified: 1750305743200
           isPrivate: false
@@ -3508,7 +3511,7 @@ collection:
       - url: http://localhost:8000/api/privacy-settings/
         name: "SETUP: Set UserA Privacy to Everyone"
         meta:
-          id: req_34c76b03af8a446081db840a2c68137c
+          id: req_4661639a6e034c5d8501507063c7c4e6
           created: 1749162301000
           modified: 1750310298541
           isPrivate: false
@@ -3591,7 +3594,7 @@ collection:
       - url: http://localhost:8000/api/token/
         name: "SETUP: Login as UserB"
         meta:
-          id: req_4c99c3deca884c7bb940f7156cda3c2d
+          id: req_0c121937362b427d8f1ac61d17c7c0d5
           created: 1749162350000
           modified: 1750305743250
           isPrivate: false
@@ -3630,7 +3633,7 @@ collection:
       - url: http://localhost:8000/api/privacy-settings/
         name: "SETUP: Set UserB Privacy to Friends"
         meta:
-          id: req_690bfa03bd0c4fd3a578d8718dfcfa8c
+          id: req_5d63d64510784923821439b5c724b7b8
           created: 1749162351000
           modified: 1750305743251
           isPrivate: false
@@ -3667,7 +3670,7 @@ collection:
       - url: http://localhost:8000/api/token/
         name: "SETUP: Login as UserC"
         meta:
-          id: req_f2291c12ea094fda89af30945d286820
+          id: req_84adbcc5b677463ba40c4077f686940b
           created: 1749162380000
           modified: 1750305743280
           isPrivate: false
@@ -3706,7 +3709,7 @@ collection:
       - url: http://localhost:8000/api/privacy-settings/
         name: "SETUP: Set UserC Privacy to Friends"
         meta:
-          id: req_b5afe8476c9447b38e2aba631bda306b
+          id: req_af4479fd26ff4d8e9c1c62b377fb4fb2
           created: 1749162381000
           modified: 1750305743281
           isPrivate: false
@@ -3743,7 +3746,7 @@ collection:
       - url: http://localhost:8000/api/token/
         name: "SETUP: Login as UserD"
         meta:
-          id: req_7bb8d957ed2c4a0aab4b5b3f3d6a5cb8
+          id: req_4c977454c0e24da89a62adc2065d0b5f
           created: 1749162390000
           modified: 1750305743290
           isPrivate: false
@@ -3782,7 +3785,7 @@ collection:
       - url: http://localhost:8000/api/privacy-settings/
         name: "SETUP: Set UserD Privacy to Nobody"
         meta:
-          id: req_91f82274aaf44868b8f0fb2fb16333af
+          id: req_1d1b90d96bc0444a9ecfde9a60dc84c4
           created: 1749162391000
           modified: 1750305743291
           isPrivate: false
@@ -3816,12 +3819,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:8000/api/friends/request/
+      - url: http://localhost:8000/api/friend-requests/send/
         name: "SETUP: Main User sends friend request to UserB"
         meta:
-          id: req_63cf5bd14cb24874af1d644ca23a30a3
+          id: req_00fe326ec6e149c7b52a957f07c3e1e8
           created: 1749162395000
-          modified: 1750310384432
+          modified: 1750314535810
           isPrivate: false
           sortKey: -1749162375000
         method: POST
@@ -3842,19 +3845,15 @@ collection:
             insomnia.request.body.update({
               mode: 'raw',
               raw: JSON.stringify({
-                "to_user": user_b_id
+                "receiver_profile_id": user_b_id
               })
             });
-          afterResponse: >+
+          afterResponse: >
             insomnia.test('Friend Request to UserB - Status code is 201', () =>
             {
               insomnia.expect(insomnia.response.code).to.eql(201);
-            // Debug: Log response details console.log(`Response Status:
-            ${insomnia.response.code}`); console.log(`Response Headers:
-            ${JSON.stringify(insomnia.response.headers)}`);
-            console.log(`Response Body (first 200 chars):
-            ${insomnia.response.text().substring(0, 200)}`);
-
+            // Debug: Log response details
+            	console.log(`Response Status: ${insomnia.response.code}`); console.log(`Response Headers: ${JSON.stringify(insomnia.response.headers)}`); console.log(`Response Body (first 200 chars): ${insomnia.response.text().substring(0, 200)}`);
             insomnia.test('Friend Request to UserB - Request completed', () => {
               const code = insomnia.response.code;
               console.log(`Actual status code: ${code}`);
@@ -3872,20 +3871,19 @@ collection:
               insomnia.expect([200, 201]).to.include(code);
             });
 
-            const body = insomnia.response.json();
-            insomnia.environment.set('friend_request_to_b_id', body.id); // Only
-            try to parse JSON if we got a success response if
-            (insomnia.response.code === 201 || insomnia.response.code === 200) {
+            if (insomnia.response.code === 201 || insomnia.response.code ===
+            200) {
               try {
                 const body = insomnia.response.json();
-                insomnia.environment.set('friend_request_to_b_id', body.id);
-                console.log(`Friend request ID saved: ${body.id}`);
+                insomnia.environment.set('friend_request_to_b_id', body.request_id);
+                console.log(`Friend request ID saved: ${body.request_id}`);
               } catch (error) {
                 console.log(`JSON Parse Error: ${error.message}`);
                 console.log(`Response was: ${insomnia.response.text()}`);
               }
-            })
+            }
 
+            })
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -3894,12 +3892,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:8000/api/friends/request/accept/
+      - url: http://localhost:8000/api/friend-requests/<request_pk>/accept/
         name: "SETUP: UserB accepts friend request from Main User"
         meta:
-          id: req_908474ba826047aa82618f2741bc5dad
+          id: req_51db280711074a779bbf9b202f53dfd0
           created: 1749162396000
-          modified: 1750305743296
+          modified: 1750311033246
           isPrivate: false
           sortKey: -1749162370000
         method: POST
@@ -3911,29 +3909,19 @@ collection:
           - name: User-Agent
             value: insomnia/11.1.0
         scripts:
-          preRequest: >
-            const token = insomnia.environment.get('user_b_token');
-            insomnia.request.addHeader({key: 'Authorization', value: `Bearer
-            ${token}`});
+          preRequest: |-
+            const token = insomnia.environment.get('user_b_token'); insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
 
-            const friend_request_id =
-            insomnia.environment.get('friend_request_to_b_id');
-            insomnia.request.body.update({
-              mode: 'raw',
-              raw: JSON.stringify({
-                "friend_request_id": friend_request_id
-              })
-            });
-          afterResponse: >
+            const friend_request_to_b_id = insomnia.environment.get('friend_request_to_b_id')
+
+            insomnia.request.url.update(`http://localhost:8000/api/friend-requests/${friend_request_to_b_id}/accept/`)
+          afterResponse: >-
             insomnia.test('Accept Friend Request from Main User - Status code is
             200', () => {
               insomnia.expect(insomnia.response.code).to.eql(200);
-            // Debug: Log response details console.log(`Accept Friend Request -
-            Status: ${insomnia.response.code}`); console.log(`Accept Friend
-            Request - Headers: ${JSON.stringify(insomnia.response.headers)}`);
-            console.log(`Accept Friend Request - Body (first 200 chars):
-            ${insomnia.response.text().substring(0, 200)}`);
-
+            // Debug: Log response details
+            	console.log(`Accept Friend Request - Status: ${insomnia.response.code}`);
+            	console.log(`Accept Friend Request - Headers: ${JSON.stringify(insomnia.response.headers)}`); console.log(`Accept Friend Request - Body (first 200 chars): ${insomnia.response.text().substring(0, 200)}`);
             insomnia.test('Accept Friend Request from Main User - Request
             completed', () => {
               const code = insomnia.response.code;
@@ -3952,8 +3940,8 @@ collection:
               insomnia.expect([200, 201]).to.include(code);
             });
 
-            // Only try to parse JSON if we got a success response if
-            (insomnia.response.code === 200 || insomnia.response.code === 201) {
+            // Only try to parse JSON if we got a success response
+            	if (insomnia.response.code === 200 || insomnia.response.code === 201) {
               try {
                 const body = insomnia.response.json();
                 console.log(`Accept Friend Request - Success: ${JSON.stringify(body)}`);
@@ -3965,6 +3953,8 @@ collection:
               console.log('Accept Friend Request - Skipping JSON parsing due to error response');
               console.log(`Accept Friend Request - Full response body: ${insomnia.response.text()}`);
             }
+
+            })
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -3973,12 +3963,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:8000/api/friends/request/
+      - url: http://localhost:8000/api/friend-requests/send/
         name: "SETUP: UserB sends friend request to UserC"
         meta:
-          id: req_9810283827df4e04b5b2fd6f8c7fd142
+          id: req_35e50a07638749e4b244f0d218fb5104
           created: 1749162397000
-          modified: 1750305743297
+          modified: 1750314449354
           isPrivate: false
           sortKey: -1749162365000
         method: POST
@@ -3999,7 +3989,7 @@ collection:
             insomnia.request.body.update({
               mode: 'raw',
               raw: JSON.stringify({
-                "to_user": user_c_id
+                "receiver_profile_id": user_c_id
               })
             });
           afterResponse: >
@@ -4009,7 +3999,7 @@ collection:
             });
 
             const body = insomnia.response.json();
-            insomnia.environment.set('friend_request_to_c_id', body.id);
+            insomnia.environment.set('friend_request_to_c_id', body.request_id);
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -4018,12 +4008,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:8000/api/friends/request/accept/
+      - url: http://localhost:8000/api/friend-requests/<request_pk>/accept/
         name: "SETUP: UserC accepts friend request from UserB"
         meta:
-          id: req_ad1ffc1fdc054271bd28186c42d7a3ea
+          id: req_0d20093c64a34174b41820617bd9bd22
           created: 1749162398000
-          modified: 1750305743298
+          modified: 1750314613789
           isPrivate: false
           sortKey: -1749162360000
         method: POST
@@ -4035,19 +4025,12 @@ collection:
           - name: User-Agent
             value: insomnia/11.1.0
         scripts:
-          preRequest: >
-            const token = insomnia.environment.get('user_c_token');
-            insomnia.request.addHeader({key: 'Authorization', value: `Bearer
-            ${token}`});
+          preRequest: |-
+            const token = insomnia.environment.get('user_c_token'); insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
 
-            const friend_request_id =
-            insomnia.environment.get('friend_request_to_c_id');
-            insomnia.request.body.update({
-              mode: 'raw',
-              raw: JSON.stringify({
-                "friend_request_id": friend_request_id
-              })
-            });
+            const friend_request_to_c_id = insomnia.environment.get('friend_request_to_c_id')
+
+            insomnia.request.url.update(`http://localhost:8000/api/friend-requests/${friend_request_to_c_id}/accept/`)
           afterResponse: >
             insomnia.test('Accept Friend Request from UserB - Status code is
             200', () => {
@@ -4064,7 +4047,7 @@ collection:
       - url: http://localhost:8000/api/users/search/?q=Test
         name: "TEST: Search and Verify Privacy Rules"
         meta:
-          id: req_27131f735a454bd1a8b3df2946ea9380
+          id: req_efffef1697224f5faa68839884f9c2c3
           created: 1749162400000
           modified: 1750310419684
           isPrivate: false
@@ -4144,7 +4127,7 @@ collection:
       - url: http://localhost:8000/api/users/search/
         name: "TEST: Search with Short Query (Expect 400)"
         meta:
-          id: req_2fbdf62a1a71412b8f450745d9eef1b1
+          id: req_e1d13c8150584951b01b979e2189229f
           created: 1749162500000
           modified: 1749162500000
           isPrivate: false
@@ -4178,7 +4161,7 @@ collection:
       - url: http://localhost:8000/api/users/search/?q=Test
         name: "TEST: Unauthenticated Search (Expect 401)"
         meta:
-          id: req_3d9e2a4bf80845e8b2a06c31b933784a
+          id: req_17f3aada9b314b63ae44f93120fbe2da
           created: 1749162600000
           modified: 1750305595611
           isPrivate: false
@@ -4197,47 +4180,1012 @@ collection:
             send: true
             store: true
           rebuildPath: true
+  - name: Privacy Settings & Field Visibility Tests
+    meta:
+      id: fld_841b90f046ae4ffe9d77f01911b242bb
+      created: 1750314800000
+      modified: 1750389735666
+      sortKey: -1748225908324.6504
+    children:
+      - url: http://localhost:8000/api/register/
+        name: "SETUP: Register PrivacyUserA (Show All)"
+        meta:
+          id: req_e3bd45a3ce7c484ba94c1b4e2067cd60
+          created: 1750314800001
+          modified: 1750377327545
+          isPrivate: false
+          sortKey: -1750314800121
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "username": "PrivacyUserA_ShowAll",
+              "email": "privacyusera@gg.com",
+              "password": "SecurePass123!",
+              "password2": "SecurePass123!",
+              "first_name": "Alice",
+              "last_name": "Anderson"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.environment.set("privacy_user_a_id", jsonBody.user_id);
+            insomnia.test('User A Registration Success', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/token/
+        name: "SETUP: Get Token for PrivacyUserA"
+        meta:
+          id: req_ef559f1ba7134d5e98021fef1b27afe2
+          created: 1750314800002
+          modified: 1750376769729
+          isPrivate: false
+          sortKey: -1750314800108.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "username": "PrivacyUserA_ShowAll",
+              "password": "SecurePass123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.environment.set("privacy_user_a_token", jsonBody.access);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/privacy-settings/
+        name: "SETUP: Configure UserA Privacy (Show All)"
+        meta:
+          id: req_13e292d86e6840f2ad11df4bc945006a
+          created: 1750314800003
+          modified: 1750376825118
+          isPrivate: false
+          sortKey: -1750314800102.25
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "show_full_name": true,
+              "show_email": true,
+              "profile_visibility": "public",
+              "search_visibility": "everyone"
+            }
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            insomnia.test('Privacy Settings Updated', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/register/
+        name: "SETUP: Register PrivacyUserB (Hide All)"
+        meta:
+          id: req_f8aedccd5fee4b59a2d742fcfc6ccde8
+          created: 1750314800004
+          modified: 1750377336814
+          isPrivate: false
+          sortKey: -1750314800099.125
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "username": "PrivacyUserB_HideAll",
+              "email": "privacyuserb@rfr.com",
+              "password": "SecurePass123!",
+              "password2": "SecurePass123!",
+              "first_name": "Bob",
+              "last_name": "Brown"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.environment.set("privacy_user_b_id", jsonBody.user_id);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/token/
+        name: "SETUP: Get Token for PrivacyUserB"
+        meta:
+          id: req_c7c9aeb4785944ee90017de3d43b65fe
+          created: 1750314800005
+          modified: 1750376965077
+          isPrivate: false
+          sortKey: -1750314800097.5625
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "username": "PrivacyUserB_HideAll",
+              "password": "SecurePass123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.environment.set("privacy_user_b_token", jsonBody.access);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/privacy-settings/
+        name: "SETUP: Configure UserB Privacy (Hide All)"
+        meta:
+          id: req_ad3e5b09bd5c42f5bb8045b159fca085
+          created: 1750314800006
+          modified: 1750376979830
+          isPrivate: false
+          sortKey: -1750314800096.7812
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "show_full_name": false,
+              "show_email": false,
+              "profile_visibility": "friends_only",
+              "search_visibility": "friends_only"
+            }
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_b_token}}
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/friend-requests/send/
+        name: "SETUP: UserA sends friend request to UserB"
+        meta:
+          id: req_60028b14d3ef44eb92b04f2d97757fdb
+          created: 1750314800007
+          modified: 1750379132854
+          isPrivate: false
+          sortKey: -1750314800046
+        method: POST
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+        scripts:
+          preRequest: |
+            const userBId = insomnia.environment.get("privacy_user_b_id");
+
+            insomnia.request.body.update({
+              mode: 'raw',
+              raw: `{"receiver_profile_id": ${userBId}}`
+            });
+          afterResponse: >
+            const jsonBody = insomnia.response.json();
+
+            insomnia.environment.set("privacy_friend_request_id",
+            jsonBody.request_id);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/friend-requests/<request_pk>/accept/
+        name: "SETUP: UserB accepts friend request"
+        meta:
+          id: req_0dd60343d6c94196b12015c5787f1fea
+          created: 1750314800008
+          modified: 1750377030740
+          isPrivate: false
+          sortKey: -1750314800033.5
+        method: POST
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_b_token}}
+        scripts:
+          preRequest: |
+            const requestId = insomnia.environment.get("privacy_friend_request_id");
+            insomnia.request.url.update(`http://localhost:8000/api/friend-requests/${requestId}/accept/`);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/<user_id>/
+        name: "TEST: UserA views own profile (should show all)"
+        meta:
+          id: req_37ecf03142a943feae2303786f8f11a2
+          created: 1750314800009
+          modified: 1750379432285
+          isPrivate: false
+          sortKey: -1750314800009
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+        scripts:
+          preRequest: |
+            const userAId = insomnia.environment.get("privacy_user_a_id");
+            insomnia.request.url.update(`http://localhost:8000/api/users/${userAId}/`);
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.test('Own Profile Shows All Fields', () => {
+              insomnia.expect(jsonBody).to.have.property('first_name');
+              insomnia.expect(jsonBody).to.have.property('last_name');
+              insomnia.expect(jsonBody).to.have.property('email');
+              insomnia.expect(jsonBody.first_name).to.eql('Alice');
+              insomnia.expect(jsonBody.last_name).to.eql('Anderson');
+              insomnia.expect(jsonBody.email).to.eql('privacyusera@gg.com');
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/<user_id>/
+        name: "TEST: UserA views UserB profile (friend, but hide_all)"
+        meta:
+          id: req_4cb3145ef8c345aab071b3ec4e4b56a9
+          created: 1750314800010
+          modified: 1750379411666
+          isPrivate: false
+          sortKey: -1750314800010
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+        scripts:
+          preRequest: |
+            const userBId = insomnia.environment.get("privacy_user_b_id");
+            insomnia.request.url.update(`http://localhost:8000/api/users/${userBId}/`);
+          afterResponse: >
+            const jsonBody = insomnia.response.json();
+
+            insomnia.test('Friend Profile Respects Privacy Settings', () => {
+              // These assertions will fail until privacy filtering is implemented
+              // but they document the expected behavior
+              insomnia.expect(jsonBody.username).to.eql('PrivacyUserB_HideAll');
+              // TODO: Uncomment when privacy filtering is implemented:
+              insomnia.expect(jsonBody.first_name).to.be.oneOf(['', null, undefined]);
+              insomnia.expect(jsonBody.last_name).to.be.oneOf(['', null, undefined]);
+              insomnia.expect(jsonBody.email).to.be.oneOf(['', null, undefined]);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/<user_id>/
+        name: "TEST: UserB views own profile (should show all despite privacy)"
+        meta:
+          id: req_d281cdde337b4986943c364d486f385e
+          created: 1750314800011
+          modified: 1750379370984
+          isPrivate: false
+          sortKey: -1750314800011
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_b_token}}
+        scripts:
+          preRequest: |
+            const userBId = insomnia.environment.get("privacy_user_b_id");
+            insomnia.request.url.update(`http://localhost:8000/api/users/${userBId}/`);
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.test('Own Profile Always Shows All Fields', () => {
+              insomnia.expect(jsonBody.first_name).to.eql('Bob');
+              insomnia.expect(jsonBody.last_name).to.eql('Brown');
+            	insomnia.expect(jsonBody.full_name).to.eql('Bob Brown');
+
+              insomnia.expect(jsonBody.email).to.eql('privacyuserb@rfr.com');
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/search/?q=Alice
+        name: "TEST: Search for UserA (show_full_name=true)"
+        meta:
+          id: req_c8ad7d7e278440eda7c423c5040278d0
+          created: 1750314800012
+          modified: 1750389532126
+          isPrivate: false
+          sortKey: -1750314800064.75
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_b_token}}
+        scripts:
+          afterResponse: >
+            const jsonBody = insomnia.response.json();
+
+            insomnia.test('Search Results Show Name Based on Privacy', () => {
+              const results = jsonBody.results || jsonBody;
+              const userA = results.find(u => u.username === 'PrivacyUserA_ShowAll');
+              insomnia.expect(userA.first_name).to.eql('Alice');
+              insomnia.expect(userA.last_name).to.eql('Anderson');
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/search/?q=Bob
+        name: "TEST: Search for UserB (show_full_name=false)"
+        meta:
+          id: req_122f6ec1b6164578b5b2aaee97291ebe
+          created: 1750314800013
+          modified: 1750389429707
+          isPrivate: false
+          sortKey: -1750314800013
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+        scripts:
+          afterResponse: >
+            const jsonBody = insomnia.response.json();
+
+            insomnia.test('Search Results Hide Name Based on Privacy', () => {
+              const results = jsonBody.results || jsonBody;
+              const userB = results.find(u => u.username === 'PrivacyUserB_HideAll');
+              if (userB) {
+                // TODO: Uncomment when privacy filtering is implemented:
+                insomnia.expect(userB.first_name).to.be.oneOf(['', null, undefined]);
+                insomnia.expect(userB.last_name).to.be.oneOf(['', null, undefined]);
+            		insomnia.expect(userB.full_name).to.be.oneOf(['', null, undefined]);
+
+                insomnia.expect(userB.username).to.eql('PrivacyUserB_HideAll');
+              }
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/<user_id>/
+        name: "TEST: Admin views restricted profile (should bypass privacy)"
+        meta:
+          id: req_8d3e5e8748924f5da7d56206404d7297
+          created: 1750314800014
+          modified: 1750379271130
+          isPrivate: false
+          sortKey: -1750314800014
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{admin_token}}
+        scripts:
+          preRequest: |
+            const userBId = insomnia.environment.get("privacy_user_b_id");
+            insomnia.request.url.update(`http://localhost:8000/api/users/${userBId}/`);
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.test('Admin Bypasses Privacy Settings', () => {
+              insomnia.expect(jsonBody.first_name).to.eql('Bob');
+              insomnia.expect(jsonBody.last_name).to.eql('Brown');
+              insomnia.expect(jsonBody.email).to.eql('privacyuserb@rfr.com');
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/register/
+        name: "SETUP: Register PrivacyUserC (Show Name, Hide Email)"
+        meta:
+          id: req_579203db84fc46b996429a1e94382be4
+          created: 1750314800015
+          modified: 1750377352882
+          isPrivate: false
+          sortKey: -1750314800096
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "username": "PrivacyUserC_Mixed",
+              "email": "privacyuserc@gg.com",
+              "password": "SecurePass123!",
+              "password2": "SecurePass123!",
+              "first_name": "Charlie",
+              "last_name": "Chen"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.environment.set("privacy_user_c_id", jsonBody.user_id);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/token/
+        name: "SETUP: Get Token for PrivacyUserC"
+        meta:
+          id: req_48b1072feaff4863b8f69c86e98197cd
+          created: 1750314800016
+          modified: 1750376879665
+          isPrivate: false
+          sortKey: -1750314800083.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "username": "PrivacyUserC_Mixed",
+              "password": "SecurePass123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.environment.set("privacy_user_c_token", jsonBody.access);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/privacy-settings/
+        name: "SETUP: Configure UserC Privacy (Show Name, Hide Email)"
+        meta:
+          id: req_d43f5c80e74244698d072b7990565ca5
+          created: 1750314800017
+          modified: 1750360089813
+          isPrivate: false
+          sortKey: -1750314800071
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "show_full_name": true,
+              "show_email": false,
+              "profile_visibility": "public",
+              "search_visibility": "everyone"
+            }
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_c_token}}
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/<user_id>/
+        name: "TEST: View UserC profile (mixed privacy settings)"
+        meta:
+          id: req_779c0a45586940b885283fa3921403dc
+          created: 1750314800018
+          modified: 1750379252205
+          isPrivate: false
+          sortKey: -1750314800018
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+        scripts:
+          preRequest: |
+            const userCId = insomnia.environment.get("privacy_user_c_id");
+            insomnia.request.url.update(`http://localhost:8000/api/users/${userCId}/`);
+          afterResponse: >
+            const jsonBody = insomnia.response.json();
+
+            insomnia.test('Mixed Privacy Settings Work Correctly', () => {
+              // Should show name but hide email
+              insomnia.expect(jsonBody.first_name).to.eql('Charlie');
+              insomnia.expect(jsonBody.last_name).to.eql('Chen');
+              // TODO: Uncomment when privacy filtering is implemented:
+              insomnia.expect(jsonBody.email).to.be.oneOf(['', null, undefined]);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/privacy-settings/
+        name: "TEST: Get current privacy settings"
+        meta:
+          id: req_b5701796b6e64e039c9dcc13f298b5d7
+          created: 1750314800019
+          modified: 1750379214117
+          isPrivate: false
+          sortKey: -1750314800026.75
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.test('Privacy Settings Retrieved', () => {
+              insomnia.expect(jsonBody).to.have.property('show_full_name');
+              insomnia.expect(jsonBody).to.have.property('show_email');
+              insomnia.expect(jsonBody.show_full_name).to.eql(true);
+              insomnia.expect(jsonBody.show_email).to.eql(true);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/privacy-settings/
+        name: "TEST: Update privacy settings"
+        meta:
+          id: req_0530a27470da4b09af2892202ee430f3
+          created: 1750314800020
+          modified: 1750314800020
+          isPrivate: false
+          sortKey: -1750314800020
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "show_full_name": false,
+              "show_email": false
+            }
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.test('Privacy Settings Updated Successfully', () => {
+              insomnia.expect(insomnia.response.code).to.eql(200);
+              insomnia.expect(jsonBody.show_full_name).to.eql(false);
+              insomnia.expect(jsonBody.show_email).to.eql(false);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/<user_id>/
+        name: "TEST: Verify privacy changes take effect"
+        meta:
+          id: req_4170af55e3aa458fb04da99df8b62c8e
+          created: 1750314800021
+          modified: 1750389355485
+          isPrivate: false
+          sortKey: -1750314800058.5
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{privacy_user_a_token}}
+            id: pair_cab525fb35264cab9d3a480d59bcf76f
+        scripts:
+          preRequest: |
+            const userBId = insomnia.environment.get("privacy_user_b_id");
+            insomnia.request.url.update(`http://localhost:8000/api/users/${userBId}/`);
+          afterResponse: >
+            const jsonBody = insomnia.response.json();
+
+            insomnia.test('Updated Privacy Settings Are Enforced', () => {
+              // UserA now has show_full_name=false, so name should be hidden
+              // TODO: Uncomment when privacy filtering is implemented:
+              insomnia.expect(jsonBody.first_name).to.be.oneOf(['', null, undefined]);
+              insomnia.expect(jsonBody.last_name).to.be.oneOf(['', null, undefined]);
+              insomnia.expect(jsonBody.email).to.be.oneOf(['', null, undefined]);
+              insomnia.expect(jsonBody.username).to.eql('PrivacyUserB_HideAll');
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8000/api/token/
+        name: "CLEANUP: Login as admin"
+        meta:
+          id: req_123ee3843a7642e3b31a4d92c64a0ac7
+          created: 1750377383816
+          modified: 1750377430427
+          isPrivate: false
+          sortKey: -1750314800321
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"username": "admin-insomnia",
+            	"password": "AdminPassword123@kxy"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.1.0
+        scripts:
+          afterResponse: |
+            const jsonBody = insomnia.response.json();
+            insomnia.environment.set("admin_token", jsonBody.access);
+
+            insomnia.test('Admin Login - Status code is 200', () => {
+                insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+
+            insomnia.test('Admin Login - Has both keys', () => {
+            insomnia.expect(jsonBody).to.have.all.keys('access', 'refresh');
+            });
+
+            // Clear any existing test user environment variables
+            insomnia.environment.unset('user_a_id');
+            insomnia.environment.unset('user_a_username');
+            insomnia.environment.unset('user_a_token');
+            insomnia.environment.unset('user_b_id');
+            insomnia.environment.unset('user_b_username');
+            insomnia.environment.unset('user_b_token');
+            insomnia.environment.unset('user_c_id');
+            insomnia.environment.unset('user_c_username');
+            insomnia.environment.unset('user_c_token');
+            insomnia.environment.unset('user_d_id');
+            insomnia.environment.unset('user_d_username');
+            insomnia.environment.unset('user_d_token');
+            insomnia.environment.unset('friend_request_to_b_id');
+            insomnia.environment.unset('friend_request_to_c_id');
+
+            // Store test usernames for potential cleanup
+            insomnia.environment.set('test_usernames', JSON.stringify([
+              'TestUserA_Everyone',
+              'TestUserB_Friends',
+              'TestUserC_FriendsOfFriends',
+              'TestUserD_Nobody'
+            ]));
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/search/?q=PrivacyUser
+        name: "CLEANUP: Find and delete all existing test users"
+        meta:
+          id: req_7e62082b216b45d0882159caa1f66645
+          created: 1750377406727
+          modified: 1750379045079
+          isPrivate: false
+          sortKey: -1750314800221
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.1.0
+        scripts:
+          preRequest: >
+            const admin_token = insomnia.environment.get("admin_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer
+            ${admin_token}`});
+          afterResponse: >
+
+            const admin_token = insomnia.environment.get("admin_token")
+
+
+            insomnia.test('User Search - Request completed', () => {
+              const code = insomnia.response.code;
+              insomnia.expect([200, 400]).to.include(code);
+            });
+
+            if (insomnia.response.code === 200) {
+              const body = insomnia.response.json();
+              const testUserIds = [];
+
+              if (body.results) {
+                body.results.forEach(user => {
+                  if (user.username && (
+                    user.username.includes('PrivacyUserA_ShowAll') ||
+                    user.username.includes('PrivacyUserB_HideAll') ||
+                    user.username.includes('PrivacyUserC_Mixed')
+                  )) {
+                    testUserIds.push(user.id);
+                  }
+                });
+              }
+
+              if (testUserIds.length > 0) {
+                console.log(`Found ${testUserIds.length} test users to delete: ${testUserIds.join(', ')}`);
+
+                // Recursively delete all found users
+                const deleteUser = async (userId) => {
+                  const deleteReq = {
+                    url: `http://localhost:8000/api/users/${userId}/update/`,
+                    method: 'DELETE',
+                    header: {
+                      'Authorization': `Bearer ${admin_token}`,
+                      'User-Agent': 'insomnia/11.1.0'
+                    }
+                  };
+
+                  const resp = await new Promise((resolve, reject) => {
+                    insomnia.sendRequest(deleteReq, (err, resp) => {
+                      if (err != null) {
+                        reject(err);
+                      } else {
+                        resolve(resp);
+                      }
+                    });
+                  });
+
+                  console.log(`Delete user ${userId}: ${resp.code}`);
+                  return resp;
+                };
+
+                // Delete all users sequentially
+                const deleteAllUsers = async () => {
+                  for (const userId of testUserIds) {
+                    try {
+                      await deleteUser(userId);
+                    } catch (error) {
+                      console.log(`Error deleting user ${userId}: ${error.message}`);
+                    }
+                  }
+                };
+
+                deleteAllUsers().then(() => {
+                  console.log('Finished deleting all test users');
+                }).catch(error => {
+                  console.log(`Error in delete process: ${error.message}`);
+                });
+              } else {
+                console.log('No test users found to delete');
+              }
+            } else {
+              console.log('Search request failed or returned no results');
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8000/api/users/search/?q=PrivacyUser
+        name: "CLEANUP: Find and delete all existing test users"
+        meta:
+          id: req_dd874a9ccfb9487da936189e1eea7cc9
+          created: 1750380423646
+          modified: 1750389221559
+          isPrivate: false
+          sortKey: -1750314800171
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.1.0
+        scripts:
+          preRequest: >
+            const admin_token = insomnia.environment.get("admin_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer
+            ${admin_token}`});
+          afterResponse: >
+
+            const admin_token = insomnia.environment.get("admin_token")
+
+
+            insomnia.test('User Search - Request completed', () => {
+              const code = insomnia.response.code;
+              insomnia.expect([200, 400]).to.include(code);
+            });
+
+            if (insomnia.response.code === 200) {
+              const body = insomnia.response.json();
+              const testUserIds = [];
+
+              if (body.results) {
+                body.results.forEach(user => {
+                  if (user.username && (
+                    user.username.includes('PrivacyUserA_ShowAll') ||
+                    user.username.includes('PrivacyUserB_HideAll') ||
+                    user.username.includes('PrivacyUserC_Mixed')
+                  )) {
+                    testUserIds.push(user.id);
+                  }
+                });
+              }
+
+              if (testUserIds.length > 0) {
+                console.log(`Found ${testUserIds.length} test users to delete: ${testUserIds.join(', ')}`);
+
+                // Recursively delete all found users
+                const deleteUser = async (userId) => {
+                  const deleteReq = {
+                    url: `http://localhost:8000/api/users/${userId}/update/`,
+                    method: 'DELETE',
+                    header: {
+                      'Authorization': `Bearer ${admin_token}`,
+                      'User-Agent': 'insomnia/11.1.0'
+                    }
+                  };
+
+                  const resp = await new Promise((resolve, reject) => {
+                    insomnia.sendRequest(deleteReq, (err, resp) => {
+                      if (err != null) {
+                        reject(err);
+                      } else {
+                        resolve(resp);
+                      }
+                    });
+                  });
+
+                  console.log(`Delete user ${userId}: ${resp.code}`);
+                  return resp;
+                };
+
+                // Delete all users sequentially
+                const deleteAllUsers = async () => {
+                  for (const userId of testUserIds) {
+                    try {
+                      await deleteUser(userId);
+                    } catch (error) {
+                      console.log(`Error deleting user ${userId}: ${error.message}`);
+                    }
+                  }
+                };
+
+                deleteAllUsers().then(() => {
+                  console.log('Finished deleting all test users');
+                }).catch(error => {
+                  console.log(`Error in delete process: ${error.message}`);
+                });
+              } else {
+                console.log('No test users found to delete');
+              }
+            } else {
+              console.log('Search request failed or returned no results');
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:
-    id: jar_35d3bf0f2aca4777a943daae2abff99d
+    id: jar_61588a6f29ae490cb60fcb1b60599ab8
     created: 1747860044695
-    modified: 1750310428536
+    modified: 1750389735665
 environments:
   name: Base Environment
   meta:
-    id: env_9f76ebe1936d405eaf977ad9d3e4e5a5
+    id: env_d00c267d1a17402db7cbc9d94e25cb74
     created: 1747860044694
-    modified: 1750310428551
+    modified: 1750389823210
     isPrivate: false
   data:
-    sending_user_num: 0.7285133876101682
-    sending_user: 378
-    receiving_user_num: 0.5385786221064763
-    receiving_user: 379
-    refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDM5NjEzMywiaWF0IjoxNzUwMzA5NzMzLCJqdGkiOiJjYTcxYmU5MDJlYmU0OGJlODFlMDIzY2FhNzkxZGNlNCIsInVzZXJfaWQiOjM3OX0.DzfNSLdT4np7ruRDzzRL2zuX_SHcV-qeVtQFq1GQkQA
-    access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzEwMDM2LCJpYXQiOjE3NTAzMDk3MzYsImp0aSI6ImYzNDU1NmY5Y2EwMzRlODViZTg3MGNjM2IwN2Y2NWQyIiwidXNlcl9pZCI6Mzc4fQ.XpquIoyHBzW5SUbS9OXjcicsflKvDPcQhA-kNHyC_S4
-    sent_friend_request_id: 215
-    latest_rand_num: 0.5787440772934433
-    user_id: 376
-    group_id: 136
-    TBD_rand_num: 0.986245661971161
-    TBD_user_id: 377
-    TBD_group_id: 137
-    chatroom_id: 50
-    friend_request_id: 213
-    reverse_friend_request_id: 216
-    admin_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzEwNDQxLCJpYXQiOjE3NTAzMTAxNDEsImp0aSI6IjkzNGQ0ZmU3OWI3YTQxOGQ5YjZmNDFlOWM1NWI5MGMyIiwidXNlcl9pZCI6MX0.FkHJcSv9mrU38EdswdesA5h9U9diF9QhEN5E3Zy8jwQ
+    sending_user_num: 0.9624232245598245
+    sending_user: 650
+    receiving_user_num: 0.19247623790436053
+    receiving_user: 651
+    refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDQ3NjEwOSwiaWF0IjoxNzUwMzg5NzA5LCJqdGkiOiJhMWM2NDk3YmJhZDA0MjJjOTk5NDdmOWQxNTU5ZTNkYSIsInVzZXJfaWQiOjY1MX0.aJQZiDt-QDhNYPj8KOcqZUIgAg4n8vOOJL_COEZ3B9o
+    access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDExLCJpYXQiOjE3NTAzODk3MTEsImp0aSI6ImNkODIyZjg0NDA0YTRlM2M4MGY0MDc1MzZhMDVmMjE2IiwidXNlcl9pZCI6NjUwfQ.f3FygyyeLABVrDlo5x1vEeVNHkqLw8DzGboNcvjS6PU
+    sent_friend_request_id: 353
+    latest_rand_num: 0.41358437527345915
+    user_id: 648
+    group_id: 204
+    TBD_rand_num: 0.26894621657771434
+    TBD_user_id: 649
+    TBD_group_id: 205
+    chatroom_id: 72
+    friend_request_id: 351
+    reverse_friend_request_id: 354
+    admin_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDI0LCJpYXQiOjE3NTAzODk3MjQsImp0aSI6ImQxM2Y0N2NhNWIzNTQ0ZWY5NmYyOTA4MDM5OGNhMzc4IiwidXNlcl9pZCI6MX0.SRmw8uCzHuUBGZ9E7FTvBE2W6R_DGLhKuTBXHdnQqTw
     test_usernames: '["TestUserA_Everyone","TestUserB_Friends","TestUserC_FriendsOfFriends","TestUserD_Nobody"]'
-    user_a_id: 382
-    user_a_username: TestUserA_Everyone
-    user_b_id: 383
-    user_b_username: TestUserB_Friends
-    user_c_id: 384
-    user_c_username: TestUserC_FriendsOfFriends
-    user_d_id: 385
-    user_d_username: TestUserD_Nobody
-    user_a_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzEwNTc3LCJpYXQiOjE3NTAzMTAyNzcsImp0aSI6IjBkYzM0MWMwOTk5MDQzNjc4ZGQ4OGY5ZGQxZmJmYWIzIiwidXNlcl9pZCI6MzgyfQ.9zdWWL2f-HdAv6LILkRQC2-y6hVhFw9F8THthsvkb8c
-    user_b_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzEwNjEyLCJpYXQiOjE3NTAzMTAzMTIsImp0aSI6IjNhMmY1YzQzZWQxZDQyYmZhZmJhMzRiYTcwNmI1MjIwIiwidXNlcl9pZCI6MzgzfQ.xyG0hN043cSdIz1mlEPUegPZuhY4T9Lc-YEJE2vFWM4
-    user_c_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzEwNjIxLCJpYXQiOjE3NTAzMTAzMjEsImp0aSI6IjI3ZjJhZjQ4YWJjMTQxZjliZmE0NTQxZmY1YTZkMjZkIiwidXNlcl9pZCI6Mzg0fQ.Xufacyeas3--EI-GAJYSDBZLuEPZdb-BXqvwvRR4jok
-    user_d_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzEwNjI4LCJpYXQiOjE3NTAzMTAzMjgsImp0aSI6ImQ1NGUzMmMzMTIwMDRlYzdhMDRmY2Q4MTdmZTdkMDRhIiwidXNlcl9pZCI6Mzg1fQ.vS9F4WbWkOEcVFQuu5Eh2gRCfX6QYOky-GZmDjPK8GU
+    privacy_user_a_id: 656
+    privacy_user_a_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDI4LCJpYXQiOjE3NTAzODk3MjgsImp0aSI6IjU4MjliODAxNWUwYjQ1MDBhNjQ2YmQ2ODE4ZTc1ZTdiIiwidXNlcl9pZCI6NjU2fQ.C0Vsy0dwLTWq72_XBFghxlbAekdoHFeapTAiF7t-DGg
+    privacy_user_b_id: 657
+    privacy_user_b_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDMxLCJpYXQiOjE3NTAzODk3MzEsImp0aSI6ImI4YjNjNWY1YzU1MjRjNjJhY2E2N2I4MjY2YjZjMzJlIiwidXNlcl9pZCI6NjU3fQ.PU4FzERfHyOhbxxnsKjTE94l8zoEd0GREvKTYIg-l9A
+    privacy_user_c_id: 658
+    privacy_user_c_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDMzLCJpYXQiOjE3NTAzODk3MzMsImp0aSI6Ijg1Zjg4NWViZDMwYTRlY2NiYmY3NzMwYjI5ZmExMDVhIiwidXNlcl9pZCI6NjU4fQ.Lm0iZatP9shYiwVDN5OkNkePjk7CoKKHVRhNSk2nZT0
+    privacy_friend_request_id: 357

@@ -43,29 +43,63 @@ def validate_search_query(search_query: str, min_length: int = 2) -> Tuple[bool,
     return True, None
 
 
-def build_base_search_queryset(search_query: str) -> QuerySet:
+def build_privacy_aware_search_queryset(search_query: str, requesting_user: Optional[User]) -> QuerySet:
     """
-    Creates the base search queryset with filters for username, first_name, and last_name.
+    Creates a privacy-aware search queryset that only searches fields the requesting user can see.
 
     Args:
         search_query: The validated search query string
+        requesting_user: The user performing the search
 
     Returns:
-        QuerySet of User objects matching the search criteria (before privacy filtering)
+        QuerySet of User objects matching the search criteria with privacy respected
     """
     search_query = search_query.strip()
 
     # Start with all users, selecting related profile and privacy settings for efficiency
     queryset = User.objects.select_related('profile', 'profile__privacy_settings')
 
-    # Apply search filters using Q objects for OR conditions
-    queryset = queryset.filter(
-        Q(username__icontains=search_query)
-        | Q(first_name__icontains=search_query)
-        | Q(last_name__icontains=search_query)
-    ).distinct().order_by("username")
+    # Build search conditions based on what fields the requesting user can see
+    search_conditions = Q()
 
-    return queryset
+    # Username is always searchable (it's the public identifier)
+    search_conditions |= Q(username__icontains=search_query)
+
+    # Only search by name if the requesting user can see names
+    if requesting_user and requesting_user.is_authenticated:
+        # Build conditions for users whose names can be searched
+        name_searchable_conditions = Q()
+
+        # Can always search own name
+        name_searchable_conditions |= Q(id=requesting_user.id)
+
+        # Can search names of users who show full name to this requesting user
+        # This follows the same logic as UserSerializer._should_show_full_name
+
+        # Users with show_full_name=True (visible to authenticated users)
+        name_searchable_conditions |= Q(profile__privacy_settings__show_full_name=True)
+
+        # Apply name search only to users whose names are visible
+        name_search = Q(first_name__icontains=search_query) | Q(last_name__icontains=search_query)
+        search_conditions |= (name_searchable_conditions & name_search)
+
+    # Apply the combined search conditions
+    return queryset.filter(search_conditions).distinct().order_by("username")
+
+
+def build_base_search_queryset(search_query: str, requesting_user: Optional[User] = None) -> QuerySet:
+    """
+    Creates the base search queryset with privacy-aware field searching.
+
+    Args:
+        search_query: The validated search query string
+        requesting_user: The user performing the search (for privacy-aware searching)
+
+    Returns:
+        QuerySet of User objects matching the search criteria
+    """
+    # Use the new privacy-aware search logic
+    return build_privacy_aware_search_queryset(search_query, requesting_user)
 
 
 def apply_privacy_filters(queryset: QuerySet, requesting_user: Optional[User]) -> QuerySet:
@@ -175,38 +209,32 @@ def execute_user_search(
     view_instance,
     min_query_length: int = 2,
     page_size: int = 10,
-    bypass_privacy_filters: bool=False
+    bypass_privacy_filters: bool = False
 ) -> Tuple[bool, Optional[QuerySet], Optional[PageNumberPagination], Optional[Response]]:
-    """
-    Main function that orchestrates the user search process with privacy controls.
+    """Main function that orchestrates the user search process with privacy controls."""
 
-    Args:
-        search_query: The search query string
-        requesting_user: The user performing the search
-        request: The HTTP request object
-        view_instance: The view instance for context
-        min_query_length: Minimum required length for search query
-        page_size: Number of results per page
-        bypass_privacy_filters: Whether to bypass privacy filters (default: False)
-
-    Returns:
-        Tuple of (success, queryset_or_none, paginator_or_none, error_response_or_none)
-        - If successful with pagination: (True, page_queryset, paginator_instance, None)
-        - If successful without pagination: (True, full_queryset, None, None)
-        - If error: (False, None, None, error_response)
-    """
     # Step 1: Validate search query
     is_valid, error_response = validate_search_query(search_query, min_query_length)
     if not is_valid:
         return False, None, None, error_response
 
-    # Step 2: Build base search queryset
-    base_queryset = build_base_search_queryset(search_query)
+    # Step 2: Build privacy-aware search queryset
     if bypass_privacy_filters:
-        final_queryset = base_queryset
+        # Admin search - use old logic that searches all fields
+        base_queryset = User.objects.select_related('profile', 'profile__privacy_settings').filter(
+            Q(username__icontains=search_query.strip()) |
+            Q(first_name__icontains=search_query.strip()) |
+            Q(last_name__icontains=search_query.strip())
+        ).distinct().order_by("username")
     else:
-        # Step 3: Apply privacy filters
+        # Regular search - respect privacy settings
+        base_queryset = build_base_search_queryset(search_query, requesting_user)
+
+    if not bypass_privacy_filters:
+        # Step 3: Apply visibility privacy filters
         final_queryset = apply_privacy_filters(base_queryset, requesting_user)
+    else:
+        final_queryset = base_queryset
 
     # Step 4: Handle pagination
     page_or_queryset, paginator = paginate_search_results(

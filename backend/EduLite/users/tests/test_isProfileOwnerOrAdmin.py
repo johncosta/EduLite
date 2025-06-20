@@ -37,6 +37,10 @@ class UserProfilePermissionsIntegrationTests(APITestCase):
         cls.profile2.save()
         cls.profile2_url = reverse("userprofile-detail", kwargs={"pk": cls.profile2.pk})
 
+        # Make user1 and user2 friends so they can see each other's profiles
+        cls.profile1.friends.add(cls.user2)
+        cls.profile2.friends.add(cls.user1)
+
         cls.admin_user = User.objects.create_superuser(
             username="adminuser", password="password123", email="admin@example.com"
         )
