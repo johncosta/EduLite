@@ -633,7 +633,10 @@ class UserProfilePrivacySettingsRetrieveUpdateView(UsersAppBaseAPIView):
         if created:
             import logging
             logger = logging.getLogger(__name__)
-            logger.info("Created missing privacy settings for user %s", self.request.user.username)
+            logger.info(
+                "Created missing privacy settings for user %s",
+                self.request.user.username
+            )
 
         return privacy_settings
 
