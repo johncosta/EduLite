@@ -830,7 +830,8 @@ collection:
           created: 1748230052182
           modified: 1748230324116
           isPrivate: false
-          description: Do not run this in production. You should not have an account with
+          description:
+            Do not run this in production. You should not have an account with
             these credentials in production. This is for DEBUG TESTS only!
           sortKey: -1748230024749
         method: POST
@@ -5161,31 +5162,5 @@ environments:
   meta:
     id: env_d00c267d1a17402db7cbc9d94e25cb74
     created: 1747860044694
-    modified: 1750389823210
+    modified: 1750390120959
     isPrivate: false
-  data:
-    sending_user_num: 0.9624232245598245
-    sending_user: 650
-    receiving_user_num: 0.19247623790436053
-    receiving_user: 651
-    refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDQ3NjEwOSwiaWF0IjoxNzUwMzg5NzA5LCJqdGkiOiJhMWM2NDk3YmJhZDA0MjJjOTk5NDdmOWQxNTU5ZTNkYSIsInVzZXJfaWQiOjY1MX0.aJQZiDt-QDhNYPj8KOcqZUIgAg4n8vOOJL_COEZ3B9o
-    access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDExLCJpYXQiOjE3NTAzODk3MTEsImp0aSI6ImNkODIyZjg0NDA0YTRlM2M4MGY0MDc1MzZhMDVmMjE2IiwidXNlcl9pZCI6NjUwfQ.f3FygyyeLABVrDlo5x1vEeVNHkqLw8DzGboNcvjS6PU
-    sent_friend_request_id: 353
-    latest_rand_num: 0.41358437527345915
-    user_id: 648
-    group_id: 204
-    TBD_rand_num: 0.26894621657771434
-    TBD_user_id: 649
-    TBD_group_id: 205
-    chatroom_id: 72
-    friend_request_id: 351
-    reverse_friend_request_id: 354
-    admin_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDI0LCJpYXQiOjE3NTAzODk3MjQsImp0aSI6ImQxM2Y0N2NhNWIzNTQ0ZWY5NmYyOTA4MDM5OGNhMzc4IiwidXNlcl9pZCI6MX0.SRmw8uCzHuUBGZ9E7FTvBE2W6R_DGLhKuTBXHdnQqTw
-    test_usernames: '["TestUserA_Everyone","TestUserB_Friends","TestUserC_FriendsOfFriends","TestUserD_Nobody"]'
-    privacy_user_a_id: 656
-    privacy_user_a_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDI4LCJpYXQiOjE3NTAzODk3MjgsImp0aSI6IjU4MjliODAxNWUwYjQ1MDBhNjQ2YmQ2ODE4ZTc1ZTdiIiwidXNlcl9pZCI6NjU2fQ.C0Vsy0dwLTWq72_XBFghxlbAekdoHFeapTAiF7t-DGg
-    privacy_user_b_id: 657
-    privacy_user_b_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDMxLCJpYXQiOjE3NTAzODk3MzEsImp0aSI6ImI4YjNjNWY1YzU1MjRjNjJhY2E2N2I4MjY2YjZjMzJlIiwidXNlcl9pZCI6NjU3fQ.PU4FzERfHyOhbxxnsKjTE94l8zoEd0GREvKTYIg-l9A
-    privacy_user_c_id: 658
-    privacy_user_c_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwMzkwMDMzLCJpYXQiOjE3NTAzODk3MzMsImp0aSI6Ijg1Zjg4NWViZDMwYTRlY2NiYmY3NzMwYjI5ZmExMDVhIiwidXNlcl9pZCI6NjU4fQ.Lm0iZatP9shYiwVDN5OkNkePjk7CoKKHVRhNSk2nZT0
-    privacy_friend_request_id: 357

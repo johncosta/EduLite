@@ -6,7 +6,9 @@ from typing import Optional, TYPE_CHECKING
 
 from rest_framework import serializers
 
-from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
+from .models import (
+    UserProfile, ProfileFriendRequest, UserProfilePrivacySettings,
+)
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractUser
@@ -51,7 +53,11 @@ class ProfileSerializer(
         request = self.context.get('request')
 
         # Production: Get authenticated user from request
-        if request and hasattr(request, 'user') and hasattr(request.user, 'is_authenticated') and request.user.is_authenticated:
+        if request and hasattr(
+            request, 'user'
+        ) and hasattr(
+            request.user, 'is_authenticated'
+        ) and request.user.is_authenticated:
             return request.user
 
         # Test context: Allow passing user directly (only for tests)
@@ -61,9 +67,12 @@ class ProfileSerializer(
 
         return None
 
-    def _can_view_full_profile(self, obj: UserProfile, requesting_user: Optional['AbstractUser']) -> bool:
+    def _can_view_full_profile(
+        self, obj: UserProfile, requesting_user: Optional['AbstractUser']
+    ) -> bool:
         """
-        Check if the requesting user can view the full profile based on privacy settings.
+        Check if the requesting user can view the
+        full profile based on privacy settings.
         """
         if not requesting_user:
             return False
@@ -80,7 +89,9 @@ class ProfileSerializer(
         try:
             privacy_settings = getattr(obj, 'privacy_settings', None)
             if privacy_settings:
-                return privacy_settings.can_profile_be_viewed_by_user(requesting_user)
+                return privacy_settings.can_profile_be_viewed_by_user(
+                    requesting_user
+                )
         except (AttributeError, UserProfilePrivacySettings.DoesNotExist):
             pass
 
@@ -96,9 +107,11 @@ class ProfileSerializer(
 
         # Check if requesting user can view the full profile
         if not self._can_view_full_profile(instance, requesting_user):
-            # For users who can't view the full profile, return limited information
+            # For users who can't view the full profile, return limited info
             limited_fields = ['url', 'user_url']
-            representation = {key: value for key, value in representation.items() if key in limited_fields}
+            representation = {
+                key: value for key, value in representation.items() if key in limited_fields
+            }
 
         return representation
 
@@ -162,16 +175,19 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
         request = self.context.get('request')
 
         # Production: Get authenticated user from request
-        if request and hasattr(request, 'user') and hasattr(request.user, 'is_authenticated') and request.user.is_authenticated:
+        if request and hasattr(
+            request, 'user'
+        ) and hasattr(
+            request.user, 'is_authenticated'
+        ) and request.user.is_authenticated:
             return request.user
 
         # Test context: Allow passing user directly (only for tests)
-        test_user = self.context.get('test_user')
+        test_user = self.context.get('test_user')  # Doesn't exist without test
         if test_user and hasattr(test_user, 'pk'):
             return test_user
 
         return None
-
 
     def _should_show_email(self, obj, requesting_user: Optional['AbstractUser']) -> bool:
         """
@@ -185,7 +201,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
         if requesting_user and (requesting_user.is_superuser or requesting_user.is_staff):
             return True
 
-        # Check privacy settings with proper error handling
+        # Check privacy settings
         try:
             if hasattr(obj, 'profile') and hasattr(obj.profile, 'privacy_settings'):
                 privacy_settings = obj.profile.privacy_settings
