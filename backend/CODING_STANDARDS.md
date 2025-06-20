@@ -380,6 +380,9 @@ from typing import Optional
 from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.core.exceptions import ValidationError
+
+from .models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICES
 
 
 class UserProfile(models.Model):
@@ -387,11 +390,31 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     bio = models.TextField(max_length=500, blank=True, help_text="User biography")
-    birth_date = models.DateField(null=True, blank=True)
+    occupation = models.CharField(
+        max_length=64, choices=OCCUPATION_CHOICES, blank=True, null=True
+    )
+    country = models.CharField(
+        max_length=64, choices=COUNTRY_CHOICES, blank=True, null=True
+    )
+    preferred_language = models.CharField(
+        max_length=64, choices=LANGUAGE_CHOICES, blank=True, null=True
+    )
+    secondary_language = models.CharField(
+        max_length=64, choices=LANGUAGE_CHOICES, blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"
+
+    def clean(self) -> None:
+        """Custom validation for the model."""
+        super().clean()
+        if self.preferred_language and self.secondary_language:
+            if self.preferred_language == self.secondary_language:
+                raise ValidationError({
+                    'secondary_language': "Secondary language cannot be the same as preferred language."
+                })
 
     def __str__(self) -> str:
         return f"{self.user.username}'s Profile"
@@ -402,6 +425,172 @@ class UserProfile(models.Model):
             return f"{self.user.first_name} {self.user.last_name}"
         return self.user.username
 ```
+
+### Dynamic Choices System
+
+**EduLite uses a centralized system for managing model choices through JSON files. This allows contributors to easily add new countries, languages, professions, etc., without modifying Python code.**
+
+#### Structure Overview
+
+```
+backend/
+├── project_choices_data/           # JSON files for model choices
+│   ├── countries.json             # Country options
+│   ├── languages.json             # Language options
+│   └── occupations.json           # Profession/occupation options
+└── EduLite/
+    └── users/
+        ├── models_choices.py      # Python interface to JSON data
+        └── models.py             # Models using the choices
+```
+
+#### models_choices.py - The Interface
+
+```python
+# users/models_choices.py - Dynamic choices loader for EduLite models
+# Loads choices from JSON files to make them easily maintainable
+
+import json
+from pathlib import Path
+from django.conf import settings
+from typing import List, Tuple
+
+
+CHOICES_DATA_DIR = Path(settings.BASE_DIR).parent / "project_choices_data"
+
+
+def load_choices_from_json(filename: str) -> List[Tuple[str, str]]:
+    """
+    Load choices from JSON file and return as Django choices format.
+
+    Args:
+        filename: Name of the JSON file in project_choices_data directory
+
+    Returns:
+        List of (value, label) tuples for use in model CharField choices
+
+    JSON Format Expected:
+        [
+            {"value": "code", "label": "Display Name"},
+            {"value": "US", "label": "United States"},
+            ...
+        ]
+    """
+    file_path = CHOICES_DATA_DIR / filename
+    choices_list = []
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            for item in data:
+                if isinstance(item, dict) and "value" in item and "label" in item:
+                    choices_list.append((item["value"], item["label"]))
+                else:
+                    print(f"Warning: Malformed item in {filename}: {item}")
+
+    except FileNotFoundError:
+        print(f"Warning: Choices file not found: {file_path}")
+    except json.JSONDecodeError:
+        print(f"Warning: Invalid JSON in {file_path}")
+    except Exception as e:
+        print(f"Warning: Error loading {filename}: {e}")
+
+    return choices_list
+
+
+# Load all choices (loaded once when Django starts)
+OCCUPATION_CHOICES = load_choices_from_json("occupations.json")
+COUNTRY_CHOICES = load_choices_from_json("countries.json")
+LANGUAGE_CHOICES = load_choices_from_json("languages.json")
+```
+
+#### JSON File Format
+
+**Each JSON file follows a consistent structure:**
+
+```json
+// project_choices_data/countries.json
+[
+    {"value": "AF", "label": "Afghanistan"},
+    {"value": "PL", "label": "Palestine"},
+    {"value": "EG", "label": "Egypt"},
+    {"value": "SD", "label": "Sudan"},
+    {"value": "US", "label": "United States"},
+    {"value": "CA", "label": "Canada"}
+]
+```
+
+```json
+// project_choices_data/occupations.json
+[
+    {"value": "teacher", "label": "Teacher"},
+    {"value": "professor", "label": "Professor"},
+    {"value": "student", "label": "Student"},
+    {"value": "frontend_developer", "label": "Frontend Developer"},
+    {"value": "backend_developer", "label": "Backend Developer"}
+]
+```
+
+```json
+// project_choices_data/languages.json
+[
+    {"value": "en", "label": "English"},
+    {"value": "ar", "label": "Arabic"},
+    {"value": "es", "label": "Spanish"},
+    {"value": "fr", "label": "French"}
+]
+```
+
+#### Benefits of This System
+
+1. **Easy Contributions**: Contributors can add new options by editing JSON files
+2. **No Code Changes**: Adding countries/languages doesn't require Python knowledge
+3. **Centralized Management**: All choices are managed in one location
+4. **Internationalization Ready**: Labels can be easily translated
+5. **Version Control Friendly**: JSON changes are easy to review in pull requests
+6. **Runtime Loading**: Choices are loaded once at startup for performance
+
+#### Adding New Choices
+
+**To add new options, contributors simply:**
+
+1. **Edit the appropriate JSON file**:
+   ```json
+   // Add to project_choices_data/countries.json
+   {"value": "JP", "label": "Japan"}
+   ```
+
+2. **Follow the format**: Each entry must have `"value"` and `"label"` keys
+
+3. **Submit a pull request**: Changes are reviewed and merged
+
+**No Python code modifications needed!**
+
+#### Usage in Models
+
+**The choices are imported and used directly in model fields:**
+
+```python
+from .models_choices import OCCUPATION_CHOICES, COUNTRY_CHOICES, LANGUAGE_CHOICES
+
+class UserProfile(models.Model):
+    occupation = models.CharField(
+        max_length=64,
+        choices=OCCUPATION_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Select your profession"
+    )
+    country = models.CharField(
+        max_length=64,
+        choices=COUNTRY_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Select your country"
+    )
+```
+
+This system makes EduLite highly maintainable and contributor-friendly, allowing the community to easily expand the platform's options without technical barriers.
 
 ---
 
@@ -422,7 +611,7 @@ from rest_framework import serializers
 from .models import UserProfile, ProfileFriendRequest
 
 
-## -- User/Group Hyperlinked Serializers -- ##
+# -- User/Group Hyperlinked Serializers --
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -481,7 +670,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return data
 
 
-## -- Profile Serializers -- ##
+# -- Profile Serializers --
 
 
 class ProfileSerializer(serializers.HyperlinkedModelSerializer):
@@ -523,7 +712,7 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
         return data
 
 
-## -- Friend Request Serializers -- ##
+# -- Friend Request Serializers --
 
 
 class ProfileFriendRequestSerializer(serializers.ModelSerializer):
