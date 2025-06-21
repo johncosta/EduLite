@@ -209,7 +209,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class ProfileFriendRequestSerializer(serializers.ModelSerializer):
     """
     Serializer for the ProfileFriendRequest model.
-    Represents a friend request for API output, including profile URLs.
+    Represents a friend request for API output, including profile URLs and Optional messsage.
     """
 
     # Using SerializerMethodField to generate URLs
@@ -217,6 +217,10 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
     receiver_profile_url = serializers.SerializerMethodField()
     accept_url = serializers.SerializerMethodField()
     decline_url = serializers.SerializerMethodField()
+
+    message = serializers.CharField(
+        required=False, allow_blank=True, max_length=500
+    )
 
     created_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M:%S")
 
@@ -226,6 +230,7 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
             "id",
             "sender_id",
             "receiver_id",
+            "message",
             "sender_profile_url",
             "receiver_profile_url",
             "created_at",
