@@ -1,4 +1,5 @@
 # users/views.py
+import logging
 
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
@@ -12,13 +13,14 @@ from rest_framework import status, permissions
 from rest_framework.pagination import PageNumberPagination  # For list views
 from rest_framework.permissions import IsAuthenticated
 
-from .models import UserProfile, ProfileFriendRequest
+from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
 from .serializers import (
     UserSerializer,
     GroupSerializer,
     UserRegistrationSerializer,
     ProfileSerializer,
     ProfileFriendRequestSerializer,
+    UserProfilePrivacySettingsSerializer
 )
 from .permissions import (
     IsProfileOwnerOrAdmin,
@@ -28,6 +30,7 @@ from .permissions import (
     IsFriendRequestReceiverOrSender,
 )
 
+logger = logging.getLogger(__name__)
 
 # --- Base API View for users App ---
 class UsersAppBaseAPIView(APIView):
@@ -279,7 +282,7 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
         )
 
 
-## -- User Profile API Views -- ##
+# -- User Profile API Views -- ##
 
 
 class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
@@ -340,57 +343,56 @@ class UserSearchView(UsersAppBaseAPIView):
     """
     API view to search for users by username, first name, or last name.
     Accepts a query parameter 'q'.
-    - GET: Returns a paginated list of matching active users.
+    - GET: Returns a paginated list of matching active users with privacy controls.
     """
 
     serializer_class_instance = UserSerializer
     pagination_class_instance = PageNumberPagination
 
     def get(self, request, *args, **kwargs):
+        from .logic.user_search_logic import execute_user_search
+
         search_query = request.query_params.get("q", "").strip()
+        requesting_user = request.user if request.user.is_authenticated else None
 
-        MIN_QUERY_LENGTH = 2
+        # Check if admin should bypass privacy filters
+        bypass_privacy = requesting_user and requesting_user.is_superuser
 
-        paginator = self.pagination_class_instance()
-        paginator.page_size = 10
+        if not bypass_privacy:
+            bypass_privacy = False
 
-        if not search_query or len(search_query) < MIN_QUERY_LENGTH:
-            return Response(
-                {
-                    "detail": f"Search query must be at least {MIN_QUERY_LENGTH} characters long."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # Execute the search with privacy controls using logic functions
+        success, queryset, paginator, error_response = execute_user_search(
+            search_query=search_query,
+            requesting_user=requesting_user,
+            request=request,
+            view_instance=self,
+            min_query_length=2,
+            page_size=10,
+            bypass_privacy_filters=bypass_privacy
+        )
 
-        queryset = User.objects.filter()
+        # Return error response if validation failed
+        if not success:
+            return error_response
 
-        # Apply search filters using Q objects for OR conditions
-        queryset = (
-            queryset.filter(
-                Q(username__icontains=search_query)
-                | Q(first_name__icontains=search_query)
-                | Q(last_name__icontains=search_query)
-            )
-            .distinct()
-            .order_by("username")
-        )  # Order results for consistency
-
-        page = paginator.paginate_queryset(queryset, request, view=self)
-
-        if page is not None:
+        # Handle paginated response
+        if paginator is not None:
+            # Get the page data that was set during pagination
+            page_data = paginator.page
             serializer = self.serializer_class_instance(
-                page, many=True, context=self.get_serializer_context()
-            )  #
+                page_data, many=True, context=self.get_serializer_context()
+            )
             return paginator.get_paginated_response(serializer.data)
 
-        # This part might not be reached if paginator always returns a page or raises an error for empty unpaginated list
+        # Handle non-paginated response
         serializer = self.serializer_class_instance(
             queryset, many=True, context=self.get_serializer_context()
-        )  #
+        )
         return Response(serializer.data)
 
 
-## -- Friend Request API Views -- ##
+# -- Friend Request API Views -- ##
 
 
 class AcceptFriendRequestView(UsersAppBaseAPIView):
@@ -602,3 +604,107 @@ class SendFriendRequestView(UsersAppBaseAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+# -- Privacy Settings API Views -- ##
+
+
+class UserProfilePrivacySettingsRetrieveUpdateView(UsersAppBaseAPIView):
+    """
+    API view to retrieve and update user privacy settings.
+    - GET: Returns the current user's privacy settings.
+    - PUT/PATCH: Updates the current user's privacy settings.
+    """
+
+    serializer_class_instance = UserProfilePrivacySettingsSerializer
+
+    def get_object(self):
+        """
+        Get the privacy settings for the current user.
+        Creates privacy settings if they don't exist (defensive programming).
+        """
+        user_profile = get_object_or_404(UserProfile, user=self.request.user)
+
+        # Ensure privacy settings exist (defensive programming)
+        privacy_settings, created = UserProfilePrivacySettings.objects.get_or_create(
+            user_profile=user_profile
+        )
+
+        if created:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(
+                "Created missing privacy settings for user %s",
+                self.request.user.username
+            )
+
+        return privacy_settings
+
+    def get(self, request, *args, **kwargs):
+        """
+        Retrieve the current user's privacy settings.
+        """
+        privacy_settings = self.get_object()
+        serializer = self.serializer_class_instance(
+            privacy_settings, context=self.get_serializer_context()
+        )
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Update the current user's privacy settings (full update).
+        """
+        privacy_settings = self.get_object()
+        serializer = self.serializer_class_instance(
+            privacy_settings,
+            data=request.data,
+            context=self.get_serializer_context(),
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Partially update the current user's privacy settings.
+        """
+        privacy_settings = self.get_object()
+        serializer = self.serializer_class_instance(
+            privacy_settings,
+            data=request.data,
+            partial=True,
+            context=self.get_serializer_context(),
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserProfilePrivacySettingsChoicesView(UsersAppBaseAPIView):
+    """
+    API view to get available privacy setting choices.
+    - GET: Returns the available choices for privacy settings fields.
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Return available choices for privacy settings.
+        """
+        from .models import SEARCH_VISIBILITY_CHOICES, PROFILE_VISIBILITY_CHOICES
+
+        choices_data = {
+            "search_visibility_choices": [
+                {"value": choice[0], "label": choice[1]}
+                for choice in SEARCH_VISIBILITY_CHOICES
+            ],
+            "profile_visibility_choices": [
+                {"value": choice[0], "label": choice[1]}
+                for choice in PROFILE_VISIBILITY_CHOICES
+            ],
+        }
+
+        return Response(choices_data)

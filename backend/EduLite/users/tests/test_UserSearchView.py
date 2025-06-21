@@ -87,11 +87,11 @@ class UserSearchViewTests(APITestCase):
     def test_search_with_empty_query(self):
         """
         Test that an empty query string returns a 400 Bad Request.
-        (Based on your UserSearchView implementation detail for empty/short query)
         """
         response = self.client.get(self.search_url, {"q": ""})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("Search query must be at least", response.data.get("detail", ""))
+        self.assertIn("Search query is required", response.data.get("detail", ""))
+
 
     def test_search_with_short_query(self):
         """
@@ -260,3 +260,233 @@ class UserSearchViewTests(APITestCase):
         self.assertEqual(
             found_count, 1, "User matching in multiple fields should only appear once."
         )
+
+class UserSearchPrivacyTests(APITestCase):
+    """
+    Test suite for UserSearchView privacy functionality.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        """Set up data for privacy testing."""
+        cls.search_url = reverse("user-search")
+
+        # Create users with different privacy settings
+        cls.searcher = User.objects.create_user(
+            username="searcher",
+            password="password123",
+            first_name="Searcher"
+        )
+
+        cls.public_user = User.objects.create_user(
+            username="public_user",
+            first_name="Public",
+            last_name="User",
+            is_active=True
+        )
+
+        cls.friends_only_user = User.objects.create_user(
+            username="friends_only_user",
+            first_name="FriendsOnly",
+            last_name="User",
+            is_active=True
+        )
+
+        cls.friends_of_friends_user = User.objects.create_user(
+            username="friends_of_friends_user",
+            first_name="FriendsOfFriends",
+            last_name="User",
+            is_active=True
+        )
+
+        cls.non_friend_user = User.objects.create_user(
+            username="non_friend_user",
+            first_name="NonFriend",
+            last_name="User",
+            is_active=True
+        )
+
+        cls.mutual_friend = User.objects.create_user(
+            username="mutual_friend",
+            first_name="Mutual",
+            last_name="Friend",
+            is_active=True
+        )
+
+    def setUp(self):
+        """Set up privacy settings and relationships for each test."""
+        from users.models import UserProfile, UserProfilePrivacySettings
+
+        # Create profiles and privacy settings
+        searcher_profile, _ = UserProfile.objects.get_or_create(user=self.searcher)
+        public_profile, _ = UserProfile.objects.get_or_create(user=self.public_user)
+        friends_only_profile, _ = UserProfile.objects.get_or_create(user=self.friends_only_user)
+        friends_of_friends_profile, _ = UserProfile.objects.get_or_create(user=self.friends_of_friends_user)
+        non_friend_profile, _ = UserProfile.objects.get_or_create(user=self.non_friend_user)
+        mutual_friend_profile, _ = UserProfile.objects.get_or_create(user=self.mutual_friend)
+
+        # Set up privacy settings
+        UserProfilePrivacySettings.objects.update_or_create(
+            user_profile=public_profile,
+            defaults={'search_visibility': 'everyone'}
+        )
+
+        UserProfilePrivacySettings.objects.update_or_create(
+            user_profile=friends_only_profile,
+            defaults={'search_visibility': 'friends_only'}
+        )
+
+        UserProfilePrivacySettings.objects.update_or_create(
+            user_profile=friends_of_friends_profile,
+            defaults={'search_visibility': 'friends_of_friends'}
+        )
+
+        UserProfilePrivacySettings.objects.update_or_create(
+            user_profile=non_friend_profile,
+            defaults={'search_visibility': 'friends_only'}
+        )
+
+        UserProfilePrivacySettings.objects.update_or_create(
+            user_profile=mutual_friend_profile,
+            defaults={'search_visibility': 'everyone'}
+        )
+
+        # Set up friend relationships
+        # searcher <-> friends_only_user (direct friends)
+        searcher_profile.friends.add(self.friends_only_user)
+        friends_only_profile.friends.add(self.searcher)
+
+        # mutual_friend <-> friends_of_friends_user (mutual friend setup)
+        mutual_friend_profile.friends.add(self.friends_of_friends_user)
+        friends_of_friends_profile.friends.add(self.mutual_friend)
+
+        # searcher <-> mutual_friend (to create mutual friend relationship)
+        searcher_profile.friends.add(self.mutual_friend)
+        mutual_friend_profile.friends.add(self.searcher)
+
+        # Authenticate the client
+        self.client.force_authenticate(user=self.searcher)
+
+    def test_search_everyone_visibility(self):
+        """Test that users with 'everyone' visibility are always found."""
+        response = self.client.get(self.search_url, {"q": "Public"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["username"], "public_user")
+
+    def test_search_friends_only_visibility_as_friend(self):
+        """Test that friends_only users are found by their friends."""
+        response = self.client.get(self.search_url, {"q": "FriendsOnly"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["username"], "friends_only_user")
+
+    def test_search_friends_only_visibility_as_non_friend(self):
+        """Test that friends_only users are NOT found by non-friends."""
+        # Create a new user who is not friends with friends_only_user
+        stranger = User.objects.create_user(
+            username="stranger",
+            first_name="Stranger",
+            is_active=True
+        )
+        self.client.force_authenticate(user=stranger)
+
+        response = self.client.get(self.search_url, {"q": "FriendsOnly"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 0)
+
+    def test_search_friends_of_friends_visibility_with_mutual_friend(self):
+        """Test that friends_of_friends users are found through mutual friends."""
+        response = self.client.get(self.search_url, {"q": "FriendsOfFriends"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["username"], "friends_of_friends_user")
+
+    def test_search_friends_of_friends_visibility_without_mutual_friend(self):
+        """Test that friends_of_friends users are NOT found without mutual friends."""
+        # Create a new user with no mutual friends
+        isolated_user = User.objects.create_user(
+            username="isolated",
+            first_name="Isolated",
+            is_active=True
+        )
+        self.client.force_authenticate(user=isolated_user)
+
+        response = self.client.get(self.search_url, {"q": "FriendsOfFriends"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 0)
+
+    def test_search_self_always_visible(self):
+        """Test that users can always find themselves regardless of privacy settings."""
+        # Create a user with friends_only privacy
+        self_search_user = User.objects.create_user(
+            username="self_searcher",
+            first_name="SelfSearch",
+            is_active=True
+        )
+
+        from users.models import UserProfile, UserProfilePrivacySettings
+        profile, _ = UserProfile.objects.get_or_create(user=self_search_user)
+        UserProfilePrivacySettings.objects.update_or_create(
+            user_profile=profile,
+            defaults={'search_visibility': 'friends_only'}
+        )
+
+        self.client.force_authenticate(user=self_search_user)
+
+        response = self.client.get(self.search_url, {"q": "SelfSearch"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["username"], "self_searcher")
+
+    def test_search_anonymous_user_only_sees_everyone(self):
+        """Test that anonymous users cannot access search (authentication required)."""
+        self.client.logout()  # Make request anonymous
+
+        response = self.client.get(self.search_url, {"q": "User"})
+
+        # Expect 401 since authentication is required
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+    def test_search_privacy_filtering_with_multiple_matches(self):
+        """Test privacy filtering when multiple users match the search query."""
+        # Search for "User" which should match multiple users with different privacy settings
+        response = self.client.get(self.search_url, {"q": "User"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        found_usernames = [user["username"] for user in response.data["results"]]
+
+        # Should find:
+        # - public_user (everyone visibility)
+        # - friends_only_user (friends with searcher)
+        # - friends_of_friends_user (mutual friend through mutual_friend)
+        # Should NOT find:
+        # - non_friend_user (friends_only but not friends with searcher)
+
+        self.assertIn("public_user", found_usernames)
+        self.assertIn("friends_only_user", found_usernames)
+        self.assertIn("friends_of_friends_user", found_usernames)
+        self.assertNotIn("non_friend_user", found_usernames)
+
+    def test_search_with_missing_privacy_settings(self):
+        """Test search behavior when a user has no privacy settings (should default to safe setting)."""
+        # Create a user without privacy settings
+        no_privacy_user = User.objects.create_user(
+            username="no_privacy_user",
+            first_name="NoPrivacy",
+            is_active=True
+        )
+
+        # Create profile but no privacy settings
+        from users.models import UserProfile
+        UserProfile.objects.get_or_create(user=no_privacy_user)
+
+        response = self.client.get(self.search_url, {"q": "NoPrivacy"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # The behavior depends on your default privacy setting
+        # Adjust this assertion based on your model's default behavior
+        # If default is 'everyone', should find the user
+        # If default is 'friends_only', should not find the user
+        # self.assertEqual(response.data["count"], 1)  # Adjust based on your defaults

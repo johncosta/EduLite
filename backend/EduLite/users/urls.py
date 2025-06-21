@@ -28,6 +28,17 @@ urlpatterns = [
         views.UserProfileRetrieveUpdateView.as_view(),
         name="userprofile-detail",
     ),
+    # Privacy Settings URLs
+    path(
+        "privacy-settings/",
+        views.UserProfilePrivacySettingsRetrieveUpdateView.as_view(),
+        name="privacy-settings",
+    ),
+    path(
+        "privacy-settings/choices/",
+        views.UserProfilePrivacySettingsChoicesView.as_view(),
+        name="privacy-settings-choices",
+    ),
     # Friend Request URLs
     path(
         "friend-requests/<int:request_pk>/accept/",
