@@ -1,4 +1,4 @@
- import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { HiOutlineTranslate } from "react-icons/hi";
 
 export default function LanguageSwitcher() {
@@ -13,7 +13,7 @@ export default function LanguageSwitcher() {
   return (
     <button
       onClick={toggleLanguage}
-      className="text-xl text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-yellow-400 transition"
+      className="text-lg text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
       aria-label="Toggle language"
     >
       <HiOutlineTranslate />
