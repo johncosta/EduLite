@@ -1,3 +1,4 @@
+import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
@@ -16,6 +17,7 @@ import {
 } from "react-icons/fa";
 
 const Home = () => {
+  const { isLoggedIn } = useAuth();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -58,34 +60,51 @@ const Home = () => {
 
             {/* CTA Buttons - Fixed RTL alignment */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
-              <Link
-                to="/login"
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center group"
-              >
-                {t("home.loginNow")}
-                {isRTL ? (
-                  <FaArrowLeft
-                    className={`${
-                      isRTL ? "mr-3" : "ml-3"
-                    } text-sm group-hover:${
-                      isRTL ? "-translate-x-1" : "translate-x-1"
-                    } transition-transform duration-300`}
-                  />
-                ) : (
-                  <FaArrowRight
-                    className={`${
-                      isRTL ? "mr-3" : "ml-3"
-                    } text-sm group-hover:${
-                      isRTL ? "-translate-x-1" : "translate-x-1"
-                    } transition-transform duration-300`}
-                  />
-                )}
-              </Link>
+              {/* Only show Login button if user is NOT logged in */}
+              {!isLoggedIn && (
+                <Link
+                  to="/login"
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center group"
+                >
+                  {t("home.loginNow")}
+                  {isRTL ? (
+                    <FaArrowLeft
+                      className={`${
+                        isRTL ? "mr-3" : "ml-3"
+                      } text-sm group-hover:${
+                        isRTL ? "-translate-x-1" : "translate-x-1"
+                      } transition-transform duration-300`}
+                    />
+                  ) : (
+                    <FaArrowRight
+                      className={`${
+                        isRTL ? "mr-3" : "ml-3"
+                      } text-sm group-hover:${
+                        isRTL ? "-translate-x-1" : "translate-x-1"
+                      } transition-transform duration-300`}
+                    />
+                  )}
+                </Link>
+              )}
+
+              {/* Learn More button - always visible, but full width when login button is hidden */}
               <Link
                 to="/about"
-                className="w-full sm:w-auto bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white px-12 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+                className={`${
+                  !isLoggedIn ? "w-full sm:w-auto" : "w-full sm:w-auto"
+                } group relative overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-800/30 dark:hover:to-blue-700/30 text-blue-700 dark:text-blue-300 px-12 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 border border-blue-200/60 dark:border-blue-700/40 hover:border-blue-300 dark:hover:border-blue-600 backdrop-blur-sm`}
               >
-                {t("home.learnMore")}
+                <span className="relative z-10 flex items-center justify-center gap-3">
+                  {t("home.learnMore")}
+                  {isRTL ? (
+                    <FaArrowLeft className="text-sm group-hover:-translate-x-1 transition-transform duration-300" />
+                  ) : (
+                    <FaArrowRight className="text-sm group-hover:translate-x-1 transition-transform duration-300" />
+                  )}
+                </span>
+
+                {/* Subtle animated background effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
               </Link>
             </div>
 
