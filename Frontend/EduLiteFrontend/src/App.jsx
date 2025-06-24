@@ -7,6 +7,8 @@ import BackToTopButton from "./components/common/BackToTopButton";
 import ButtonDemo from "./pages/ButtonDemo";
 import AboutPage from "./pages/AboutPage";
 import LoginPage from "./pages/LoginPage";
+import InputDemo from "./pages/InputDemo";
+import InputComponentDoc from "./components/common/InputComponentDoc";
 
 function App() {
   return (
@@ -19,6 +21,11 @@ function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/button-demo" element={<ButtonDemo />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/input-demo" element={<InputDemo />} />
+            <Route
+              path="/input-component-doc"
+              element={<InputComponentDoc />}
+            />
           </Routes>
         </main>
         <Footer />
