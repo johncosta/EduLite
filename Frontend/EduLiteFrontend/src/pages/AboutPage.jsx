@@ -245,9 +245,12 @@ const AboutPage = () => {
             <p className="text-xl text-gray-500 dark:text-gray-400 font-light mb-12 max-w-2xl mx-auto">
               {t("about.experienceEducation")}
             </p>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+            <Link
+              to="/login"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-center"
+            >
               {t("about.getStarted")}
-            </button>
+            </Link>
           </div>
         </div>
       </section>

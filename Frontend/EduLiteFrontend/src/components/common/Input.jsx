@@ -5,52 +5,34 @@ import PropTypes from "prop-types";
  * A reusable Input component designed to match the established Apple-style
  * design system with glass-morphism effects, proper dark mode support,
  * and consistent styling across the application.
- *
- * @component
- * @example
- * // Basic usage
- * <Input
- *   type="email"
- *   name="email"
- *   placeholder="Enter your email"
- *   value={email}
- *   onChange={handleEmailChange}
- * />
- *
- * @example
- * // With label and error
- * <Input
- *   label="Password"
- *   type="password"
- *   name="password"
- *   error="Password must be at least 8 characters"
- *   value={password}
- *   onChange={handlePasswordChange}
- * />
  */
 const Input = React.forwardRef(
   (
     {
-      type,
+      type = "text",
       name,
-      placeholder,
+      placeholder = "",
       value,
       onChange,
       label,
       error,
-      disabled,
-      required,
+      disabled = false,
+      required = false,
       className = "",
+      compact = false, // Add compact prop
+      ...props
     },
     ref
   ) => {
     return (
-      <div className={`mb-6 ${className}`}>
+      <div className={`${compact ? "mb-3" : "mb-6"} ${className}`}>
         {/* Label with Apple-style typography */}
         {label && (
           <label
             htmlFor={name}
-            className={`block mb-3 text-lg font-light tracking-tight transition-colors duration-200 ${
+            className={`block ${
+              compact ? "mb-2" : "mb-3"
+            } text-lg font-light tracking-tight transition-colors duration-200 ${
               error
                 ? "text-red-600 dark:text-red-400"
                 : "text-gray-700 dark:text-gray-200"
@@ -73,8 +55,9 @@ const Input = React.forwardRef(
             onChange={onChange}
             disabled={disabled}
             required={required}
+            {...props}
             className={`
-              w-full px-6 py-4 text-lg font-light
+              w-full px-6 ${compact ? "py-3" : "py-4"} text-lg font-light
               bg-white/80 dark:bg-gray-800/40
               backdrop-blur-xl
               border border-gray-200/50 dark:border-gray-700/30
@@ -115,7 +98,11 @@ const Input = React.forwardRef(
 
         {/* Error message with Apple-style typography */}
         {error && (
-          <p className="mt-3 text-base font-light text-red-600 dark:text-red-400 tracking-tight animate-pulse">
+          <p
+            className={`${
+              compact ? "mt-2" : "mt-3"
+            } text-base font-light text-red-600 dark:text-red-400 tracking-tight animate-pulse`}
+          >
             {error}
           </p>
         )}
@@ -124,11 +111,12 @@ const Input = React.forwardRef(
   }
 );
 
+// CRITICAL: Add these lines at the end of your Input.jsx file
 Input.displayName = "Input";
 
 Input.propTypes = {
   /** The input type (text, email, password, etc.) */
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
 
   /** The name attribute for the input */
   name: PropTypes.string.isRequired,
@@ -156,15 +144,10 @@ Input.propTypes = {
 
   /** Additional CSS classes */
   className: PropTypes.string,
+
+  /** Whether to use compact spacing for forms */
+  compact: PropTypes.bool,
 };
 
-Input.defaultProps = {
-  placeholder: "",
-  label: "",
-  error: "",
-  disabled: false,
-  required: false,
-  className: "",
-};
 
 export default Input;
