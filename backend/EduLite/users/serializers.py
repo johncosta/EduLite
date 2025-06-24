@@ -217,7 +217,6 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
     receiver_profile_url = serializers.SerializerMethodField()
     accept_url = serializers.SerializerMethodField()
     decline_url = serializers.SerializerMethodField()
-
     message = serializers.CharField(
         required=False, allow_blank=True, max_length=500
     )
