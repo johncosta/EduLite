@@ -32,12 +32,15 @@ The request body must be a JSON object containing the friend request details.
 | Field                  | Type    | Required | Description                                                    |
 | :--------------------- | :------ | :------- | :------------------------------------------------------------- |
 | `receiver_profile_id` | Integer | Yes      | The unique identifier of the user profile to send request to. |
+| `message`             | String  | No       | Optional custom message (max 500 characters) to include with the request. |
 
 **Example JSON Request Body:**
 
 	```json
 	{
-	    "receiver_profile_id": 5
+	    "receiver_profile_id": 5,
+		"message": "Hey! We were in the same Python class. Would love to connect!"
+
 	}
 	```
 
@@ -128,6 +131,12 @@ When a friend request is successfully sent, the system automatically:
 	}
 	```
 
+	```json
+	{
+    "detail": "Message must be 500 characters or fewer."
+	}
+	```
+
 * **Status Code:** `404 Not Found`
   * **Reason:** A user profile with the specified `receiver_profile_id` does not exist.
   * **Response Body:**
@@ -150,10 +159,16 @@ When a friend request is successfully sent, the system automatically:
 
 ## Usage Flow
 
-1. **Send Request**: User A sends a friend request to User B
+1. **Send Request**: User A sends a friend request to User B (optionally with a personalized message)
 2. **Automatic Notification**: System creates a notification for User B
 3. **User B Receives**: User B sees the notification and can check pending requests
 4. **Response**: User B can accept or decline using the respective endpoints
+
+## Field Notes
+
+- `message` is optional but recommended for personalization.
+- The message must be under 500 characters.
+- Basic content moderation may be applied in the future to block inappropriate messages.
 
 ## Related Endpoints
 
