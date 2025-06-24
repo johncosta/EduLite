@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import BackToTopButton from "./components/common/BackToTopButton";
 import ButtonDemo from "./pages/ButtonDemo";
 import AboutPage from "./pages/AboutPage";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/button-demo" element={<ButtonDemo />} />
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </main>
         <Footer />
