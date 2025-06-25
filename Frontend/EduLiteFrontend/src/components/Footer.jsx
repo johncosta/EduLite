@@ -146,7 +146,7 @@ const Footer = () => {
                     }`}
                     dir={isRTL ? "rtl" : "ltr"}
                   />
-                  <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm font-medium transition-all duration-300 hover:shadow-lg">
+                  <button className="px-0.5 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm font-medium transition-all duration-300 hover:shadow-lg">
                     {t("footer.newsletter.subscribe")}
                   </button>
                 </div>
