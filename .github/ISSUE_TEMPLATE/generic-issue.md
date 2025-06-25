@@ -6,6 +6,9 @@ labels: ''
 assignees: ''
 
 ---
+## Claiming This Task:
+
+Before you start working, please check the **Assignees** section on the right. If no one is assigned, leave a comment claiming the issue and assign it to yourself. This is required to prevent duplicate work.
 
 ## **Current Situation**
 
@@ -15,7 +18,7 @@ assignees: ''
 
 *Please describe the solution you'd like to see implemented or suggest ways to address the problem.*
 
-## **Benifits**
+## **Benefits**
 
 *Please describe how this solution would benefit the project, it's contributors, or it's users.*
 

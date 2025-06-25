@@ -382,7 +382,11 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
     )
     
 
-    created_at = serializers.DateTimeField(read_only=True, format='%Y-%m-%d %H:%M:%S')
+    message = serializers.CharField(
+        required=False, allow_blank=True, max_length=500
+    )
+
+    created_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
         model = ProfileFriendRequest
