@@ -66,6 +66,7 @@ class ProfileFriendRequestSerializerTests(TestCase):
             "id",
             "sender_id",
             "receiver_id",
+            "message",
             "sender_profile_url",
             "receiver_profile_url",
             "created_at",
