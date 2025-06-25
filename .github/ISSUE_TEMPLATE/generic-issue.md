@@ -18,7 +18,7 @@ Before you start working, please check the **Assignees** section on the right. I
 
 *Please describe the solution you'd like to see implemented or suggest ways to address the problem.*
 
-## **Benifits**
+## **Benefits**
 
 *Please describe how this solution would benefit the project, it's contributors, or it's users.*
 
