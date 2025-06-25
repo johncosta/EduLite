@@ -66,11 +66,15 @@ Our project is a monorepo containing a `backend` (Django) and a `Frontend` (Reac
     ```bash
     pip install -r requirements.txt
     ```
-4.  Apply database migrations:
+4. Navigate to the Edulite project directory:
+    ```bash
+    cd Edulite
+    ```
+5.  Apply database migrations:
     ```bash
     python manage.py migrate
     ```
-5.  Run the backend development server:
+6.  Run the backend development server:
     ```bash
     python manage.py runserver
     ```
@@ -127,6 +131,7 @@ We believe that testing is crucial for maintaining a high-quality, stable applic
         python manage.py test users.tests.test_UserListView
         ```
     * Our preferred test structure is `app_name/tests/test_classname.py` (e.g., `users/tests/test_UserRegistrationView.py`, `users/tests/test_GroupRetrieveView.py`).
+    * Within the app's `tests` directory, you can create other directories such as `functions`, `serializers`, `views`, etc. that will make testing more organized and easier to maintain.
     * We encourage using `coverage.py` to check test coverage.
 * **Frontend Tests (React):**
     * (TODO: Add instructions for running frontend tests, e.g., `npm test`, and any preferred structure or tools once established).
@@ -174,7 +179,7 @@ If you're a UI/UX designer:
 * **Python (Backend):**
     * Follow PEP 8 guidelines.
     * Write clear and well-commented code, especially for complex logic.
-    * (TODO: Specify any linters like Flake8 or formatters like Black if adopted).
+    * [Link to Backend CODING_STANDARDS.md](backend/CODING_STANDARDS.md)
 * **JavaScript/React (Frontend):**
     * Follow standard React best practices.
     * (TODO: Specify any linters like ESLint or formatters like Prettier if adopted).

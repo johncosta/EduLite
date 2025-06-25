@@ -32,14 +32,13 @@ class UserRetrieveViewTests(APITestCase):  # Renamed to match the view
 
     # --- Retrieve (GET) Tests ---
     def test_retrieve_user_success(self):
-        """Ensure an authenticated user can retrieve another user's details."""
-        self.client.force_authenticate(user=self.requesting_user)
+        """Ensure an authenticated user can retrieve their own details."""
+        self.client.force_authenticate(user=self.target_user)  # User views their own profile
         response = self.client.get(self.detail_url, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data["username"], self.target_user.username)
         self.assertEqual(response.data["email"], self.target_user.email)
-        # UserSerializer is Hyperlinked, so it should include 'url'
         self.assertIn("url", response.data)
 
     def test_retrieve_user_not_found(self):
