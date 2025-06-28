@@ -14,11 +14,26 @@ COURSE_VISIBILITY_CHOICES =[
     ('Restricted', 'restricted'),
     ('Private', 'private')
 ]
+COURSE_ROLE_CHOICES = [
+    ('Teacher', 'teacher'),
+    ('Student', 'student'),
+    ('Assistant', 'assistant')
+]
+COURSE_MEMBERSHIP_STATUS = [
+    ('pending', 'Pending Approval'),
+    ('enrolled', 'Enrolled'),
+    ('invited', 'Invited')
+]
 
 CHOICES_DATA_DIR = Path(settings.BASE_DIR).parent / "project_choices_data"
 
 def load_choices_from_json(file_name:str) -> List[tuple]:
     """
+    
+    Loads a list of (value, label) tuples from a JSON file.
+    Expects JSON to be a list of objects, each with "value" and "label" keys.
+
+    Returns a list of tuples. [(value, label), ...]
     """
     file_path = CHOICES_DATA_DIR / file_name
     choices_list = []
