@@ -98,6 +98,12 @@ class CourseModule(models.Model):
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey("content_type", "object_id")
     
+    # the index is used to speed up the lookup of the content_object
+    class Meta:
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
+        
     def __str__(self):
         if self.title:
             return f"{self.course.title} - {self.title}"
