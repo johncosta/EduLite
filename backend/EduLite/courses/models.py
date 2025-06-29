@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from chat.models import ChatRoom
 from .model_choices import (
@@ -45,7 +46,7 @@ class Course(models.Model):
     )
 
     # the start and end date are the dates when the course is available to students
-    start_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField(default=datetime.now)
     end_date = models.DateTimeField(
         default=datetime(2099, 12, 31, 23, 59, 59),  # default to a far future date
         blank=True,
@@ -59,7 +60,14 @@ class Course(models.Model):
     allow_join_requests = models.BooleanField(default=False)
 
     def clean(self) -> None:
-        return super().clean()
+        super().clean()
+
+        # Checking course start date should be before end date
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValidationError("Start date must be before end date")
+        # Title should not be all spaces
+        if not self.title.strip():
+            raise ValidationError("Title cannot be all spaces")
 
     def __str__(self) -> str:
         return self.title
@@ -83,7 +91,7 @@ class CourseModule(models.Model):
     )
     # the title of the module
     title = models.CharField(max_length=128, blank=True, null=True)
-    
+
     # Display order of the module within the course
     order = models.PositiveIntegerField(default=0)
 
@@ -97,13 +105,26 @@ class CourseModule(models.Model):
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey("content_type", "object_id")
-    
+
     # the index is used to speed up the lookup of the content_object
     class Meta:
         indexes = [
             models.Index(fields=["content_type", "object_id"]),
         ]
         
+    def clean(self) -> None:
+        super().clean()
+    
+        # Checking if the content_type and object_id are valid
+        if not self.content_type or not self.object_id:
+            raise ValidationError("Content type and object id are required")
+        # Checking content_object is exist
+        try:
+            if not self.content_object:
+                raise ValidationError("Content object does not exist")
+        except self.content_type.model_class().DoesNotExist:
+            raise ValidationError("Content object does not exist")
+
     def __str__(self):
         if self.title:
             return f"{self.course.title} - {self.title}"
@@ -127,9 +148,21 @@ class CourseMembership(models.Model):
         max_length=32, choices=COURSE_ROLE_CHOICES, default="student"
     )
     status = models.CharField(
-        max_length=64, choices=COURSE_MEMBERSHIP_STATUS, default="pending"
+        max_length=64, choices=COURSE_MEMBERSHIP_STATUS, default="enrolled"
     )
 
+    def clean(self) -> None:
+        super().clean()
+        
+        # Checking if the user is already a member of the course
+        if CourseMembership.objects.filter(pk=self.pk).filter(user=self.user, course=self.course).exists():
+            raise ValidationError("User is already a member of the course")
+        
+        # Checking state match the role
+        if self.role != "student" and self.status == "pending":
+            raise ValidationError("Only students can have 'pending' status.")
+        
+        
     def __str__(self):
         return f"{self.user.username} - {self.course.title} - {self.role}"
 

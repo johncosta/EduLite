@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 # Course Privacy Setting Choices
 COURSE_VISIBILITY_CHOICES =[
-    ('Public', 'public'),
-    ('Restricted', 'restricted'),
-    ('Private', 'private')
+    ('public', 'Public'),
+    ('restricted', 'Restricted'),
+    ('private', 'Private')
 ]
 COURSE_ROLE_CHOICES = [
-    ('Teacher', 'teacher'),
-    ('Student', 'student'),
-    ('Assistant', 'assistant')
+    ('teacher', 'Teacher'),
+    ('student', 'Student'),
+    ('assistant', 'Assistant')
 ]
 COURSE_MEMBERSHIP_STATUS = [
     ('pending', 'Pending Approval'),
