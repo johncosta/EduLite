@@ -27,8 +27,12 @@ class Course(models.Model):
     which can be public, private, or restricted.
     """
 
-    title = models.CharField(blank=False, null=False, max_length=128)
-    outline = models.TextField(blank=True, null=True, max_length=1000)
+    title = models.CharField(
+        blank=False, null=False, max_length=128, help_text="What your Course is called.."
+        )
+    outline = models.TextField(
+        blank=True, null=True, max_length=1000, help_text="A brief description of the course."
+        )
 
     language = models.CharField(
         max_length=64, choices=LANGUAGE_CHOICES, blank=True, null=True
@@ -90,10 +94,12 @@ class CourseModule(models.Model):
         Course, related_name="course_modules", on_delete=models.CASCADE
     )
     # the title of the module
-    title = models.CharField(max_length=128, blank=True, null=True)
+    title = models.CharField(
+        max_length=128, blank=True, null=True, help_text="What your Module is called."
+        )
 
     # Display order of the module within the course
-    order = models.PositiveIntegerField(default=0)
+    order = models.PositiveIntegerField(default=0, help_text="The order of the module within the course's list of modules.")
 
     # the content_type and object_id are used to link the module to a specific content object
     # example: Lecture, Quiz, Assignment, etc.
@@ -139,16 +145,16 @@ class CourseMembership(models.Model):
     """
 
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="course_memberships"
+        User, on_delete=models.CASCADE, related_name="course_memberships", help_text="The user who is a member of the course."
     )
     course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="memberships"
+        Course, on_delete=models.CASCADE, related_name="memberships", help_text="The course that the user is a member of."
     )
     role = models.CharField(
-        max_length=32, choices=COURSE_ROLE_CHOICES, default="student"
+        max_length=32, choices=COURSE_ROLE_CHOICES, default="student", help_text="The role of the user in the course. (student, assistant, teacher)"
     )
     status = models.CharField(
-        max_length=64, choices=COURSE_MEMBERSHIP_STATUS, default="enrolled"
+        max_length=64, choices=COURSE_MEMBERSHIP_STATUS, default="enrolled", help_text="The status of the user in the course. (pending, enrolled, invited)"
     )
     
     class Meta:
@@ -179,13 +185,13 @@ class CourseChatRoom(models.Model):
     """
 
     course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="course_chatrooms"
+        Course, on_delete=models.CASCADE, related_name="course_chatrooms", help_text="The course that the chatroom is associated with."
     )
     chatroom = models.ForeignKey(
-        ChatRoom, on_delete=models.CASCADE, related_name="course_links"
+        ChatRoom, on_delete=models.CASCADE, related_name="course_links", help_text="The chatroom that is associated with the course."
     )
     created_by = models.ForeignKey(
-        User, related_name="chatroom_user", on_delete=models.CASCADE
+        User, related_name="chatroom_user", on_delete=models.CASCADE, help_text="The user who created the chatroom."
     )
 
     def __str__(self):
