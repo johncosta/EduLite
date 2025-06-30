@@ -9,7 +9,7 @@ collection:
     meta:
       id: fld_a96816fa59d64413b6711a74fa2ed2af
       created: 1748225830707
-      modified: 1750389697051
+      modified: 1751310665706
       sortKey: -1748225908342
     children:
       - url: http://localhost:8000/api/users/user_id/profile
@@ -26,7 +26,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id");
 
@@ -95,7 +95,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id");
 
@@ -112,7 +112,7 @@ collection:
 
 
           afterResponse: >+
-
+            
             insomnia.test('Check if status is 200', () => {
                 insomnia.expect(insomnia.response.code).to.eql(200);
             });
@@ -164,7 +164,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id") - 1;
 
@@ -181,7 +181,7 @@ collection:
 
 
           afterResponse: |
-
+            
             insomnia.test('Check if status is 403', () => {
                 insomnia.expect(insomnia.response.code).to.eql(403);
             });
@@ -207,7 +207,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id") - 1;
 
@@ -258,7 +258,7 @@ collection:
     meta:
       id: fld_643837bc01ba4650810f014ddf74b9ba
       created: 1748225908142
-      modified: 1750389696668
+      modified: 1751310665355
       sortKey: -1748225908442
     children:
       - url: localhost:8000/api/token/
@@ -294,7 +294,7 @@ collection:
 
 
           afterResponse: |
-
+            
             const jsonBody = insomnia.response.json();
 
 
@@ -337,7 +337,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const rand_num = Math.random()
 
             insomnia.environment.set("latest_rand_num", rand_num)
@@ -382,7 +382,7 @@ collection:
         meta:
           id: req_4d160827be444023935d9c6e28398e33
           created: 1748238209052
-          modified: 1748238240091
+          modified: 1751309689547
           isPrivate: false
           sortKey: -1748225915425
         method: POST
@@ -395,7 +395,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const rand_num = Math.random()
 
             insomnia.request.body.update({
@@ -410,18 +410,57 @@ collection:
             }`,
             });
 
-          afterResponse: |-
-            const jsonBody = insomnia.response.json();
+          afterResponse: >-
+            // First, always check the response code. This is the most reliable
 
-            insomnia.test('Check if status is 201', () => {
-                insomnia.expect(insomnia.response.code).to.eql(201);
+            // indicator of whether the request was generally successful.
+
+            insomnia.test('Check if status is 201 Created', () => {
+              insomnia.expect(insomnia.response.code).to.eql(201);
             });
 
-            insomnia.test('Check if response has keys', () => {
-            insomnia.expect(jsonBody).to.have.all.keys(
-            	"message", "user_id", "username"
-            	);
-            });
+
+
+            // Now, only attempt to process the body if the status code was
+            correct.
+
+            // This prevents the script from trying to parse an HTML error page
+            as JSON.
+
+            if (insomnia.response.code === 201) {
+              try {
+                // We are inside a try...catch block as an extra layer of safety.
+                // This handles the rare case where the status is 201 but the body is still not valid JSON.
+                const jsonBody = insomnia.response.json();
+
+                // Since we've confirmed the status is 201 and we can parse the JSON,
+                // we can now safely run tests on the response body.
+                insomnia.test('Check if response has required keys', () => {
+                  insomnia.expect(jsonBody).to.have.all.keys(
+                    "message", "user_id", "username"
+                  );
+                });
+
+                // You can add other tests that rely on the JSON body here.
+                // For example:
+                // insomnia.test('Username in response matches sent username', () => {
+                //   insomnia.expect(jsonBody.username).to.include('dummy_user');
+                // });
+
+              } catch (error) {
+                // If parsing fails even with a 201 status, log the error and fail a test.
+                console.error("Failed to parse JSON response even though status was 201:", error);
+                insomnia.test('Response body should be valid JSON', () => {
+                  insomnia.expect.fail(null, null, "Response was not valid JSON.");
+                });
+              }
+            } else {
+              // If the status code is not 201, we log the actual response body.
+              // This is extremely helpful for debugging, as it will show you the
+              // HTML or error message the server sent back.
+              console.log(`Request failed with status: ${insomnia.response.code}`);
+              console.log('Response Body:', insomnia.response.text());
+            }
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -448,7 +487,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const rand_num = Math.random()
 
             insomnia.request.body.update({
@@ -487,7 +526,7 @@ collection:
     meta:
       id: fld_e7d693607e984131816dcd47f40fc8fe
       created: 1748229436084
-      modified: 1750389697639
+      modified: 1751310666139
       sortKey: -1748225908329.5
     children:
       - url: http://localhost:8000/api/users/user_id
@@ -504,7 +543,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id");
 
@@ -566,7 +605,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id") - 1;
 
@@ -583,7 +622,7 @@ collection:
 
 
           afterResponse: |
-
+            
             insomnia.test('Check if status is 403', () => {
                 insomnia.expect(insomnia.response.code).to.eql(403);
             });
@@ -618,7 +657,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id");
 
@@ -635,7 +674,7 @@ collection:
 
 
           afterResponse: |+
-
+            
             insomnia.test('Check if status is 200', () => {
                 insomnia.expect(insomnia.response.code).to.eql(200);
             });
@@ -671,7 +710,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id") - 1;
 
@@ -724,7 +763,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id");
 
@@ -779,7 +818,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id") - 1;
 
@@ -820,7 +859,7 @@ collection:
     meta:
       id: fld_da6389d74efd49afaba665262c177573
       created: 1748229983405
-      modified: 1750389701773
+      modified: 1751310669459
       sortKey: -1748225908326.375
     children:
       - url: localhost:8000/api/token/
@@ -830,8 +869,7 @@ collection:
           created: 1748230052182
           modified: 1748230324116
           isPrivate: false
-          description:
-            Do not run this in production. You should not have an account with
+          description: Do not run this in production. You should not have an account with
             these credentials in production. This is for DEBUG TESTS only!
           sortKey: -1748230024749
         method: POST
@@ -852,7 +890,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           afterResponse: |
-
+            
             const jsonBody = insomnia.response.json();
 
 
@@ -903,7 +941,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id") - 1;
 
@@ -920,7 +958,7 @@ collection:
 
 
           afterResponse: |
-
+            
             insomnia.test('Check if status is 200', () => {
                 insomnia.expect(insomnia.response.code).to.eql(200);
             });
@@ -955,7 +993,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id") - 1;
 
@@ -972,7 +1010,7 @@ collection:
 
 
           afterResponse: |
-
+            
             insomnia.test('Check if status is 200', () => {
                 insomnia.expect(insomnia.response.code).to.eql(200);
             });
@@ -1016,7 +1054,7 @@ collection:
             );
 
           afterResponse: |-
-
+            
             insomnia.test('Check if status is 201', () => {
                 insomnia.expect(insomnia.response.code).to.eql(201);
             });
@@ -1074,7 +1112,7 @@ collection:
             insomnia.request.url.update(`http://localhost:8000/api/groups/${group_id}/`)
 
           afterResponse: |-
-
+            
             insomnia.test('Check if status is 200', () => {
                 insomnia.expect(insomnia.response.code).to.eql(200);
             });
@@ -1114,7 +1152,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const rand_num = Math.random()
 
             insomnia.environment.set("TBD_rand_num", rand_num)
@@ -1168,7 +1206,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("TBD_user_id");
 
@@ -1185,7 +1223,7 @@ collection:
 
 
           afterResponse: |+
-
+            
             insomnia.test('Check if status is 202', () => {
                 insomnia.expect(insomnia.response.code).to.eql(202);
             });
@@ -1238,7 +1276,7 @@ collection:
             );
 
           afterResponse: |-
-
+            
             insomnia.test('Check if status is 201', () => {
                 insomnia.expect(insomnia.response.code).to.eql(201);
             });
@@ -1274,7 +1312,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const group_id = insomnia.environment.get("TBD_group_id");
 
@@ -1291,7 +1329,7 @@ collection:
 
 
           afterResponse: |+
-
+            
             insomnia.test('Check if status is 202', () => {
                 insomnia.expect(insomnia.response.code).to.eql(202);
             });
@@ -1344,7 +1382,7 @@ collection:
             );
 
           afterResponse: |-
-
+            
             insomnia.test('Check if status is 201', () => {
                 insomnia.expect(insomnia.response.code).to.eql(201);
             });
@@ -1370,7 +1408,7 @@ collection:
     meta:
       id: fld_6d83bb9cf7d24379b827f4cd531d7cb5
       created: 1748234574876
-      modified: 1750389702843
+      modified: 1751310670475
       sortKey: -1748225908325.5938
     children:
       - url: localhost:8000/api/token/
@@ -1406,7 +1444,7 @@ collection:
 
 
           afterResponse: |
-
+            
             const jsonBody = insomnia.response.json();
 
 
@@ -1463,7 +1501,7 @@ collection:
             );
 
           afterResponse: |
-
+            
             insomnia.test('Check if status is 403', () => {
                 insomnia.expect(insomnia.response.code).to.eql(403);
             });
@@ -1513,7 +1551,7 @@ collection:
             insomnia.request.url.update(`http://localhost:8000/api/groups/${group_id}/`)
 
           afterResponse: |
-
+            
             insomnia.test('Check if status is 403', () => {
                 insomnia.expect(insomnia.response.code).to.eql(403);
             });
@@ -1541,7 +1579,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const user_id = insomnia.environment.get("user_id");
 
@@ -1585,7 +1623,7 @@ collection:
     meta:
       id: fld_3f20e2b44c704772a06c7bbb2c6290b6
       created: 1748712617189
-      modified: 1750389703270
+      modified: 1751310670847
       sortKey: -1748225908325.3984
     children:
       - url: http://localhost:8000/api/chat/rooms
@@ -1602,7 +1640,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const chatroom_id = insomnia.environment.get("chatroom_id");
 
@@ -1672,7 +1710,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
 
             insomnia.request.addHeader(
@@ -1731,7 +1769,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |
-
+            
             const access_token = insomnia.environment.get("access_token");
             const chatroom_id = insomnia.environment.get("chatroom_id");
 
@@ -1779,7 +1817,7 @@ collection:
     meta:
       id: fld_d9f6b0c0a700412f9f35a85a80c83d4a
       created: 1748714372942
-      modified: 1750389703487
+      modified: 1751310671105
       sortKey: -1748225908325.3496
     children:
       - url: http://localhost:8000/api/chat/rooms/<chatroom_id>/messages/
@@ -1804,7 +1842,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |
-
+            
             const access_token = insomnia.environment.get("access_token");
             const chatroom_id = insomnia.environment.get("chatroom_id");
 
@@ -1861,7 +1899,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |
-
+            
             const access_token = insomnia.environment.get("access_token");
             const chatroom_id = insomnia.environment.get("chatroom_id");
 
@@ -1904,7 +1942,7 @@ collection:
     meta:
       id: fld_41a4ac23810849b6b792b315293badb6
       created: 1749142972839
-      modified: 1750389711962
+      modified: 1751310678043
       sortKey: -1748225908325.3008
     children:
       - url: localhost:8000/api/register/
@@ -1925,7 +1963,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const rand_num = Math.random()
 
             insomnia.environment.set("sending_user_num", rand_num);
@@ -1982,7 +2020,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const rand_num = Math.random()
 
             insomnia.environment.set("receiving_user_num", rand_num);
@@ -2055,7 +2093,7 @@ collection:
 
 
           afterResponse: |
-
+            
             const jsonBody = insomnia.response.json();
 
 
@@ -2098,7 +2136,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const receiving_id = insomnia.environment.get("receiving_user");
 
@@ -2168,7 +2206,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const receiving_id = insomnia.environment.get("receiving_user");
 
@@ -2218,7 +2256,7 @@ collection:
         meta:
           id: req_74075b10f5614c809f2a7fcd7ebf9165
           created: 1749151000000
-          modified: 1749164452117
+          modified: 1751310472069
           isPrivate: false
           sortKey: -1748821554840.5
         method: GET
@@ -2282,7 +2320,8 @@ collection:
                         "receiver_profile_url",
                         "created_at",
             						"accept_url",
-            						"decline_url"
+            						"decline_url",
+            					"message"
                     );
                 }
             });
@@ -2312,7 +2351,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const receiving_id = insomnia.environment.get("receiving_user");
 
@@ -2453,7 +2492,7 @@ collection:
 
 
           afterResponse: |
-
+            
             const jsonBody = insomnia.response.json();
 
 
@@ -2483,7 +2522,7 @@ collection:
         meta:
           id: req_216f26a2df1848a58c6c44de27c71be7
           created: 1749152667831
-          modified: 1749164597741
+          modified: 1751310651951
           isPrivate: false
           sortKey: -1748821554539
         method: GET
@@ -2547,7 +2586,8 @@ collection:
                         "receiver_profile_url",
                         "created_at",
             						"accept_url",
-            						"decline_url"
+            						"decline_url",
+            						"message"
                     );
                 }
             });
@@ -2682,7 +2722,7 @@ collection:
             value: insomnia/11.1.0
         scripts:
           preRequest: |+
-
+            
             const access_token = insomnia.environment.get("access_token");
             const receiving_id = insomnia.environment.get("receiving_user");
 
@@ -2790,7 +2830,7 @@ collection:
         meta:
           id: req_f327ba69ff36438b8116ec3f942d4ac8
           created: 1749158582324
-          modified: 1749164523350
+          modified: 1751310507477
           isPrivate: false
           sortKey: -1748654209009.875
         method: GET
@@ -2854,7 +2894,8 @@ collection:
                         "receiver_profile_url",
                         "created_at",
             						"accept_url",
-            						"decline_url"
+            						"decline_url",
+            						"message"
                     );
                 }
             });
@@ -3099,11 +3140,407 @@ collection:
             send: true
             store: true
           rebuildPath: true
+  - name: Message Permission Tests
+    meta:
+      id: fld_msg_perms_1234567890abcdef
+      created: 1751402100000
+      modified: 1751402100000
+      sortKey: -1748225908325.32
+    children:
+      # Step 1: Register User A
+      - url: http://localhost:8000/api/register/
+        name: "SETUP 1: Register User A"
+        meta:
+          id: req_msg_setup_01_register_a
+          sortKey: -100
+        method: POST
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const userANum = Math.random();
+            insomnia.environment.set("msg_user_a_num", userANum);
+            insomnia.request.body.update({
+                mode: 'raw',
+                raw: JSON.stringify({
+                    "username": `MsgPermsUserA_${userANum}`,
+                    "password": "StrongPassword123",
+                    "password2": "StrongPassword123",
+                    "email": `msgperms_a_${userANum}@example.com`
+                })
+            });
+          afterResponse: |
+            insomnia.test('User A Registration', () => {
+                insomnia.expect(insomnia.response.code).to.eql(201);
+                const body = insomnia.response.json();
+                insomnia.environment.set("msg_user_a_id", body.user_id);
+            });
+
+      # Step 2: Register User B
+      - url: http://localhost:8000/api/register/
+        name: "SETUP 2: Register User B"
+        meta:
+          id: req_msg_setup_02_register_b
+          sortKey: -90
+        method: POST
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const userBNum = Math.random();
+            insomnia.environment.set("msg_user_b_num", userBNum);
+            insomnia.request.body.update({
+                mode: 'raw',
+                raw: JSON.stringify({
+                    "username": `MsgPermsUserB_${userBNum}`,
+                    "password": "StrongPassword123",
+                    "password2": "StrongPassword123",
+                    "email": `msgperms_b_${userBNum}@example.com`
+                })
+            });
+          afterResponse: |
+            insomnia.test('User B Registration', () => {
+                insomnia.expect(insomnia.response.code).to.eql(201);
+                const body = insomnia.response.json();
+                insomnia.environment.set("msg_user_b_id", body.user_id);
+            });
+
+      # Step 3: Login as User A
+      - url: http://localhost:8000/api/token/
+        name: "SETUP 3: Login as User A"
+        meta:
+          id: req_msg_setup_03_login_a
+          sortKey: -80
+        method: POST
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const userANum = insomnia.environment.get("msg_user_a_num");
+            insomnia.request.body.update({
+                mode: 'raw',
+                raw: JSON.stringify({
+                    "username": `MsgPermsUserA_${userANum}`,
+                    "password": "StrongPassword123"
+                })
+            });
+          afterResponse: |
+            insomnia.test('User A Login', () => {
+                insomnia.expect(insomnia.response.code).to.eql(200);
+                const body = insomnia.response.json();
+                insomnia.environment.set("msg_user_a_token", body.access);
+            });
+
+      # Step 4: Login as User B
+      - url: http://localhost:8000/api/token/
+        name: "SETUP 4: Login as User B"
+        meta:
+          id: req_msg_setup_04_login_b
+          sortKey: -75
+        method: POST
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const userBNum = insomnia.environment.get("msg_user_b_num");
+            insomnia.request.body.update({
+                mode: 'raw',
+                raw: JSON.stringify({
+                    "username": `MsgPermsUserB_${userBNum}`,
+                    "password": "StrongPassword123"
+                })
+            });
+          afterResponse: |
+            insomnia.test('User B Login', () => {
+                insomnia.expect(insomnia.response.code).to.eql(200);
+                const body = insomnia.response.json();
+                insomnia.environment.set("msg_user_b_token", body.access);
+            });
+
+      # Step 5: Create Chat Room as User A
+      - url: http://localhost:8000/api/chat/rooms/
+        name: "SETUP 5: Create Chat Room"
+        meta:
+          id: req_msg_setup_05_create_room
+          sortKey: -70
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Message Permissions Test Room",
+              "room_type": "GROUP"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const token = insomnia.environment.get("msg_user_a_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
+          afterResponse: |
+            insomnia.test('Create Room', () => {
+                insomnia.expect(insomnia.response.code).to.eql(201);
+                const body = insomnia.response.json();
+                insomnia.environment.set("msg_perms_room_id", body.id);
+            });
+      
+      # Test 1
+      - url: http://localhost:8000/api/chat/rooms/{{msg_perms_room_id}}/messages/
+        name: "TEST 1: Unauthorized User Fails to Post"
+        meta:
+          id: req_msg_test_01_unauth_post
+          sortKey: -60
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "content": "This message should not be posted." }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const token = insomnia.environment.get("msg_user_b_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
+          afterResponse: |
+            insomnia.test('Unauthorized Post should be Forbidden', () => {
+                insomnia.expect(insomnia.response.code).to.eql(403);
+            });
+
+      # Step 6: Invite User B
+      - url: http://localhost:8000/api/chat/rooms/{{msg_perms_room_id}}/
+        name: "SETUP 6: Invite User B to Room"
+        meta:
+          id: req_msg_setup_06_invite_b
+          sortKey: -50
+        method: PATCH
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const userAToken = insomnia.environment.get("msg_user_a_token");
+            const userBId = insomnia.environment.get("msg_user_b_id");
+            const userAId = insomnia.environment.get("msg_user_a_id");
+
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${userAToken}`});
+
+            insomnia.request.body.update({
+                mode: 'raw',
+                raw: JSON.stringify({
+                    "participants": [userAId, userBId]
+                })
+            });
+          afterResponse: |
+            insomnia.test('Invite user should be successful', () => {
+                insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+
+      # Test 2
+      - url: http://localhost:8000/api/chat/rooms/{{msg_perms_room_id}}/messages/
+        name: "TEST 2: Invited User Successfully Posts"
+        meta:
+          id: req_msg_test_02_auth_post
+          sortKey: -40
+        method: POST
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const messageContent = `Hello from User B! (${Math.random()})`;
+            insomnia.environment.set("posted_message_content", messageContent);
+
+            insomnia.request.body.update({
+                mode: 'raw',
+                raw: JSON.stringify({
+                    "content": messageContent
+                })
+            });
+            
+            const token = insomnia.environment.get("msg_user_b_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
+          afterResponse: |
+            insomnia.test('Invited user post should be Created', () => {
+                insomnia.expect(insomnia.response.code).to.eql(201);
+            });
+
+      # Test 3
+      - url: http://localhost:8000/api/chat/rooms/{{msg_perms_room_id}}/messages/
+        name: "TEST 3: Original User Can See New Message"
+        meta:
+          id: req_msg_test_03_verify_read
+          sortKey: -30
+        method: GET
+        headers: []
+        scripts:
+          preRequest: |
+            const userAToken = insomnia.environment.get("msg_user_a_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${userAToken}`});
+          afterResponse: |
+            insomnia.test('Get messages should be OK', () => {
+                insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+
+            const body = insomnia.response.json();
+            const expectedContent = insomnia.environment.get("posted_message_content");
+
+            insomnia.test('Response should contain the message from User B', () => {
+                const messages = body.results || body; // Handle paginated or non-paginated
+                const foundMessage = messages.find(msg => msg.content === expectedContent);
+                insomnia.expect(foundMessage).to.not.be.undefined;
+            });
+
+      # Step 7: Remove User B from Room
+      - url: http://localhost:8000/api/chat/rooms/{{msg_perms_room_id}}/
+        name: "SETUP 7: Remove User B from Room"
+        meta:
+          id: req_msg_setup_07_remove_b
+          sortKey: -20
+        method: PATCH
+        body:
+          mimeType: application/json
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const userAToken = insomnia.environment.get("msg_user_a_token");
+            const userAId = insomnia.environment.get("msg_user_a_id");
+
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${userAToken}`});
+
+            // To remove User B, we send the list of participants containing only User A
+            insomnia.request.body.update({
+                mode: 'raw',
+                raw: JSON.stringify({
+                    "participants": [userAId] 
+                })
+            });
+          afterResponse: |
+            insomnia.test('Remove user should be successful', () => {
+                insomnia.expect(insomnia.response.code).to.eql(200);
+            });
+
+      # Test 4
+      - url: http://localhost:8000/api/chat/rooms/{{msg_perms_room_id}}/messages/
+        name: "TEST 4: Removed User Fails to Post"
+        meta:
+          id: req_msg_test_04_removed_post
+          sortKey: -10
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            { "content": "This message should fail after being removed." }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: |
+            const token = insomnia.environment.get("msg_user_b_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
+          afterResponse: |
+            insomnia.test('Removed User Post should be Forbidden', () => {
+                insomnia.expect(insomnia.response.code).to.eql(403);
+            });
+      
+      # Test 5
+      - url: http://localhost:8000/api/chat/rooms/{{msg_perms_room_id}}/messages/
+        name: "TEST 5: Removed User Fails to Read Messages"
+        meta:
+          id: req_msg_test_05_removed_read
+          sortKey: 0
+        method: GET
+        headers: []
+        scripts:
+          preRequest: |
+            const token = insomnia.environment.get("msg_user_b_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
+          afterResponse: |
+            insomnia.test('Removed User Read should be Forbidden', () => {
+                insomnia.expect(insomnia.response.code).to.eql(403);
+            });
+
+      # Cleanup Steps
+      - url: http://localhost:8000/api/token/
+        name: "CLEANUP 1: Login as Admin"
+        meta:
+          id: req_msg_cleanup_01_admin_login
+          sortKey: 100
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "username": "admin-insomnia",
+              "password": "AdminPassword123@kxy"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          afterResponse: |
+            insomnia.test('Admin Login', () => {
+                insomnia.expect(insomnia.response.code).to.eql(200);
+                const body = insomnia.response.json();
+                insomnia.environment.set("admin_cleanup_token", body.access);
+            });
+      
+      - url: http://localhost:8000/api/users/{{msg_user_a_id}}/update/
+        name: "CLEANUP 2: Delete User A"
+        meta:
+          id: req_msg_cleanup_02_delete_a
+          sortKey: 110
+        method: DELETE
+        headers: []
+        scripts:
+          preRequest: |
+            const token = insomnia.environment.get("admin_cleanup_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
+          afterResponse: |
+            insomnia.test('Delete User A', () => {
+                insomnia.expect(insomnia.response.code).to.eql(202);
+            });
+
+      - url: http://localhost:8000/api/users/{{msg_user_b_id}}/update/
+        name: "CLEANUP 3: Delete User B"
+        meta:
+          id: req_msg_cleanup_03_delete_b
+          sortKey: 120
+        method: DELETE
+        headers: []
+        scripts:
+          preRequest: |
+            const token = insomnia.environment.get("admin_cleanup_token");
+            insomnia.request.addHeader({key: 'Authorization', value: `Bearer ${token}`});
+          afterResponse: |
+            insomnia.test('Delete User B', () => {
+                insomnia.expect(insomnia.response.code).to.eql(202);
+            });
+
   - name: User Search and Privacy
     meta:
       id: fld_41e2bd6fdb70444a933ef27222429b27
       created: 1749162000000
-      modified: 1750389724103
+      modified: 1751310688860
       sortKey: -1748225908324.9756
     children:
       - url: localhost:8000/api/token/
@@ -3189,7 +3626,7 @@ collection:
             insomnia.request.addHeader({key: 'Authorization', value: `Bearer
             ${admin_token}`});
           afterResponse: >
-
+            
             const admin_token = insomnia.environment.get("admin_token")
 
 
@@ -4185,7 +4622,7 @@ collection:
     meta:
       id: fld_841b90f046ae4ffe9d77f01911b242bb
       created: 1750314800000
-      modified: 1750389735666
+      modified: 1751310697946
       sortKey: -1748225908324.6504
     children:
       - url: http://localhost:8000/api/register/
@@ -4608,7 +5045,7 @@ collection:
                 insomnia.expect(userB.first_name).to.be.oneOf(['', null, undefined]);
                 insomnia.expect(userB.last_name).to.be.oneOf(['', null, undefined]);
             		insomnia.expect(userB.full_name).to.be.oneOf(['', null, undefined]);
-
+            		
                 insomnia.expect(userB.username).to.eql('PrivacyUserB_HideAll');
               }
             });
@@ -4967,7 +5404,7 @@ collection:
             insomnia.request.addHeader({key: 'Authorization', value: `Bearer
             ${admin_token}`});
           afterResponse: >
-
+            
             const admin_token = insomnia.environment.get("admin_token")
 
 
@@ -5068,7 +5505,7 @@ collection:
             insomnia.request.addHeader({key: 'Authorization', value: `Bearer
             ${admin_token}`});
           afterResponse: >
-
+            
             const admin_token = insomnia.environment.get("admin_token")
 
 
@@ -5156,11 +5593,37 @@ cookieJar:
   meta:
     id: jar_61588a6f29ae490cb60fcb1b60599ab8
     created: 1747860044695
-    modified: 1750389735665
+    modified: 1751310697945
 environments:
   name: Base Environment
   meta:
     id: env_d00c267d1a17402db7cbc9d94e25cb74
     created: 1747860044694
-    modified: 1750390120959
+    modified: 1751310697946
     isPrivate: false
+  data:
+    latest_rand_num: 0.9256956314111444
+    user_id: 688
+    refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MTM5NzA3NiwiaWF0IjoxNzUxMzEwNjc2LCJqdGkiOiJhNDQxNzQ3MjBlMWU0Yzc0YTU2YmFlMGIzYTIxNzY0ZSIsInVzZXJfaWQiOjY5MX0.4YHmFhWzn89F8p9tCKwEGh_FPsJ4ELGI3v7JRyFVE74
+    access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxMzEwOTc3LCJpYXQiOjE3NTEzMTA2NzcsImp0aSI6ImFiZjRjMmYzODg5YTRhZTFiNmRlNjBkOTE0OTRiZjJjIiwidXNlcl9pZCI6NjkwfQ.84Vw4bTp3nmP8861thxPmRvA_zGztesL1ZH_Eumg1C0
+    group_id: 213
+    TBD_rand_num: 0.1893394833761739
+    TBD_user_id: 689
+    TBD_group_id: 214
+    chatroom_id: 75
+    sending_user_num: 0.7805920074820503
+    sending_user: 690
+    receiving_user_num: 0.9046163261592959
+    receiving_user: 691
+    sent_friend_request_id: 374
+    friend_request_id: 372
+    reverse_friend_request_id: 375
+    admin_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxMzEwOTg5LCJpYXQiOjE3NTEzMTA2ODksImp0aSI6ImY1YzlmMmNjMWQ5NzRiOTJiYThiYWY3YjA5ODI0MjAxIiwidXNlcl9pZCI6MX0.u3AeuIdhz58EqOAgmvL1w8hfZPEnVdBDSuicRcLEfuE
+    test_usernames: '["TestUserA_Everyone","TestUserB_Friends","TestUserC_FriendsOfFriends","TestUserD_Nobody"]'
+    privacy_user_a_id: 696
+    privacy_user_a_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxMzEwOTkyLCJpYXQiOjE3NTEzMTA2OTIsImp0aSI6IjViYWI4MTA0OTg5MDQwMTc5YmRkOWE5OGJhOTkyYWZlIiwidXNlcl9pZCI6Njk2fQ.AUIytMcPOl-BXpaMbX0XSgZZ7c1BSX1DMAn1O1ZreEk
+    privacy_user_b_id: 697
+    privacy_user_b_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxMzEwOTk0LCJpYXQiOjE3NTEzMTA2OTQsImp0aSI6ImFjYzg0MTQzY2U3NDRiMzU4NTc5NjM3ZGY5ZTliNTI5IiwidXNlcl9pZCI6Njk3fQ.irdLO06P6zx4gBhz-HllU8Wr-bZA1u--mUemXcEYN_k
+    privacy_user_c_id: 698
+    privacy_user_c_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxMzEwOTk2LCJpYXQiOjE3NTEzMTA2OTYsImp0aSI6ImM1ZmI4ODA4YTFiMTQ2MTViMmMzZjkxNWQ5ZWJkYmUxIiwidXNlcl9pZCI6Njk4fQ.YGz55Y6pLXQWUwtfHrE3yxRtZnfXuU8LQ5n0s09vZMg
+    privacy_friend_request_id: 378
