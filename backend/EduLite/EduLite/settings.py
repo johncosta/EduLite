@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "users",
     "chat",
     "notifications",
+    "courses",
     # third-party apps
     "rest_framework",
     "rest_framework_simplejwt",
