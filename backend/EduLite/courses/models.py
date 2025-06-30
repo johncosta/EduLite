@@ -116,7 +116,7 @@ class CourseModule(models.Model):
         super().clean()
     
         # Checking if the content_type and object_id are valid
-        if not self.content_type or not self.object_id:
+        if not self.content_type_id or not self.object_id:
             raise ValidationError("Content type and object id are required")
         # Checking content_object is exist
         try:
@@ -129,7 +129,7 @@ class CourseModule(models.Model):
         if self.title:
             return f"{self.course.title} - {self.title}"
         else:
-            return f"{self.course.title} module {self.order}"
+            return f"{self.course.title} - module {self.order}"
 
 
 class CourseMembership(models.Model):
@@ -150,12 +150,17 @@ class CourseMembership(models.Model):
     status = models.CharField(
         max_length=64, choices=COURSE_MEMBERSHIP_STATUS, default="enrolled"
     )
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "course"], name="unique_user_course_membership")
+        ]
 
     def clean(self) -> None:
         super().clean()
         
         # Checking if the user is already a member of the course
-        if CourseMembership.objects.filter(pk=self.pk).filter(user=self.user, course=self.course).exists():
+        if CourseMembership.objects.filter(user=self.user, course=self.course).exclude(pk=self.pk).exists():
             raise ValidationError("User is already a member of the course")
         
         # Checking state match the role
@@ -184,4 +189,13 @@ class CourseChatRoom(models.Model):
     )
 
     def __str__(self):
-        return f"{self.course.title} - {self.chatroom.title}"
+        return f"{self.course.title} - {self.chatroom.name}"
+    
+    def clean(self):
+        super().clean()
+        # Ensure that created user cannot be changed.
+        if self.pk:
+            old_instance = CourseChatRoom.objects.get(pk=self.pk)
+            
+            if old_instance.created_by != self.created_by:
+                raise ValidationError("Cannot change the creator of the chatroom.")
