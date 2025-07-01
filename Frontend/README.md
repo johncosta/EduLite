@@ -68,3 +68,14 @@ cd Frontend/EduLiteFrontend
 npm install
 npm run dev
 ```
+
+## 🗺️ Available Pages & Routing
+
+these routs are defined in `src/App.jsx` using `react-router-dom` library.
+
+| Path      | Component    | Description                                                |
+| --------- | ------------ | ---------------------------------------------------------- |
+| `/`       | `Home`       | The main landing page.                                     |
+| `/login`  | `LoginPage`  | Allows users to sign in.                                   |
+| `/signup` | `SignUpPage` | Allows new users to register.                              |
+| `/about`  | `AboutPage`  | This page provides an overview of the project, it's goals. |
