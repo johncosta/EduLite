@@ -79,3 +79,10 @@ these routs are defined in `src/App.jsx` using `react-router-dom` library.
 | `/login`  | `LoginPage`  | Allows users to sign in.                                   |
 | `/signup` | `SignUpPage` | Allows new users to register.                              |
 | `/about`  | `AboutPage`  | This page provides an overview of the project, it's goals. |
+
+## ✨ Component Showcase
+
+| Component | Description  | Demo Page |
+| --------- | ------------ | --------- | 
+| `Button`  | A versatile button with multiple styles and sizes. | `/button-demo` |
+| `Input`   | An Apple-style input field for forms. | `/input-demo` |
