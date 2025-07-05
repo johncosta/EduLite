@@ -48,7 +48,7 @@ The response will be a paginated JSON object containing a list of all chat rooms
 
 ```json
 {
-  "next": null,
+  "next": "http://localhost:8000/api/chat/rooms/?page=1&page_size=10",
   "previous": null,
   "count": 1,
   "total_pages": 1,
@@ -70,8 +70,8 @@ The response will be a paginated JSON object containing a list of all chat rooms
           "is_read": true
         }
       ],
-      "created_at": "2023-10-01T11:00:00Z",
-      "updated_at": "2023-10-01T12:00:00Z"
+      "created_at": "2025-07-05T16:44:51.889737Z",
+      "updated_at": "2025-07-05T16:44:51.889737Z"
     }
   ],
   "page_size": 10
@@ -101,8 +101,6 @@ The response will be a paginated JSON object containing a list of all chat rooms
 | `messages`     | Array  | List of messages in the chat room (if applicable).             |
 | `created_at`   | String | Timestamp of when the chat room was created.                   |
 | `updated_at`   | String | Timestamp of when the chat room was last updated.              |
-
-TODO: Do we want to add `messages` as its own response field section here or document it as part of the messages endpoints?
 
 ---
 
@@ -138,7 +136,7 @@ The request body must be a JSON object containing the details for the new chat r
 |:-----------------|:-------|:---------|:---------------------------------------------------------------------------------------------------------------------------|
 | `name`           | String | Yes      | The name of the new group. Must be unique if database constraints enforce this.                                            |
 | `participants`   | Array  | No       | List of user IDs to be added as participants in the chat room. If not provided, only the authenticated user will be added. |
-| `room_type`      | String | No       | The type of chat room (e.g., `ONE_TO_ONE`, `GROUP`, `COURSE`).                                                             |
+| `room_type`      | String | Yes      | The type of chat room (e.g., `ONE_TO_ONE`, `GROUP`, `COURSE`).                                                             |
 
 **Example `POST` Request Body:**
 
@@ -147,10 +145,13 @@ The request body must be a JSON object containing the details for the new chat r
   "id": 1,
   "name": "General",
   "room_type": "GROUP",
-  "participants": [1, 2],
+  "participants": [
+    1,
+    2
+  ],
   "messages": [],
-  "created_at": "2023-10-01T11:00:00Z",
-  "updated_at": "2023-10-01T12:00:00Z"
+  "created_at": "2025-07-05T16:44:51.889737Z",
+  "updated_at": "2025-07-05T16:44:51.889757Z"
 }
 ```
 
@@ -173,25 +174,39 @@ The response will contain the JSON object of the newly created group.
 ---
 
 ## Common Error Responses
-
 * **Status Code:** `400 Bad Request`
-    * **Reason (for `POST`):** The provided data is invalid (e.g., `name` field missing or not a string, or name already exists and is constrained to be unique).
-    * **Response Body (Example - `name` missing):**
+  * **Reason (for `POST`):** The provided data is invalid (e.g., `pk` for participant doesn't exist.
+  * **Response Body (Example - `name` missing):**
 
 ```json
 {
-    "name": [
-        "This field is required."
-    ]
+  "participants": [
+    "Invalid pk \"6\" - object does not exist."
+  ]
 }
 ```
 
-* **Response Body (Example - `name` not a string):**
+* **Status Code:** `400 Bad Request`
+  * **Reason (for `POST`):** The provided data is invalid (e.g., `room_type` field missing).  
+  * **Response Body (Example - `room_type` missing):**
+
 ```json
 {
-    "name": [
-        "Not a valid string."
-    ]
+  "room_type": [
+    "This field is required."
+  ]
+}
+```
+
+* **Status Code:** `400 Bad Request`
+  * **Reason (for `POST`):** The provided data is invalid (e.g., `room_type` field not one of `ONE_TO_ONE`, `GROUP`, `COURSE`).
+  * **Response Body (Example - `room_type` invalid):**
+
+```json
+{
+  "room_type": [
+    "\"\" is not a valid choice."
+  ]
 }
 ```
 
@@ -202,15 +217,5 @@ The response will contain the JSON object of the newly created group.
 ```json
 {
     "detail": "Authentication credentials were not provided."
-}
-```
-
-* **Status Code:** `403 Forbidden`
-    * **Reason (for `POST`):** The authenticated user does not have permission to create groups (e.g., if creating groups is restricted to administrators and the current user is not an admin).
-    * **Response Body:**
-
-```json
-{
-    "detail": "You do not have permission to perform this action."
 }
 ```
