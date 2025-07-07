@@ -36,6 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne", # ASGI server for Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     "notifications",
     "courses",
     # third-party apps
+    "channels",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
@@ -115,6 +117,15 @@ TEMPLATES = [
         },
     },
 ]
+
+ASGI_APPLICATION = "EduLite.asgi.application"
+
+# For future Redis integration (optional, safe default for now)
+CHANNEL_LAYERS ={
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
 
 WSGI_APPLICATION = "EduLite.wsgi.application"
 
