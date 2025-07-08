@@ -87,6 +87,20 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
+
+        # --- Channels and Websocket logging ---
+        "channels":{
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+
+        # log all ASGI events
+        "django.channels.server": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
     },
 }
 
