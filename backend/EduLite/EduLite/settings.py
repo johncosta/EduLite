@@ -20,14 +20,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
-PERFORMANCE_MONITORING = {
-    'ENABLED': True,  # Set to False in production if overhead is concern
-    'RESPONSE_TIME_THRESHOLD': 100,  # milliseconds - alert if exceeded
-    'PAYLOAD_SIZE_THRESHOLD_KB': 10,  # kilobytes - alert if exceeded  
-    'LOG_ALL_REQUESTS': False,  # Only log violations, not every request
-    'LOG_LEVEL': 'WARNING',  # 'DEBUG', 'INFO', 'WARNING', 'ERROR'
-}
-
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
