@@ -95,7 +95,6 @@ class FilterUserDisplayDataTests(TestCase):
 
         filtered_queryset = filter_user_display_data(base_queryset, self.requesting_user)
 
-        # Currently should pass through unchanged
         # Future implementations might:
         # - Hide full names based on show_full_name setting
         # - Hide email addresses based on show_email setting

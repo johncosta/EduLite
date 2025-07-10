@@ -16,6 +16,18 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Create logs directory if it doesn't exist
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
+PERFORMANCE_MONITORING = {
+    'ENABLED': True,  # Set to False in production if overhead is concern
+    'RESPONSE_TIME_THRESHOLD': 100,  # milliseconds - alert if exceeded
+    'PAYLOAD_SIZE_THRESHOLD_KB': 10,  # kilobytes - alert if exceeded  
+    'LOG_ALL_REQUESTS': False,  # Only log violations, not every request
+    'LOG_LEVEL': 'WARNING',  # 'DEBUG', 'INFO', 'WARNING', 'ERROR'
+}
+
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
@@ -60,6 +72,10 @@ LOGGING = {
     "formatters": {
         "simple": {"format": "\n%(levelname)s %(name)s: %(message)s"},
         "none": {"format": "%(message)s"},
+        'performance': {
+            'format': '{asctime} [{levelname}] {message}',
+            'style': '{',
+        },
     },
     "handlers": {
         "console": {
@@ -70,8 +86,27 @@ LOGGING = {
             "class": "logging.StreamHandler",  # Outputs to stderr by default
             "formatter": "none",
         },
+        'performance_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/performance.log',
+            'maxBytes': 1024*1024*10,  # 10MB
+            'backupCount': 5,
+            'formatter': 'performance',
+        },
+        'performance_console': {
+            'level': 'WARNING',  # Only show violations in console
+            'class': 'logging.StreamHandler',
+            'formatter': 'performance',
+        },
+        
     },
     "loggers": {
+        'performance': {
+            'handlers': ['performance_file', 'performance_console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
         # TESTS WILL  USE THE `console-tests` HANDLER
         # FEEL FREE TO CHANGE THE LOG LEVELS TO DEBUG FOR MORE DETAILS
         # OR TO WARNING TO ONLY SEE FAILURES

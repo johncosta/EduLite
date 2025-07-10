@@ -169,7 +169,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
             return last
         return ""
 
-    # In UserSerializer class
     def _get_requesting_user(self):
         """Get the requesting user from context."""
         request = self.context.get('request')

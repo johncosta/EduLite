@@ -174,21 +174,21 @@ class UserProfilePrivacySettings(models.Model):
         elif self.search_visibility == 'nobody':
             return False
         elif self.search_visibility == 'friends_only':
+            # Optimized: Use exists() with direct query to avoid N+1
             return self.user_profile.friends.filter(id=requesting_user.id).exists()
         elif self.search_visibility == 'friends_of_friends':
-            # Check if requesting user is a friend of friends
-            user_friends = self.user_profile.friends.all()
-            requesting_user_friends = requesting_user.friend_profiles.all()
-
-            # Check if they are direct friends first
-            if user_friends.filter(id=requesting_user.id).exists():
+            # Optimized: Use database-level joins to avoid N+1
+            # First check if they are direct friends
+            if self.user_profile.friends.filter(id=requesting_user.id).exists():
                 return True
 
-            # Check for mutual friends
-            mutual_friends = user_friends.filter(
-                id__in=requesting_user_friends.values_list('id', flat=True)
-            )
-            return mutual_friends.exists()
+            # Check for mutual friends using optimized query
+            # This uses a single query instead of fetching all friends
+            mutual_friends_exist = self.user_profile.friends.filter(
+                friend_profiles__user=requesting_user
+            ).exists()
+            
+            return mutual_friends_exist
 
         return False
 
@@ -214,6 +214,7 @@ class UserProfilePrivacySettings(models.Model):
         elif self.profile_visibility == 'private':
             return False
         elif self.profile_visibility == 'friends_only':
+            # Optimized: Use exists() with direct query to avoid N+1
             return self.user_profile.friends.filter(id=requesting_user.id).exists()
 
         return False
@@ -239,13 +240,12 @@ class UserProfilePrivacySettings(models.Model):
         if not self.allow_friend_requests:
             return False
 
-        # Check if they are already friends
+        # Optimized: Check if they are already friends using exists()
         if self.user_profile.friends.filter(id=requesting_user.id).exists():
             return False
 
-        # Check if there's already a pending request
-        from .models import ProfileFriendRequest
-        existing_request = ProfileFriendRequest.objects.filter(
+        # Optimized: Check if there's already a pending request using select_related
+        existing_request = ProfileFriendRequest.objects.select_related('sender__user').filter(
             sender__user=requesting_user,
             receiver=self.user_profile
         ).exists()
@@ -301,7 +301,7 @@ class ProfileFriendRequest(models.Model):
     def clean(self) -> None:
         if self.sender == self.receiver:
             raise ValidationError("Cannot send a friend request to oneself.")
-        # if they are already friends, throw an error
+        # Optimized: Check if they are already friends using exists()
         if self.sender.friends.filter(id=self.receiver.user.id).exists():
             raise ValidationError("Cannot send a friend request to a friend.")
         if self.receiver.friends.filter(id=self.sender.user.id).exists():

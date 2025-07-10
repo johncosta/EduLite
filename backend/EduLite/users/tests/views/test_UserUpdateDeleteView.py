@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+
 import unittest
 from django.urls import reverse
 from rest_framework import status
@@ -5,7 +8,13 @@ from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 
 
-class UserUpdateDeleteViewTests(APITestCase):
+# Add performance testing framework to path
+performance_path = Path(__file__).parent.parent.parent.parent.parent / "performance_testing" / "python_bindings"
+sys.path.insert(0, str(performance_path))
+
+from django_integration_mercury import DjangoMercuryAPITestCase
+
+class UserUpdateDeleteViewTests(DjangoMercuryAPITestCase):
     def setUp(self):
         # Admin user to make authenticated requests that should succeed
         self.admin_user = User.objects.create_superuser(
@@ -77,7 +86,7 @@ class UserUpdateDeleteViewTests(APITestCase):
         self.assertEqual(self.target_user_for_edit.email, patch_data["email"])
         self.assertEqual(
             self.target_user_for_edit.username, "usertoedit"
-        )  # Should remain unchanged
+        )
 
     def test_regular_user_cannot_partial_update_user_patch(self):
         self.client.force_authenticate(user=self.regular_user)

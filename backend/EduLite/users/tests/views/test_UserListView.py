@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+
 from django.urls import reverse
 import unittest
 from rest_framework import status
@@ -6,8 +9,13 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.test import override_settings
 
+# Add performance testing framework to path
+performance_path = Path(__file__).parent.parent.parent.parent.parent / "performance_testing" / "python_bindings"
+sys.path.insert(0, str(performance_path))
 
-class UserListViewTests(APITestCase):
+from django_integration_mercury import DjangoMercuryAPITestCase
+
+class UserListViewTests(DjangoMercuryAPITestCase):
     def setUp(self):
         """
         Set up initial data for the tests.
