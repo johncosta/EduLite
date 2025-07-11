@@ -1,13 +1,24 @@
+from tkinter.scrolledtext import example
+from urllib import request
+
 from django.shortcuts import render, get_object_or_404
+from drf_spectacular.utils import (
+    extend_schema,
+    inline_serializer,
+    OpenApiResponse,
+    OpenApiParameter,
+    OpenApiTypes,
+    OpenApiExample)
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import serializers, status
 
 from .models import ChatRoom, Message
 from .serializers import MessageSerializer, ChatRoomSerializer
 from .permissions import IsParticipant, IsMessageSenderOrReadOnly
 from .pagination import ChatRoomPagination, MessageCursorPagination
+
 
 
 class ChatAppBaseAPIView(APIView):
@@ -26,7 +37,17 @@ class ChatAppBaseAPIView(APIView):
         """
         return {"request": self.request}
 
-
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name='Authorization',
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.HEADER,
+            required=True,
+            description='Bearer token for authentication.',
+        ),
+    ],
+)
 class ChatRoomListCreateView(ChatAppBaseAPIView):
     """
     API view to list chat rooms the authenticated user is part of or create a new chat room.
@@ -42,6 +63,7 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
     - 201: Successfully created a new chat room.
     - 400: Invalid data provided for creating a chat room.
     """
+    serializer_class = ChatRoomSerializer
     permission_classes = [IsAuthenticated, IsParticipant]
     pagination_class = ChatRoomPagination
 
@@ -53,6 +75,57 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
             .prefetch_related("editors", "participants")
         )
 
+    @extend_schema(
+        # define parameters as we've overridden the base class
+        parameters=[
+            OpenApiParameter(
+                name='page',
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description='Page number'
+            ),
+            OpenApiParameter(
+                name='page_size',
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description='Number of results per page (max 50)'
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="The response will be a paginated JSON object containing a list of all chat rooms the user participates in.",
+                response=inline_serializer(
+                    name='ChatRoomPaginatedResponse',
+                    fields={
+                        'next': serializers.URLField(allow_null=True),
+                        'previous': serializers.URLField(allow_null=True),
+                        'count': serializers.IntegerField(),
+                        'total_pages': serializers.IntegerField(),
+                        'current_page': serializers.IntegerField(),
+                        'page_size': serializers.IntegerField(),
+                        'results': ChatRoomSerializer(many=True),
+                    }
+                )
+            ),
+            401: OpenApiResponse(
+                description="Authentication credentials were not provided.",
+                response=inline_serializer(
+                    name='UnauthorizedError',
+                    fields={
+                        'detail': serializers.CharField()
+                    },
+                ),
+                examples=[
+                    OpenApiExample(
+                        'Unauthorized',
+                        value={
+                            "detail": "Authentication credentials were not provided."
+                        }
+                    )
+                ]
+            ),
+        },
+    )
     def get(self, request, *args, **kwargs):
         """List chat rooms where user is a participant"""
         queryset = self.get_queryset()
@@ -60,16 +133,77 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
         # Initialize paginator and paginate queryset
         paginator = self.pagination_class()
         paginated_queryset = paginator.paginate_queryset(queryset, request, view=self)
-        
+
         # Serialize paginated data
         serializer = ChatRoomSerializer(
-            paginated_queryset, 
-            many=True, 
+            paginated_queryset,
+            many=True,
             context=self.get_serializer_context()
         )
-        
+
+        # Return paginated response
         return paginator.get_paginated_response(serializer.data)
-    
+
+    @extend_schema(
+        parameters=[
+            ChatRoomSerializer,
+        ],
+        responses={
+            201: OpenApiResponse(
+                description="The response will contain the details of the newly created chat room.",
+                response=ChatRoomSerializer()
+            ),
+            400: OpenApiResponse(
+                description="Invalid data provided for creating a chat room.",
+                response=inline_serializer(
+                    name='ChatRoomValidationError',
+                    fields={
+                        'participants': serializers.ListField(
+                            child=serializers.CharField()
+                        ),
+                        'room_type': serializers.CharField(),
+                    }
+                ),
+                examples=[
+                    OpenApiExample(
+                        'Invalid Participant',
+                        value={
+                            "detail": "Invalid pk \"X\" - object does not exist."
+                        }
+                    ),
+                    OpenApiExample(
+                        'Missing Room Type',
+                        value={
+                            "detail": "This field is required."
+                        }
+                    ),
+                    OpenApiExample(
+                        'Invalid Room Type',
+                        value={
+                            "detail": "\"X\" is not a valid choice."
+                        }
+                    )
+                ]
+            ),
+            401: OpenApiResponse(
+                description="Authentication credentials were not provided.",
+                response=inline_serializer(
+                    name='UnauthorizedError',
+                    fields={
+                        'detail': serializers.CharField()
+                    },
+                ),
+                examples=[
+                    OpenApiExample(
+                        'Unauthorized',
+                        value={
+                            "detail": "Authentication credentials were not provided."
+                        }
+                    )
+                ]
+            ),
+        },
+    )
     def post(self, request, *args, **kwargs):
         """Create a new chat room and add creator as participant"""
         serializer = ChatRoomSerializer(data=request.data, context=self.get_serializer_context())
