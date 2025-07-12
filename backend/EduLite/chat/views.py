@@ -50,7 +50,7 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
         return (
             ChatRoom.objects.filter(participants=self.request.user)
             .select_related("creator")
-            .prefetch_related("participants")
+            .prefetch_related("editors", "participants")
         )
 
     def get(self, request, *args, **kwargs):
