@@ -71,8 +71,8 @@ check_docker_daemon() {
     echo "Error: Docker daemon is not running. Please start Docker and try again."
     exit 1
   fi
-  if ! docker-compose --version > /dev/null 2>&1; then
-    echo "Error: docker-compose is not installed or not in PATH. Please install it."
+  if ! docker compose --version > /dev/null 2>&1; then
+    echo "Error: docker compose is not installed or not in PATH. Please install it."
     exit 1
   fi
 }

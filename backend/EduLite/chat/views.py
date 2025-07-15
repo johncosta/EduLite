@@ -30,15 +30,32 @@ class ChatAppBaseAPIView(APIView):
 class ChatRoomListCreateView(ChatAppBaseAPIView):
     """
     API view to list chat rooms the authenticated user is part of or create a new chat room.
-    - GET: Returns a paginated list of chat rooms where user is a participant
-    - POST: Creates a new chat room and adds creator as participant
+
+    GET:
+    - Returns a paginated list of chat rooms where the authenticated user is a participant.
+
+    POST:
+    - Creates a new chat room and automatically adds the creator as a participant.
+
+    Responses:
+    - 200: Successfully retrieved the list of chat rooms.
+    - 201: Successfully created a new chat room.
+    - 400: Invalid data provided for creating a chat room.
     """
     permission_classes = [IsAuthenticated, IsParticipant]
     pagination_class = ChatRoomPagination
 
+    def get_queryset(self):
+        """"Get the queryset of chat rooms where the user is a participant"""
+        return (
+            ChatRoom.objects.filter(participants=self.request.user)
+            .select_related("creator")
+            .prefetch_related("editors", "participants")
+        )
+
     def get(self, request, *args, **kwargs):
         """List chat rooms where user is a participant"""
-        queryset = ChatRoom.objects.filter(participants=request.user)
+        queryset = self.get_queryset()
 
         # Initialize paginator and paginate queryset
         paginator = self.pagination_class()
@@ -69,7 +86,16 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
 class ChatRoomDetailView(ChatAppBaseAPIView):
     """
     API view to retrieve details for a specific chat room.
-    - GET: Returns details of a chat room if user is a participant
+
+    GET:
+    - Returns details of a chat room if the authenticated user is a participant.
+
+    Path Parameters:
+    - `pk` (int): The primary key of the chat room.
+
+    Responses:
+    - 200: Chat room details successfully retrieved.
+    - 404: Chat room not found or user is not a participant.
     """
     permission_classes = [IsAuthenticated, IsParticipant]
     
@@ -88,8 +114,20 @@ class ChatRoomDetailView(ChatAppBaseAPIView):
 class MessageListCreateView(ChatAppBaseAPIView):
     """
     API view to list and create messages in a specific chat room.
-    - GET: Returns a paginated list of messages in a chat room
-    - POST: Creates a new message in the chat room
+
+    GET:
+    - Returns a paginated list of messages in a chat room.
+
+    POST:
+    - Creates a new message in the chat room.
+
+    Path Parameters:
+    - `chat_room_id` (int): The ID of the chat room.
+
+    Responses:
+    - 200: Successfully retrieved the list of messages.
+    - 201: Successfully created a new message.
+    - 400: Invalid data provided for creating a message.
     """
     permission_classes = [IsAuthenticated, IsMessageSenderOrReadOnly]
     pagination_class = MessageCursorPagination
@@ -149,10 +187,28 @@ class MessageListCreateView(ChatAppBaseAPIView):
 class MessageDetailView(ChatAppBaseAPIView):
     """
     API view to manage a specific message in a chat room.
-    - GET: Retrieve a specific message
-    - PUT: Update a message (sender only)
-    - PATCH: Partially update a message (sender only)
-    - DELETE: Delete a message (sender only)
+
+    GET:
+    - Retrieve a specific message.
+
+    PUT:
+    - Update a message (full update, sender only).
+
+    PATCH:
+    - Partially update a message (sender only).
+
+    DELETE:
+    - Delete a message (sender only).
+
+    Path Parameters:
+    - `chat_room_id` (int): The ID of the chat room.
+    - `pk` (int): The ID of the message.
+
+    Responses:
+    - 200: Successfully retrieved or updated the message.
+    - 204: Successfully deleted the message.
+    - 400: Invalid data provided for updating the message.
+    - 404: Message not found or user is not authorized.
     """
     permission_classes = [IsAuthenticated, IsMessageSenderOrReadOnly]
 
