@@ -33,6 +33,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -263,3 +264,13 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# Email Configuration - Development Only (Console Backend)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025  # Not used by console backend but safe to include
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'EduLite <noreply@edulite.local>'
+FRONTEND_URL = 'http://127.0.0.1:8000/api'
