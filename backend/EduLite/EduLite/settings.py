@@ -255,6 +255,16 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
+# Django Channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
 # Email Configuration - Development Only (Console Backend)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'localhost'
@@ -264,4 +274,3 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'EduLite <noreply@edulite.local>'
 FRONTEND_URL = 'http://127.0.0.1:8000/api'
-
