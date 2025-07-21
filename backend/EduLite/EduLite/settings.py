@@ -135,11 +135,14 @@ TEMPLATES = [
 
 ASGI_APPLICATION = "EduLite.asgi.application"
 
-# For future Redis integration (optional, safe default for now)
-CHANNEL_LAYERS ={
+# Django Channels
+CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
 
 WSGI_APPLICATION = "EduLite.wsgi.application"
@@ -254,16 +257,6 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
-
-# Django Channels
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
 
 # Email Configuration - Development Only (Console Backend)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
