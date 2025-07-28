@@ -1,4 +1,6 @@
 # backend/users/
+import sys
+from pathlib import Path
 import logging
 
 from django.urls import reverse
@@ -10,8 +12,13 @@ from django.db.models import Q
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
+# Add performance testing framework to path
+performance_path = Path(__file__).parent.parent.parent.parent.parent / "performance_testing" / "python_bindings"
+sys.path.insert(0, str(performance_path))
 
-class UserSearchViewTests(APITestCase):
+from performance_testing.python_bindings.django_integration_mercury import DjangoMercuryAPITestCase
+
+class UserSearchViewTests(DjangoMercuryAPITestCase):
     """
     Test suite for the UserSearchView.
     """
@@ -70,6 +77,22 @@ class UserSearchViewTests(APITestCase):
             last_name="SixTest",
             email="zeta@example.com",
             is_active=True,
+        )
+        # Create enough users to ensure pagination (e.g., 12 users matching 'page_test')
+        # Assuming page_size is 10 for UserSearchView's paginator
+        for i in range(12):
+            User.objects.create_user(
+                username=f"page_test_user{i:02d}", first_name="PageTest", is_active=True
+            )
+            
+        User.objects.create_user(
+            username="test_user_c", first_name="Common", is_active=True
+        )
+        User.objects.create_user(
+            username="test_user_a", first_name="Common", is_active=True
+        )
+        User.objects.create_user(
+            username="test_user_b", last_name="Common", is_active=True
         )
 
     def setUp(self):
@@ -181,15 +204,6 @@ class UserSearchViewTests(APITestCase):
 
     def test_search_multiple_matches_and_ordering(self):
         """Test search returning multiple users, ordered by username."""
-        User.objects.create_user(
-            username="test_user_c", first_name="Common", is_active=True
-        )
-        User.objects.create_user(
-            username="test_user_a", first_name="Common", is_active=True
-        )
-        User.objects.create_user(
-            username="test_user_b", last_name="Common", is_active=True
-        )
         logger.debug("test_search_multiple_matches_and_ordering():")
         response = self.client.get(self.search_url, {"q": "Common"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -209,12 +223,12 @@ class UserSearchViewTests(APITestCase):
 
     def test_search_pagination(self):
         """Test that search results are paginated."""
-        # Create enough users to ensure pagination (e.g., 12 users matching 'page_test')
-        # Assuming page_size is 10 for UserSearchView's paginator
-        for i in range(12):
-            User.objects.create_user(
-                username=f"page_test_user{i:02d}", first_name="PageTest", is_active=True
-            )
+        
+        self.set_test_performance_thresholds({
+            'response_time_ms': 150,
+            'query_count_max': 16,
+            'memory_overhead_mb': 50,
+        })
 
         response_page1 = self.client.get(self.search_url, {"q": "PageTest"})
         self.assertEqual(response_page1.status_code, status.HTTP_200_OK)
@@ -261,7 +275,7 @@ class UserSearchViewTests(APITestCase):
             found_count, 1, "User matching in multiple fields should only appear once."
         )
 
-class UserSearchPrivacyTests(APITestCase):
+class UserSearchPrivacyTests(DjangoMercuryAPITestCase):
     """
     Test suite for UserSearchView privacy functionality.
     """

@@ -103,7 +103,7 @@ class UserProfilePrivacySettings(models.Model):
     profile_visibility = models.CharField(
         max_length=20,
         choices=PROFILE_VISIBILITY_CHOICES,
-        default='friends_only',
+        default='friends_only',  # Default to friends only
         help_text="Who can view your full profile details"
     )
 

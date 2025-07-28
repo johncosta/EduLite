@@ -2,6 +2,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.db import models
+from django.conf import settings
 from typing import Optional, TYPE_CHECKING
 
 from rest_framework import serializers
@@ -302,44 +304,59 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 "Invalid email format: '@' symbol missing."
             )
         email_name, domain_part = value.split("@", 1)
-        from django.conf import settings
+        
+        # Cache blocked domains to avoid repeated getattr calls
+        if not hasattr(self, '_blocked_domains'):
+            blocked_domains = getattr(
+                settings, "BLOCKED_EMAIL_DOMAINS", ["example.com", "test.com"]
+            )
+            # Pre-process to lowercase for faster comparison
+            self._blocked_domains = [d.lower() for d in blocked_domains]
 
-        blocked_domains = getattr(
-            settings, "BLOCKED_EMAIL_DOMAINS", ["example.com", "test.com"]
-        )
-
-        if domain_part.lower() in [d.lower() for d in blocked_domains]:
+        if domain_part.lower() in self._blocked_domains:
             raise serializers.ValidationError(
                 "Registration from this email domain is not allowed."
             )
 
-        # Uniqueness Check
-        if User.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError(
-                "A user with this email address already exists."
-            )
-
-        return value  # If all checks pass, return the validated email value
+        return value  # Domain validation passes, uniqueness checked in validate()
 
     def validate_username(self, value):
         """
-        Check that the username is unique.
+        Check that the username format is valid.
+        Uniqueness will be checked in validate() method.
         """
-        if User.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(
-                "A user with that username already exists."
-            )
         return value
 
     def validate(self, attrs):
         """
-        Check that the two password entries match.
+        Check that the two password entries match and perform uniqueness checks.
+        Combined validation reduces database queries from 2 to 1.
         """
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError(
                 {"password2": "Password fields didn't match."}
             )
-        # You can add more custom validation here if needed
+        
+        # Perform combined uniqueness check using a single query
+        username = attrs.get('username')
+        email = attrs.get('email')
+        
+        if username and email:
+            # Use Q objects for efficient OR query
+            existing_users = User.objects.filter(
+                models.Q(username__iexact=username) | models.Q(email__iexact=email)
+            ).values('username', 'email')
+            
+            errors = {}
+            for user in existing_users:
+                if user['username'].lower() == username.lower():
+                    errors['username'] = "A user with that username already exists."
+                if user['email'].lower() == email.lower():
+                    errors['email'] = "A user with this email address already exists."
+            
+            if errors:
+                raise serializers.ValidationError(errors)
+        
         return attrs
 
     def create(self, validated_data):

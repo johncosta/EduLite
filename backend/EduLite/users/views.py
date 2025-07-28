@@ -532,7 +532,16 @@ class PendingFriendRequestListView(UsersAppBaseAPIView):
             return ProfileFriendRequest.objects.none()
 
         # Pre-fetch related user details for sender/receiver to optimize
-        queryset = queryset.select_related("sender__user", "receiver__user")
+        # Also select_related on sender and receiver to avoid N+1 for profile IDs
+        # Include privacy_settings to avoid N+1 queries for privacy checks
+        queryset = queryset.select_related(
+            "sender", 
+            "receiver", 
+            "sender__user", 
+            "receiver__user",
+            "sender__privacy_settings",
+            "receiver__privacy_settings"
+        )
         return queryset.order_by("-created_at")  # Ensure consistent ordering
 
     def get(self, request, *args, **kwargs):

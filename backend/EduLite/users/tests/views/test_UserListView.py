@@ -13,7 +13,8 @@ from django.test import override_settings
 performance_path = Path(__file__).parent.parent.parent.parent.parent / "performance_testing" / "python_bindings"
 sys.path.insert(0, str(performance_path))
 
-from django_integration_mercury import DjangoMercuryAPITestCase
+from performance_testing.python_bindings.django_integration_mercury import DjangoMercuryAPITestCase
+
 
 class UserListViewTests(DjangoMercuryAPITestCase):
     def setUp(self):
