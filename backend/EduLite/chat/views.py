@@ -216,7 +216,17 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name='Authorization',
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.HEADER,
+            required=True,
+            description='Bearer token for authentication.',
+        ),
+    ],
+)
 class ChatRoomDetailView(ChatAppBaseAPIView):
     """
     API view to retrieve details for a specific chat room.
@@ -237,6 +247,56 @@ class ChatRoomDetailView(ChatAppBaseAPIView):
         """Helper method to retrieve the chat room object or raise a 404 error"""
         return get_object_or_404(ChatRoom.objects.all(), pk=pk)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='id',
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description='Unique identifyer for the chat room.',
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="The response will contain the details of the chat room specified by `id`.",
+                response=ChatRoomSerializer()
+            ),
+            401: OpenApiResponse(
+                description="Authentication credentials were not provided.",
+                response=inline_serializer(
+                    name='UnauthorizedError',
+                    fields={
+                        'detail': serializers.CharField()
+                    },
+                ),
+                examples=[
+                    OpenApiExample(
+                        'Unauthorized',
+                        value={
+                            "detail": "Authentication credentials were not provided."
+                        }
+                    )
+                ]
+            ),
+            404: OpenApiResponse(
+                description="A `Chat Room` with the specified `id` does not exist.",
+                response=inline_serializer(
+                    name='NotFoundError',
+                    fields={
+                        'detail': serializers.CharField()
+                    },
+                ),
+                examples=[
+                    OpenApiExample(
+                        'Not Found',
+                        value={
+                            "detail": "No ChatRoom matches the given query."
+                        }
+                    )
+                ]
+            )
+        },
+    )
     def get(self, request, pk, *args, **kwargs):
         """Retrieve details of a specific chat room"""
         chat_room = self.get_object(pk)
