@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ChatRoom, Message
+from .models import ChatRoom, Message, ChatRoomInvitation
 
 
 @admin.register(ChatRoom)
@@ -28,3 +28,10 @@ class MessageAdmin(admin.ModelAdmin):
         return obj.content[:50] + "..." if len(obj.content) > 50 else obj.content
 
     short_content.short_description = "Content Preview"
+
+
+@admin.register(ChatRoomInvitation)
+class ChatRoomInvitationAdmin(admin.ModelAdmin):
+    list_display = ('chat_room', 'invited_by', 'invitee', 'status', 'created_at')
+    list_filter = ('status',)
+    search_fields = ('chat_room__name', 'invited_by__username', 'invitee__username')
