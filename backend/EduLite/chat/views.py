@@ -10,13 +10,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import serializers, status
-
-from .models import ChatRoom, Message
+from .models import ChatRoom, Message, ChatRoomInvitation
 from .serializers import MessageSerializer, ChatRoomSerializer
 from .permissions import IsParticipant, IsMessageSenderOrReadOnly
 from .pagination import ChatRoomPagination, MessageCursorPagination
+from django.contrib.auth import get_user_model
 
 
+User = get_user_model()
 
 class ChatAppBaseAPIView(APIView):
     """
@@ -953,3 +954,72 @@ class MessageDetailView(ChatAppBaseAPIView):
             {"message": "Message deleted successfully."},
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+
+class ChatRoomInvitationView(ChatAppBaseAPIView):
+    """
+    Handles sending, accepting, and declining chat room invitations.
+    """
+    def post(self, request, pk, action=None):
+        if action is None:
+            return self.send_invitation(request, pk)
+        elif action == 'accept':
+            return self.accept_invitation(request, pk)
+        elif action == 'decline':
+            return self.decline_invitation(request, pk)
+        else:
+            return Response({"error": "Invalid action."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def send_invitation(self, request, pk):
+        chat_room = get_object_or_404(ChatRoom, pk=pk)
+        invitee_id = request.data.get('invitee_id')
+
+        if not invitee_id:
+            return Response({"error": "invitee_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.user.id == int(invitee_id):
+            return Response({"error": "You cannot invite yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if chat_room.participants.filter(id=invitee_id).exists():
+            return Response({"error": "User is already a participant."}, status=status.HTTP_400_BAD_REQUEST)
+
+        existing_invite = ChatRoomInvitation.objects.filter(
+            chat_room=chat_room,
+            invitee_id=invitee_id,
+            status='pending'
+        ).first()
+
+        if existing_invite:
+            return Response({"error": "A pending invitation already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        invitation = ChatRoomInvitation.objects.create(
+            chat_room=chat_room,
+            invited_by=request.user,
+            invitee_id=invitee_id
+        )
+
+        return Response({"message": "Invitation sent.", "invitation_id": invitation.id}, status=status.HTTP_201_CREATED)
+
+    def accept_invitation(self, request, pk):
+        invitation = get_object_or_404(ChatRoomInvitation, pk=pk, invitee=request.user)
+
+        if invitation.status != 'pending':
+            return Response({"error": "This invitation is no longer pending."}, status=status.HTTP_400_BAD_REQUEST)
+
+        invitation.status = 'accepted'
+        invitation.save()
+        invitation.chat_room.participants.add(request.user)
+
+        return Response({"message": "Invitation accepted."})
+
+    def decline_invitation(self, request, pk):
+        invitation = get_object_or_404(ChatRoomInvitation, pk=pk, invitee=request.user)
+
+        if invitation.status != 'pending':
+            return Response({"error": "This invitation is no longer pending."}, status=status.HTTP_400_BAD_REQUEST)
+
+        invitation.status = 'declined'
+        invitation.save()
+
+        return Response({"message": "Invitation declined."})
