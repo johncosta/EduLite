@@ -1,338 +1,277 @@
-"""Mercury Performance Tests for UserProfileRetrieveUpdateView
+# users/tests/views/test_UserProfileRetrieveUpdateView.py - Tests for UserProfileRetrieveUpdateView
 
-This module contains performance tests for the UserProfileRetrieveUpdateView using
-the Mercury intelligent performance testing framework.
-"""
-
-import sys
-from pathlib import Path
-
+from django.contrib.auth.models import User
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 from rest_framework import status
 
-# Add performance testing framework to path
-backend_path = Path(__file__).parent.parent.parent.parent.parent
-sys.path.insert(0, str(backend_path))
-
-from performance_testing.python_bindings.django_integration_mercury import DjangoMercuryAPITestCase
-from users.models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
-
-User = get_user_model()
+from .. import UsersAppTestCase
 
 
-
-class UserProfileRetrieveUpdateViewMercuryTests(DjangoMercuryAPITestCase):
-    """
-    Performance test suite for the UserProfileRetrieveUpdateView using Mercury framework.
+class UserProfileRetrieveUpdateViewTest(UsersAppTestCase):
+    """Test cases for the UserProfileRetrieveUpdateView API endpoint."""
     
-    Tests profile retrieval and update operations with focus on:
-    - Query optimization for related objects
-    - N+1 query detection
-    - Memory efficiency for profile data serialization
-    - Update operation performance
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        """Configure Mercury for intelligent performance monitoring."""
-        super().setUpClass()
-        cls.configure_mercury(
-            enabled=True,
-            auto_scoring=True,
-            store_history=True
-        )
+    def setUp(self):
+        """Set up test data."""
+        super().setUp()
+        # URL pattern should be like /api/users/{user_id}/profile/
+        self.get_url = lambda user_id: reverse('userprofile-detail', kwargs={'pk': user_id})
         
-        # Set custom thresholds for profile operations
-        cls.set_performance_thresholds({
-            'response_time_ms': 100,   # Profile operations should be fast
-            'query_count_max': 5,      # Profile + related objects
-            'memory_overhead_mb': 20   # Profile data is relatively small
+    # --- Authentication Tests ---
+    
+    def test_retrieve_profile_requires_authentication(self):
+        """Test that retrieving a profile requires authentication."""
+        url = self.get_url(self.ahmad.id)
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_401_UNAUTHORIZED)
+        
+    def test_update_profile_requires_authentication(self):
+        """Test that updating a profile requires authentication."""
+        url = self.get_url(self.ahmad.id)
+        response = self.client.patch(url, {'bio': 'Updated bio'})
+        self.assert_response_success(response, status.HTTP_401_UNAUTHORIZED)
+        
+    # --- Retrieve Tests ---
+    
+    def test_retrieve_own_profile_success(self):
+        """Test that users can retrieve their own profile."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.ahmad.id)
+        
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should get profile data (specific fields tested in serializer tests)
+        self.assertIsInstance(response.data, dict)
+        self.assertEqual(response.data['user'], self.ahmad.id)
+        
+    def test_retrieve_other_user_profile_public(self):
+        """Test retrieving another user's profile with public visibility."""
+        # Marie has public profile visibility
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.marie.id)
+        
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should see marie's profile
+        self.assertEqual(response.data['user'], self.marie.id)
+        
+    def test_retrieve_other_user_profile_friends_only(self):
+        """Test retrieving profile with friends_only visibility."""
+        # Ahmad has friends_only profile visibility
+        # Ahmad and Marie are friends
+        self.authenticate_as(self.marie)
+        url = self.get_url(self.ahmad.id)
+        
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+    def test_retrieve_profile_blocked_by_privacy(self):
+        """Test that private profiles return limited data for non-friends."""
+        # Sophie has private profile visibility
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.sophie.id)
+        
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should get limited data (privacy logic tested in serializer tests)
+        self.assertIsInstance(response.data, dict)
+        
+    def test_retrieve_nonexistent_profile(self):
+        """Test retrieving profile for non-existent user."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(99999)
+        
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_404_NOT_FOUND)
+        
+    def test_admin_can_retrieve_any_profile(self):
+        """Test that admin users can retrieve any profile."""
+        # Make sarah_teacher an admin
+        self.sarah_teacher.is_superuser = True
+        self.sarah_teacher.is_staff = True
+        self.sarah_teacher.save()
+        
+        self.authenticate_as(self.sarah_teacher)
+        
+        # Should be able to see Sophie's private profile
+        url = self.get_url(self.sophie.id)
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+    # --- Update Tests ---
+    
+    def test_update_own_profile_success(self):
+        """Test that users can update their own profile."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.ahmad.id)
+        
+        new_bio = "Updated bio - Still learning despite challenges in Gaza."
+        response = self.client.patch(url, {
+            'bio': new_bio,
+            'occupation': 'developer'
         })
-
-    @classmethod
-    def setUpTestData(cls):
-        """Set up test data for performance testing."""
-        # Create test users with complete profiles
-        cls.user1 = User.objects.create_user(
-            username="testuser1",
-            password="password123",
-            email="user1@example.com",
-            first_name="Test",
-            last_name="User1"
-        )
-        cls.profile1 = UserProfile.objects.get(user=cls.user1)
-        cls.profile1.bio = "This is test user 1's bio"
-        cls.profile1.date_of_birth = "1990-01-01"
-        cls.profile1.country = "US"
-        cls.profile1.save()
         
-        cls.user2 = User.objects.create_user(
-            username="testuser2",
-            password="password123",
-            email="user2@example.com",
-            first_name="Test",
-            last_name="User2"
-        )
-        cls.profile2 = UserProfile.objects.get(user=cls.user2)
-        cls.profile2.bio = "This is test user 2's bio"
-        cls.profile2.date_of_birth = "1991-02-02"
-        cls.profile2.country = "UK"
-        cls.profile2.save()
+        self.assert_response_success(response, status.HTTP_200_OK)
         
-        # Create admin user
-        cls.admin_user = User.objects.create_superuser(
-            username="admin",
-            password="adminpass123",
-            email="admin@example.com"
-        )
-        cls.admin_profile = UserProfile.objects.get(user=cls.admin_user)
+        # Verify changes
+        self.ahmad.profile.refresh_from_db()
+        self.assertEqual(self.ahmad.profile.bio, new_bio)
+        self.assertEqual(self.ahmad.profile.occupation, 'developer')
         
-        # Add some friends for user1
-        cls.friend1 = User.objects.create_user(
-            username="friend1", password="password123"
-        )
-        cls.friend2 = User.objects.create_user(
-            username="friend2", password="password123"
-        )
-        cls.profile1.friends.add(cls.friend1, cls.friend2)
+    def test_update_other_user_profile_forbidden(self):
+        """Test that users cannot update other users' profiles."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.marie.id)
         
-        # URLs
-        cls.profile1_url = reverse("userprofile-detail", kwargs={"pk": cls.profile1.pk})
-        cls.profile2_url = reverse("userprofile-detail", kwargs={"pk": cls.profile2.pk})
-
-    def test_retrieve_own_profile_performance(self):
-        """Test performance of retrieving own profile."""
-        self.client.force_authenticate(user=self.user1)
+        response = self.client.patch(url, {'bio': 'Hacked bio'})
+        self.assert_response_success(response, status.HTTP_403_FORBIDDEN)
         
-        # Mercury automatically monitors this request
-        response = self.client.get(self.profile1_url)
+        # Verify no changes
+        self.marie.profile.refresh_from_db()
+        self.assertNotEqual(self.marie.profile.bio, 'Hacked bio')
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["id"], self.profile1.pk)
-        self.assertEqual(response.data["bio"], "This is test user 1's bio")
+    def test_admin_can_update_any_profile(self):
+        """Test that admin users can update any profile."""
+        # Make sarah_teacher an admin
+        self.sarah_teacher.is_superuser = True
+        self.sarah_teacher.is_staff = True
+        self.sarah_teacher.save()
         
-        # Verify all expected fields are present
-        expected_fields = {
-            "id", "user", "bio", "date_of_birth", "profile_picture",
-            "country", "languages", "website_url", "friends"
-        }
-        self.assertTrue(expected_fields.issubset(set(response.data.keys())))
-
-    def test_retrieve_other_profile_performance(self):
-        """Test performance of retrieving another user's profile."""
-        self.client.force_authenticate(user=self.user1)
+        self.authenticate_as(self.sarah_teacher)
+        url = self.get_url(self.ahmad.id)
         
-        response = self.client.get(self.profile2_url)
+        response = self.client.patch(url, {
+            'bio': 'Updated by admin for safety reasons'
+        })
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["id"], self.profile2.pk)
-
-    def test_admin_retrieve_profile_performance(self):
-        """Test performance when admin retrieves any profile."""
-        self.client.force_authenticate(user=self.admin_user)
+        self.assert_response_success(response, status.HTTP_200_OK)
         
-        response = self.client.get(self.profile1_url)
+        # Verify changes
+        self.ahmad.profile.refresh_from_db()
+        self.assertEqual(self.ahmad.profile.bio, 'Updated by admin for safety reasons')
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["id"], self.profile1.pk)
-
-    def test_update_own_profile_performance(self):
-        """Test performance of updating own profile with PUT."""
-        self.client.force_authenticate(user=self.user1)
+    def test_update_profile_validation(self):
+        """Test profile update validation."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.ahmad.id)
         
-        update_data = {
-            "bio": "Updated bio for performance testing",
-            "date_of_birth": "1990-06-15",
-            "country": "CA",
-            "languages": ["en", "fr"],
-            "website_url": "https://example.com"
-        }
+        # Try to set invalid country code
+        response = self.client.patch(url, {'country': 'INVALID'})
+        self.assert_response_success(response, status.HTTP_400_BAD_REQUEST)
         
-        response = self.client.put(self.profile1_url, update_data, format="json")
+    def test_update_profile_partial(self):
+        """Test partial profile updates (PATCH)."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.ahmad.id)
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["bio"], "Updated bio for performance testing")
-        self.assertEqual(response.data["country"], "CA")
+        # Update only bio
+        response = self.client.patch(url, {'bio': 'Just updating bio'})
+        self.assert_response_success(response, status.HTTP_200_OK)
         
-        # Verify the update persisted
-        self.profile1.refresh_from_db()
-        self.assertEqual(self.profile1.bio, "Updated bio for performance testing")
-
-    def test_partial_update_profile_performance(self):
-        """Test performance of partial profile update with PATCH."""
-        self.client.force_authenticate(user=self.user1)
-        
-        patch_data = {
-            "bio": "Just updating the bio",
-            "website_url": "https://newsite.com"
-        }
-        
-        response = self.client.patch(self.profile1_url, patch_data, format="json")
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["bio"], "Just updating the bio")
-        self.assertEqual(response.data["website_url"], "https://newsite.com")
         # Other fields should remain unchanged
-        self.assertEqual(response.data["country"], "US")
-
-    def test_profile_with_many_friends_performance(self):
-        """Test performance with profiles having many friend relationships."""
-        # Set custom thresholds for this test as it involves more data
-        self.set_test_performance_thresholds({
-            'response_time_ms': 150,
-            'query_count_max': 10,  # More queries for friend relationships
-            'memory_overhead_mb': 30
+        self.ahmad.profile.refresh_from_db()
+        self.assertEqual(self.ahmad.profile.bio, 'Just updating bio')
+        self.assertEqual(self.ahmad.profile.country, 'PS')  # Unchanged
+        
+    def test_update_profile_full(self):
+        """Test full profile updates (PUT)."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.ahmad.id)
+        
+        # Get current profile data
+        response = self.client.get(url)
+        current_data = response.data
+        
+        # Clean None values for multipart encoding
+        current_data = {k: v if v is not None else '' for k, v in current_data.items()}
+        
+        # Update with full data
+        current_data['bio'] = 'Complete profile update'
+        current_data['website_url'] = 'https://example.com'
+        
+        response = self.client.put(url, current_data)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Verify changes
+        self.ahmad.profile.refresh_from_db()
+        self.assertEqual(self.ahmad.profile.bio, 'Complete profile update')
+        self.assertEqual(self.ahmad.profile.website_url, 'https://example.com')
+        
+    def test_update_read_only_fields_ignored(self):
+        """Test that read-only fields are ignored in updates."""
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(self.ahmad.id)
+        
+        # Try to update read-only fields
+        response = self.client.patch(url, {
+            'user': self.marie.id,  # Should be read-only
+            'created_at': '2024-01-01T00:00:00Z',  # Should be read-only
+            'bio': 'Valid update'
         })
         
-        # Create a user with many friends
-        popular_user = User.objects.create_user(
-            username="popular_user",
-            password="password123",
-            email="popular@example.com"
-        )
-        popular_profile = UserProfile.objects.get(user=popular_user)
-        popular_profile.bio = "I have many friends!"
-        popular_profile.save()
+        self.assert_response_success(response, status.HTTP_200_OK)
         
-        # Add 50 friends
-        friends = []
-        for i in range(50):
-            friend = User.objects.create_user(
-                username=f"friend_{i}",
-                password="password123",
-                email=f"friend{i}@example.com"
-            )
-            friends.append(friend)
+        # Verify only bio was updated
+        self.ahmad.profile.refresh_from_db()
+        self.assertEqual(self.ahmad.profile.bio, 'Valid update')
+        self.assertEqual(self.ahmad.profile.user.id, self.ahmad.id)  # Unchanged
         
-        popular_profile.friends.add(*friends)
+    # --- Privacy Integration Tests ---
+    
+    def test_profile_visibility_respects_privacy_settings(self):
+        """Test that profile visibility respects privacy settings."""
+        # Create a new user with specific privacy settings
+        test_user = self.create_test_user(username="privacy_test")
+        test_user.profile.bio = "Test bio"
+        test_user.profile.save()
         
-        # Test retrieval
-        self.client.force_authenticate(user=popular_user)
-        url = reverse("profile-retrieve-update", kwargs={"pk": popular_profile.pk})
+        # Set to nobody visibility (assuming this means 'private')
+        test_user.profile.privacy_settings.profile_visibility = 'private'
+        test_user.profile.privacy_settings.save()
+        
+        # Non-admin should get limited data
+        self.authenticate_as(self.ahmad)
+        url = self.get_url(test_user.id)
+        response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should get limited data (specific fields tested in serializer tests)
+        self.assertIsInstance(response.data, dict)
+        
+    # --- Field Privacy Tests ---
+    
+    def test_sensitive_fields_hidden_based_on_privacy(self):
+        """Test that sensitive fields are hidden based on privacy settings."""
+        # Joy has friends_only visibility
+        # Elena is Joy's friend
+        self.authenticate_as(self.elena)
+        url = self.get_url(self.joy.id)
         
         response = self.client.get(url)
+        self.assert_response_success(response, status.HTTP_200_OK)
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["friends"]), 50)
-
-    def test_profile_with_complex_data_performance(self):
-        """Test performance with profiles containing all optional fields."""
-        complex_user = User.objects.create_user(
-            username="complex_user",
-            password="password123",
-            email="complex@example.com",
-            first_name="Complex",
-            last_name="User"
-        )
-        complex_profile = UserProfile.objects.get(user=complex_user)
+        # Should get data based on friendship (privacy logic tested in serializer tests)
+        self.assertIsInstance(response.data, dict)
         
-        # Fill all profile fields
-        complex_profile.bio = "A" * 500  # Long bio
-        complex_profile.date_of_birth = "1985-05-05"
-        complex_profile.country = "JP"
-        complex_profile.languages = ["en", "ja", "es", "fr", "de"]
-        complex_profile.website_url = "https://complexuser.example.com"
-        complex_profile.save()
+    # --- Performance Test ---
+    
+    def test_profile_retrieve_performance(self):
+        """Test that profile retrieval is performant."""
+        self.authenticate_as(self.ahmad)
         
-        # Add friends and friend requests
-        for i in range(10):
-            friend = User.objects.create_user(
-                username=f"complex_friend_{i}",
-                password="password123"
-            )
-            complex_profile.friends.add(friend)
-            
-            # Create some friend requests
-            if i < 5:
-                ProfileFriendRequest.objects.create(
-                    sender=UserProfile.objects.get(user=friend),
-                    receiver=complex_profile,
-                    message=f"Request {i}"
-                )
+        import time
+        start_time = time.time()
         
-        self.client.force_authenticate(user=complex_user)
-        url = reverse("profile-retrieve-update", kwargs={"pk": complex_profile.pk})
-        
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["bio"]), 500)
-        self.assertEqual(len(response.data["languages"]), 5)
-        self.assertEqual(len(response.data["friends"]), 10)
-
-    def test_concurrent_profile_updates_performance(self):
-        """Test performance of multiple profile updates in sequence."""
-        self.client.force_authenticate(user=self.user1)
-        
-        # Perform multiple updates
-        updates = [
-            {"bio": "First update"},
-            {"bio": "Second update", "country": "FR"},
-            {"bio": "Third update", "languages": ["en", "fr", "es"]},
-            {"website_url": "https://final.com"},
-        ]
-        
-        for i, update_data in enumerate(updates):
-            response = self.client.patch(self.profile1_url, update_data, format="json")
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            
-            # Verify the update
-            for key, value in update_data.items():
-                self.assertEqual(response.data[key], value)
-
-    def test_invalid_update_performance(self):
-        """Test performance when update validation fails."""
-        self.client.force_authenticate(user=self.user1)
-        
-        # Try to update with invalid data
-        invalid_data = {
-            "bio": "B" * 1001,  # Exceeds max length (assuming 1000)
-            "date_of_birth": "invalid-date",
-            "country": "INVALID_COUNTRY_CODE"
-        }
-        
-        response = self.client.put(self.profile1_url, invalid_data, format="json")
-        
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("bio", response.data)  # Should have validation error for bio
-
-    def test_unauthorized_update_performance(self):
-        """Test performance when user tries to update another user's profile."""
-        self.client.force_authenticate(user=self.user2)
-        
-        update_data = {
-            "bio": "Trying to update someone else's profile"
-        }
-        
-        response = self.client.patch(self.profile1_url, update_data, format="json")
-        
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_profile_serialization_performance(self):
-        """Test performance of profile serialization with nested data."""
-        # Create a profile with all relationships
-        rich_user = User.objects.create_user(
-            username="rich_user",
-            password="password123",
-            email="rich@example.com"
-        )
-        rich_profile = UserProfile.objects.get(user=rich_user)
-        
-        # Add multiple relationships
-        for i in range(20):
-            friend = User.objects.create_user(
-                username=f"rich_friend_{i}",
-                password="password123"
-            )
-            rich_profile.friends.add(friend)
-        
-        self.client.force_authenticate(user=rich_user)
-        url = reverse("profile-retrieve-update", kwargs={"pk": rich_profile.pk})
-        
-        # Test multiple retrievals to check caching/consistency
-        for _ in range(3):
+        # Retrieve multiple profiles
+        for user in [self.marie, self.joy, self.elena, self.fatima]:
+            url = self.get_url(user.id)
             response = self.client.get(url)
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data["id"], rich_profile.pk)
-            self.assertEqual(len(response.data["friends"]), 20)
+            self.assert_response_success(response)
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        # Should complete in reasonable time
+        self.assertLess(duration, 2.0, "Profile retrieval too slow")

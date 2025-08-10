@@ -1,0 +1,89 @@
+# .coveragerc - Coverage configuration for EduLite project
+
+[run]
+# Only measure coverage for our app code, not tests or external libraries
+source = 
+    users
+    courses
+    chat
+    notifications
+
+# Exclude patterns
+omit = 
+    # Exclude all test files
+    */tests/*
+    */test_*.py
+    *_test.py
+    
+    # Exclude migrations
+    */migrations/*
+    
+    # Exclude admin and app configs
+    */admin.py
+    */apps.py
+    
+    # Exclude management commands (they have their own tests)
+    */management/commands/*
+    
+    # Exclude model choices (just data)
+    */models_choices.py
+    */*model_choices.py
+    
+    # Exclude signals for now
+    */signals.py
+    
+    # Exclude __init__.py files
+    */__init__.py
+    
+    # Exclude settings and urls at project level
+    */settings.py
+    */urls.py
+    manage.py
+    
+    # Exclude external packages
+    */site-packages/*
+    */dist-packages/*
+    */performance_testing/*
+    
+    # Exclude virtual environments
+    venv/*
+    env/*
+    .env/*
+
+[report]
+# Reporting options
+precision = 0
+show_missing = True
+skip_covered = False
+skip_empty = True
+
+# Exclude these from reports entirely
+exclude_lines =
+    # Standard pragmas
+    pragma: no cover
+    
+    # Debug code
+    def __repr__
+    def __str__
+    
+    # Defensive programming
+    raise AssertionError
+    raise NotImplementedError
+    
+    # Non-executable
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstract
+    
+    # Django model string representations
+    class Meta:
+    
+# Ignore missing source files (for example, in Docker)
+ignore_errors = True
+
+[html]
+directory = htmlcov
+title = EduLite Coverage Report
+
+[xml]
+output = coverage.xml

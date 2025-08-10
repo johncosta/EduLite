@@ -184,8 +184,10 @@ class UserProfilePrivacySettings(models.Model):
 
             # Check for mutual friends using optimized query
             # This uses a single query instead of fetching all friends
+            # We need to check if any of user_profile's friends have requesting_user as a friend
+            # user_profile.friends are User objects, and we need to check their profiles
             mutual_friends_exist = self.user_profile.friends.filter(
-                friend_profiles__user=requesting_user
+                profile__friends=requesting_user
             ).exists()
             
             return mutual_friends_exist

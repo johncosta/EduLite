@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import sys
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,7 +24,6 @@ LOGS_DIR.mkdir(exist_ok=True)
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -99,6 +99,12 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+        # Performance testing logger - set to WARNING to hide INFO messages during tests
+        'performance_testing': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Only show WARNING and above (hides INFO messages)
+            'propagate': False,
+        },
         # TESTS WILL  USE THE `console-tests` HANDLER
         # FEEL FREE TO CHANGE THE LOG LEVELS TO DEBUG FOR MORE DETAILS
         # OR TO WARNING TO ONLY SEE FAILURES
@@ -153,6 +159,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        "TEST": {
+            "NAME": ":memory:",
+        },
     }
 }
 
@@ -206,6 +215,12 @@ REST_FRAMEWORK = {
 }
 
 from datetime import timedelta
+
+# Educational Test Runner via django-mercury-performance
+if '--edu' in sys.argv:
+    TEST_RUNNER = 'django_mercury.test_runner.EducationalTestRunner'
+    # Remove --edu from argv so Django doesn't complain
+    sys.argv.remove('--edu')
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Default is 5 minutes

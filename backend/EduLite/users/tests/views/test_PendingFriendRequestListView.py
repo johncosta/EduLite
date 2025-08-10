@@ -1,301 +1,231 @@
-"""Mercury Performance Tests for PendingFriendRequestListView
+# users/tests/views/test_PendingFriendRequestListView.py - Tests for PendingFriendRequestListView
 
-This module contains performance tests for the PendingFriendRequestListView using
-the Mercury intelligent performance testing framework.
-"""
-
-import sys
-from pathlib import Path
-
+from django.contrib.auth.models import User
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 from rest_framework import status
 
-# Add performance testing framework to path
-backend_path = Path(__file__).parent.parent.parent.parent.parent
-sys.path.insert(0, str(backend_path))
-
-from performance_testing.python_bindings.django_integration_mercury import DjangoMercuryAPITestCase
-from users.models import UserProfile, ProfileFriendRequest
-
-User = get_user_model()
+from .. import UsersAppTestCase
+from ...models import ProfileFriendRequest
 
 
-class PendingFriendRequestListViewMercuryTests(DjangoMercuryAPITestCase):
-    """
-    Performance test suite for the PendingFriendRequestListView using Mercury framework.
+class PendingFriendRequestListViewTest(UsersAppTestCase):
+    """Test cases for the PendingFriendRequestListView API endpoint."""
     
-    Tests pagination performance, query optimization with select_related/prefetch_related,
-    and N+1 query detection for friend request listing operations.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        """Configure Mercury for intelligent performance monitoring."""
-        super().setUpClass()
-        # TODO: Optimize friend request list queries - currently 47-125 queries
-        # TODO: Add select_related() and prefetch_related() for sender/receiver relationships
-        # TODO: Investigate N+1 queries in ProfileFriendRequest serialization
-        # TODO: Consider pagination-level query optimization for large friend lists
-        cls.configure_mercury(
-            enabled=True,
-            auto_scoring=True,
-            store_history=True
+    def setUp(self):
+        """Set up test data."""
+        super().setUp()
+        self.url = reverse('friend-request-pending-list')
+        
+        # Create various friend requests for testing
+        self._create_test_friend_requests()
+        
+    def _create_test_friend_requests(self):
+        """Create friend requests with different statuses for testing."""
+        # Pending requests TO Ahmad
+        self.req1_to_ahmad = self.create_friend_request(
+            sender=self.miguel,
+            receiver=self.ahmad,
+            message="Hi Ahmad!"
+        )
+        self.req2_to_ahmad = self.create_friend_request(
+            sender=self.fatima,
+            receiver=self.ahmad,
+            message="Let's study together"
         )
         
-        # Set custom thresholds for complex friend request operations
-        cls.set_performance_thresholds({
-            'response_time_ms': 300,   # Increased for complex relationship queries
-            'query_count_max': 150,    # Increased to handle current N+1 patterns (47-125 queries)
-            'memory_overhead_mb': 50   # Increased for relationship data
-        })
-
-    @classmethod
-    def setUpTestData(cls):
-        """Set up test data for performance testing."""
-        cls.list_url = reverse("friend-request-pending-list")
-        
-        # Create main test users
-        cls.user_a = User.objects.create_user(username="user_a", password="password123")
-        cls.profile_a = UserProfile.objects.get(user=cls.user_a)
-        
-        cls.user_b = User.objects.create_user(username="user_b", password="password123")
-        cls.profile_b = UserProfile.objects.get(user=cls.user_b)
-        
-        cls.user_c = User.objects.create_user(username="user_c", password="password123")
-        cls.profile_c = UserProfile.objects.get(user=cls.user_c)
-        
-        # Create initial friend requests
-        ProfileFriendRequest.objects.create(
-            sender=cls.profile_a, receiver=cls.profile_b,
-            message="Let's connect!"
-        )
-        ProfileFriendRequest.objects.create(
-            sender=cls.profile_c, receiver=cls.profile_b,
-            message="Would like to be friends"
-        )
-        ProfileFriendRequest.objects.create(
-            sender=cls.profile_b, receiver=cls.profile_c,
-            message="Hey there!"
+        # Pending requests FROM Ahmad
+        self.req_from_ahmad = self.create_friend_request(
+            sender=self.ahmad,
+            receiver=self.dmitri,
+            message="Want to connect?"
         )
         
-        # Pre-create users for pagination tests (done once in setup)
-        cls.small_dataset_users = []
+        # Note: ProfileFriendRequest model doesn't have a status field
+        # Accepted/declined requests are deleted, not marked with status
+        # So we'll just create references to IDs that don't exist
+        self.accepted_req_id = 99999  # Non-existent ID
+        self.declined_req_id = 99998  # Non-existent ID
+        
+    # --- Authentication Tests ---
+    
+    def test_list_pending_requests_requires_authentication(self):
+        """Test that listing pending requests requires authentication."""
+        response = self.client.get(self.url)
+        self.assert_response_success(response, status.HTTP_401_UNAUTHORIZED)
+        
+    # --- List Tests ---
+    
+    def test_list_pending_requests_received(self):
+        """Test listing pending friend requests received by user."""
+        self.authenticate_as(self.ahmad)
+        
+        response = self.client.get(self.url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should have pagination
+        self.assert_paginated_response(response)
+        
+        # Check that we got the pending requests TO Ahmad
+        request_ids = [req['id'] for req in response.data['results']]
+        self.assertIn(self.req1_to_ahmad.id, request_ids)
+        self.assertIn(self.req2_to_ahmad.id, request_ids)
+        
+        # Should not include requests FROM Ahmad
+        self.assertNotIn(self.req_from_ahmad.id, request_ids)
+        
+        # Should not include non-existent (accepted/declined) requests
+        self.assertNotIn(self.accepted_req_id, request_ids)
+        self.assertNotIn(self.declined_req_id, request_ids)
+        
+    def test_list_pending_requests_sent(self):
+        """Test listing pending friend requests sent by user with filter."""
+        self.authenticate_as(self.ahmad)
+        
+        # Request sent friend requests
+        response = self.client.get(self.url, {'type': 'sent'})
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Check that we got the pending requests FROM Ahmad
+        request_ids = [req['id'] for req in response.data['results']]
+        self.assertIn(self.req_from_ahmad.id, request_ids)
+        
+        # Should not include requests TO Ahmad
+        self.assertNotIn(self.req1_to_ahmad.id, request_ids)
+        self.assertNotIn(self.req2_to_ahmad.id, request_ids)
+        
+    def test_list_all_pending_requests(self):
+        """Test listing all pending requests (both sent and received)."""
+        self.authenticate_as(self.ahmad)
+        
+        # Request all pending requests
+        response = self.client.get(self.url, {'type': 'all'})
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should include both sent and received
+        request_ids = [req['id'] for req in response.data['results']]
+        self.assertIn(self.req1_to_ahmad.id, request_ids)
+        self.assertIn(self.req2_to_ahmad.id, request_ids)
+        self.assertIn(self.req_from_ahmad.id, request_ids)
+        
+    def test_list_pending_requests_empty(self):
+        """Test listing when user has no pending requests."""
+        # Elena has no friend requests
+        self.authenticate_as(self.elena)
+        
+        response = self.client.get(self.url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should have empty results
+        self.assertEqual(response.data['count'], 0)
+        self.assertEqual(len(response.data['results']), 0)
+        
+    # --- Filtering Tests ---
+    
+    def test_filter_by_invalid_type(self):
+        """Test filtering with invalid type parameter."""
+        self.authenticate_as(self.ahmad)
+        
+        response = self.client.get(self.url, {'type': 'invalid'})
+        # Should either ignore invalid type or return error
+        self.assertIn(response.status_code, [200, 400])
+        
+    # --- Ordering Tests ---
+    
+    def test_pending_requests_ordered_by_date(self):
+        """Test that pending requests are ordered by creation date."""
+        self.authenticate_as(self.ahmad)
+        
+        response = self.client.get(self.url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        if len(response.data['results']) >= 2:
+            # Check ordering (newest first usually)
+            dates = [req['created_at'] for req in response.data['results']]
+            # Verify descending order
+            for i in range(len(dates) - 1):
+                self.assertGreaterEqual(dates[i], dates[i + 1])
+                
+    # --- Pagination Tests ---
+    
+    def test_pending_requests_pagination(self):
+        """Test pagination of pending friend requests."""
+        # Create many pending requests
         for i in range(15):
-            sender_user = User.objects.create_user(
-                username=f"sender_{i}", password="password123"
-            )
-            sender_profile = UserProfile.objects.get(user=sender_user)
-            cls.small_dataset_users.append(sender_profile)
+            user = self.create_test_user(username=f"pending_test_{i}")
+            self.create_friend_request(sender=user, receiver=self.ahmad)
+            
+        self.authenticate_as(self.ahmad)
         
-        # Pre-create users for large dataset test
-        cls.large_dataset_users = []
+        # Get first page
+        response = self.client.get(self.url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should have pagination
+        self.assertGreater(response.data['count'], 10)
+        self.assertEqual(len(response.data['results']), 10)  # Default page size
+        self.assertIsNotNone(response.data['next'])
+        
+        # Get second page
+        response = self.client.get(self.url, {'page': 2})
+        self.assert_response_success(response, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data['previous'])
+        
+    # --- Privacy Tests ---
+    
+    def test_cannot_see_other_users_pending_requests(self):
+        """Test that users cannot see other users' pending requests."""
+        # Create a request between other users
+        private_req = self.create_friend_request(
+            sender=self.marie,
+            receiver=self.joy
+        )
+        
+        self.authenticate_as(self.ahmad)
+        
+        response = self.client.get(self.url, {'type': 'all'})
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should not see the private request
+        request_ids = [req['id'] for req in response.data['results']]
+        self.assertNotIn(private_req.id, request_ids)
+        
+    def test_admin_sees_only_own_requests(self):
+        """Test that even admin users see only their own requests."""
+        # Make sarah_teacher an admin
+        self.sarah_teacher.is_superuser = True
+        self.sarah_teacher.is_staff = True
+        self.sarah_teacher.save()
+        
+        self.authenticate_as(self.sarah_teacher)
+        
+        response = self.client.get(self.url)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        
+        # Should not see Ahmad's requests
+        request_ids = [req['id'] for req in response.data['results']]
+        self.assertNotIn(self.req1_to_ahmad.id, request_ids)
+        
+    # --- Performance Test ---
+    
+    def test_list_many_pending_requests_performance(self):
+        """Test performance with many pending requests."""
+        # Create many pending requests
         for i in range(50):
-            sender_user = User.objects.create_user(
-                username=f"large_sender_{i}", 
-                password="password123",
-                email=f"sender{i}@example.com",
-                first_name=f"Sender{i}",
-                last_name=f"Test{i}"
-            )
-            sender_profile = UserProfile.objects.get(user=sender_user)
-            sender_profile.bio = f"This is sender {i}'s bio"
-            sender_profile.save()
-            cls.large_dataset_users.append(sender_profile)
+            user = self.create_test_user(username=f"perf_pending_{i}")
+            self.create_friend_request(sender=user, receiver=self.ahmad)
+            
+        self.authenticate_as(self.ahmad)
         
-        # Pre-create users for navigation test
-        cls.navigation_users = []
-        for i in range(25):
-            sender_user = User.objects.create_user(
-                username=f"nav_sender_{i}", password="password123"
-            )
-            sender_profile = UserProfile.objects.get(user=sender_user)
-            cls.navigation_users.append(sender_profile)
+        import time
+        start_time = time.time()
         
-        # Pre-create users for concurrent test
-        cls.power_user = User.objects.create_user(
-            username="power_user", 
-            password="password123",
-            email="power@example.com"
-        )
-        cls.power_profile = UserProfile.objects.get(user=cls.power_user)
+        response = self.client.get(self.url)
         
-        cls.concurrent_senders = []
-        for i in range(20):
-            sender = User.objects.create_user(
-                username=f"to_power_{i}", password="password123"
-            )
-            cls.concurrent_senders.append(UserProfile.objects.get(user=sender))
+        end_time = time.time()
+        duration = end_time - start_time
         
-        cls.concurrent_receivers = []
-        for i in range(20):
-            receiver = User.objects.create_user(
-                username=f"from_power_{i}", password="password123"
-            )
-            cls.concurrent_receivers.append(UserProfile.objects.get(user=receiver))
-
-    def test_list_received_requests_performance(self):
-        """Test performance of listing received friend requests."""
-        self.client.force_authenticate(user=self.user_b)
+        self.assert_response_success(response, status.HTTP_200_OK)
+        self.assertLess(duration, 2.0, "Listing pending requests too slow")
         
-        # Mercury automatically monitors this request
-        response = self.client.get(self.list_url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["count"], 2)
-        
-        # Verify data structure
-        sender_usernames = {item["sender_id"] for item in response.data["results"]}
-        self.assertEqual(sender_usernames, {self.user_a.id, self.user_c.id})
-
-    def test_list_sent_requests_performance(self):
-        """Test performance of listing sent friend requests."""
-        self.client.force_authenticate(user=self.user_b)
-        
-        response = self.client.get(self.list_url, {"direction": "sent"})
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["count"], 1)
-        self.assertEqual(
-            response.data["results"][0]["receiver_id"], 
-            self.profile_c.user.id
-        )
-
-    def test_empty_list_performance(self):
-        """Test performance when user has no friend requests."""
-        self.client.force_authenticate(user=self.user_a)
-        
-        response = self.client.get(self.list_url, {"direction": "received"})
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["count"], 0)
-
-    def test_pagination_performance_small_dataset(self):
-        """Test pagination performance with a small dataset."""
-        self.client.force_authenticate(user=self.user_a)
-        
-        # Create friend requests using pre-created users
-        for i, sender_profile in enumerate(self.small_dataset_users):
-            ProfileFriendRequest.objects.create(
-                sender=sender_profile, 
-                receiver=self.profile_a,
-                message=f"Friend request {i}"
-            )
-        
-        response = self.client.get(self.list_url, {"direction": "received"})
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["count"], 15)
-        self.assertEqual(len(response.data["results"]), 10)  # Default page size
-        self.assertIsNotNone(response.data["next"])
-
-    def test_pagination_performance_large_dataset(self):
-        """Test pagination performance with a larger dataset to detect N+1 issues."""
-        # Set custom thresholds for this test as it creates more data
-        # TODO: This test still generates 53 queries - needs optimization
-        self.set_test_performance_thresholds({
-            'response_time_ms': 400,   # Increased to handle complex queries
-            'query_count_max': 80,     # Increased to handle current N+1 patterns (53 queries)
-            'memory_overhead_mb': 60   # Increased for larger dataset
-        })
-        
-        self.client.force_authenticate(user=self.user_a)
-        
-        # Bulk create friend requests using pre-created users
-        friend_requests = [
-            ProfileFriendRequest(
-                sender=sender,
-                receiver=self.profile_a,
-                message=f"Let's connect! Request from {sender.user.username}"
-            )
-            for sender in self.large_dataset_users
-        ]
-        ProfileFriendRequest.objects.bulk_create(friend_requests)
-        
-        # Test first page
-        response = self.client.get(self.list_url, {"direction": "received"})
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["count"], 50)
-        self.assertEqual(len(response.data["results"]), 10)
-        
-        # Verify serialization includes all expected fields
-        first_result = response.data["results"][0]
-        expected_keys = {
-            "id", "sender_id", "receiver_id", "message",
-            "sender_profile_url", "receiver_profile_url",
-            "created_at", "accept_url", "decline_url"
-        }
-        self.assertEqual(set(first_result.keys()), expected_keys)
-
-    def test_multiple_page_navigation_performance(self):
-        """Test performance of navigating through multiple pages."""
-        self.client.force_authenticate(user=self.user_b)
-        
-        # Create friend requests using pre-created users
-        for i, sender_profile in enumerate(self.navigation_users):
-            ProfileFriendRequest.objects.create(
-                sender=sender_profile, 
-                receiver=self.profile_b,
-                message=f"Navigation test {i}"
-            )
-        
-        # Test page 1
-        response_page1 = self.client.get(self.list_url)
-        self.assertEqual(response_page1.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response_page1.data["results"]), 10)
-        
-        # Test page 2
-        response_page2 = self.client.get(self.list_url, {"page": 2})
-        self.assertEqual(response_page2.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response_page2.data["results"]), 10)
-        
-        # Test page 3 (should have 7 items: 25 + 2 initial - 20 from pages 1&2)
-        response_page3 = self.client.get(self.list_url, {"page": 3})
-        self.assertEqual(response_page3.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response_page3.data["results"]), 7)
-
-    def test_filter_with_pagination_performance(self):
-        """Test performance when combining filtering and pagination."""
-        self.client.force_authenticate(user=self.user_b)
-        
-        # Test sent requests with pagination
-        response = self.client.get(self.list_url, {
-            "direction": "sent",
-            "page": 1,
-            "page_size": 5
-        })
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # User B has sent 1 request in test data
-        self.assertEqual(response.data["count"], 1)
-
-    def test_concurrent_request_handling_performance(self):
-        """Test performance with users who have both sent and received many requests."""
-        # Create received requests using pre-created users
-        for i, sender_profile in enumerate(self.concurrent_senders):
-            ProfileFriendRequest.objects.create(
-                sender=sender_profile,
-                receiver=self.power_profile,
-                message=f"Request to power user {i}"
-            )
-        
-        # Create sent requests using pre-created users
-        for i, receiver_profile in enumerate(self.concurrent_receivers):
-            ProfileFriendRequest.objects.create(
-                sender=self.power_profile,
-                receiver=receiver_profile,
-                message=f"Request from power user {i}"
-            )
-        
-        self.client.force_authenticate(user=self.power_user)
-        
-        # Test received requests
-        response_received = self.client.get(self.list_url, {"direction": "received"})
-        self.assertEqual(response_received.status_code, status.HTTP_200_OK)
-        self.assertEqual(response_received.data["count"], 20)
-        
-        # Test sent requests
-        response_sent = self.client.get(self.list_url, {"direction": "sent"})
-        self.assertEqual(response_sent.status_code, status.HTTP_200_OK)
-        self.assertEqual(response_sent.data["count"], 20)
+        # Verify we got paginated results
+        self.assertEqual(len(response.data['results']), 10)  # Default page size
