@@ -470,7 +470,14 @@ class AcceptFriendRequestView(UsersAppBaseAPIView):
     permission_classes = [IsAuthenticated, IsFriendRequestReceiver]
 
     def post(self, request, request_pk, *args, **kwargs):
-        friend_request = get_object_or_404(ProfileFriendRequest, pk=request_pk)
+        # Optimize query with select_related to prevent N+1 queries
+        friend_request = get_object_or_404(
+            ProfileFriendRequest.objects.select_related(
+                'sender__user', 
+                'receiver__user'
+            ), 
+            pk=request_pk
+        )
 
         # Manually trigger object-level permission check for APIView
         self.check_object_permissions(request, friend_request)

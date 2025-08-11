@@ -6,6 +6,7 @@
     {"value": "researcher", "label": "Researcher"},
     {"value": "assistant", "label": "Assistant"},
     {"value": "admin", "label": "Admin"},
+    {"value": "developer", "label": "Developer"},
     {"value": "frontend_developer", "label": "Frontend Developer"},
     {"value": "backend_developer", "label": "Backend Developer"},
     {"value": "fullstack_developer", "label": "Full Stack Developer"},
@@ -22,5 +23,6 @@
     {"value": "education_technologist", "label": "Education Technologist"},
     {"value": "trainer", "label": "Trainer"},
     {"value": "mentor", "label": "Mentor"},
+    {"value": "performance_tester", "label": "Performance Tester"},
     {"value": "other", "label": "Other"}
 ]

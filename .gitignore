@@ -33,3 +33,34 @@ pyrightconfig.json
 .DS_Store
 
 logs/
+
+.sisyphus/
+sisyphus.legend
+
+# C build artifacts (intermediate files)
+*.o
+*.d
+*.so
+*.a
+benchmark_results.json
+
+# C coverage files
+*.gcda
+*.gcno
+*.gcov
+backend/performance_testing/c_core/tests/coverage/
+
+# Benchmark executables (development tools)
+benchmark_*
+comprehensive_benchmark
+simple_prefetch_test
+
+# Debug/temp scripts
+check_profile.py
+
+# Test executables
+*_test_*
+test_*
+!test_*.py
+!test_*.c
+pgo_workload

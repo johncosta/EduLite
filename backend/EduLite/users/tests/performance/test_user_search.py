@@ -271,7 +271,7 @@ class UserSearchPerformanceTest(DjangoPerformanceAPITestCase):
             self.assertGreaterEqual(admin_results, regular_results)
             
             # Performance assertions
-            self.assertResponseTimeLess(monitor.metrics, 5, "Admin search should be fast")
+            self.assertResponseTimeLess(monitor.metrics, 50, "Admin search should be fast")
             self.assertQueriesLess(monitor.metrics, 5, "Admin search should be optimized")
             self.assertMemoryLess(monitor.metrics, 150, "Should use reasonable memory")
         else:

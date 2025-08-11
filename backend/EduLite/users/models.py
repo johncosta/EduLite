@@ -318,7 +318,11 @@ class ProfileFriendRequest(models.Model):
         try:
             with transaction.atomic():
                 # Re-fetch with `select_for_update` to guard against races
-                req = type(self).objects.select_for_update().get(pk=self.pk)
+                # Include select_related to prevent additional queries during friend additions
+                req = type(self).objects.select_for_update().select_related(
+                    'sender__user', 
+                    'receiver__user'
+                ).get(pk=self.pk)
                 req.receiver.friends.add(req.sender.user)
                 req.sender.friends.add(req.receiver.user)
                 req.delete()

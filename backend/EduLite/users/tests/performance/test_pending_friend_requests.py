@@ -170,7 +170,7 @@ class PendingFriendRequestsPerformanceTest(DjangoPerformanceAPITestCase):
             # Performance assertions
             self.assertResponseTimeLess(monitor.metrics, 200, "Accept should be reasonably fast")
             self.assertMemoryLess(monitor.metrics, 150, "Should use reasonable memory")  # 150MB accounts for Django baseline
-            self.assertQueriesLess(monitor.metrics, 15, "Accept involves multiple operations")
+            self.assertQueriesLess(monitor.metrics, 10, "Accept involves multiple operations")
         else:
             response = self.client.post(f'/api/friend-requests/{friend_request.pk}/accept/')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
