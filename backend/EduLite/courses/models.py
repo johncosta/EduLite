@@ -44,8 +44,8 @@ class Course(models.Model):
         max_length=64, choices=SUBJECT_CHOICES, blank=True, null=True
     )
 
-    # the visibiliiity choices include: public, private, restricted
-    visiblity = models.CharField(
+    # the visibility choices include: public, private, restricted
+    visibility = models.CharField(
         max_length=64, choices=COURSE_VISIBILITY_CHOICES, null=False, default="private"
     )
 
