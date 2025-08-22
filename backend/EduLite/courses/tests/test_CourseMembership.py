@@ -33,7 +33,7 @@ class CourseMembershipTest(TestCase):
             language="en",
             country="US",
             subject="physics",
-            visiblity="public",
+            visibility="public",
             start_date=datetime(2025, 12, 31, 23, 59, 59),
             end_date=datetime(2026, 1, 30, 23, 59, 59),
             is_active=False,
