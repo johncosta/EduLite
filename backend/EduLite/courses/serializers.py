@@ -187,6 +187,8 @@ class CourseChatRoomSerializer(serializers.ModelSerializer):
     - `course_title`: read-only course name
     - `chatroom_name`: read-only chatroom name
     - `created_user_name`: read-only creator name
+    - created_by is read-only to prevent changing the creator after creation.
+      To create a CourseChatRoom, set created_by to the current user in the view by using perform_create method.
     """
     course_title = serializers.CharField(source='course.title', read_only=True)
     chatroom_name = serializers.CharField(source='chatroom.name', read_only=True)

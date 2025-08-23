@@ -31,7 +31,7 @@ class CourseModelTest(TestCase):
             language="en",
             country="US",
             subject="physics",
-            visiblity="public",
+            visibility="public",
             start_date=datetime(2025, 12, 31, 23, 59, 59),
             end_date=datetime(2025, 12, 31, 23, 59, 59) + timedelta(days=30),
             is_active=False,
@@ -66,7 +66,7 @@ class CourseModelTest(TestCase):
         self.assertEqual(self.course1.language, "en")
         self.assertEqual(self.course1.country, "US")
         self.assertEqual(self.course1.subject, "physics")
-        self.assertEqual(self.course1.visiblity, "public")
+        self.assertEqual(self.course1.visibility, "public")
         self.assertEqual(self.course1.start_date, datetime(2025, 12, 31, 23, 59, 59))
         self.assertEqual(self.course1.end_date, datetime(2025, 12, 31, 23, 59, 59) + timedelta(days=30))
         self.assertFalse(self.course1.is_active)
@@ -76,7 +76,7 @@ class CourseModelTest(TestCase):
         """
         Test that default boolean fields are set correctly.
         """
-        self.assertEqual(self.course1.visiblity, "public")
+        self.assertEqual(self.course1.visibility, "public")
         self.assertFalse(self.course1.is_active)
         self.assertFalse(self.course1.allow_join_requests)
 
@@ -131,7 +131,7 @@ class CourseModelTest(TestCase):
         self.assertIsNone(self.course4.subject)
         self.assertIsNotNone(self.course4.start_date)
         self.assertIsNotNone(self.course4.end_date)
-        self.assertEqual(self.course4.visiblity, "private")
+        self.assertEqual(self.course4.visibility, "private")
         self.assertFalse(self.course4.is_active)
         self.assertFalse(self.course4.allow_join_requests)
 
@@ -139,13 +139,13 @@ class CourseModelTest(TestCase):
         """
         Test that all choice fields accept valid enum values.
         """
-        self.course1.visiblity = COURSE_VISIBILITY_CHOICES[0][0]
+        self.course1.visibility = COURSE_VISIBILITY_CHOICES[0][0]
         self.course1.language = LANGUAGE_CHOICES[0][0]
         self.course1.country = COUNTRY_CHOICES[0][0]
         self.course1.subject = SUBJECT_CHOICES[0][0]
         self.course1.save()
 
-        self.assertEqual(self.course1.visiblity, COURSE_VISIBILITY_CHOICES[0][0])
+        self.assertEqual(self.course1.visibility, COURSE_VISIBILITY_CHOICES[0][0])
         self.assertEqual(self.course1.language, LANGUAGE_CHOICES[0][0])
         self.assertEqual(self.course1.country, COUNTRY_CHOICES[0][0])
         self.assertEqual(self.course1.subject, SUBJECT_CHOICES[0][0])
