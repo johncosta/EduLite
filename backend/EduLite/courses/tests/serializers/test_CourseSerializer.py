@@ -1,3 +1,6 @@
+# backend/EduLite/courses/tests/serializers/test_CourseSerializer.py
+# Tests for CourseSerializer
+
 from datetime import datetime, timedelta
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
@@ -6,9 +9,10 @@ from ...models import Course
 from ...serializers import CourseSerializer
 
 class CourseSerializerTest(TestCase):
-
+    """Test suite for CourseSerializer."""
     @classmethod
     def setUpTestData(cls):
+        """Set up a course instance for testing."""
         cls.course1 = Course.objects.create(
             title="test_course1",
             outline="This is test_course1 outline",
@@ -23,6 +27,7 @@ class CourseSerializerTest(TestCase):
         )
 
     def test_serializer_contains_all_fields(self):
+        """Ensure the serializer includes all expected fields."""
         serializer = CourseSerializer(instance=self.course1)
         data = serializer.data
         self.assertEqual(data['title'], "test_course1")
@@ -34,10 +39,12 @@ class CourseSerializerTest(TestCase):
         self.assertIn('duration_time', data)
 
     def test_serializer_get_duration_time(self):
+        """Test the get_duration_time method with valid dates."""
         serializer = CourseSerializer(instance=self.course1)
         self.assertEqual(serializer.data['duration_time'], 43200)  # 30 days * 24 * 60
 
     def test_serializer_invalid_date(self):
+        """Test serializer with invalid date range (start_date after end_date)."""
         payload = {
             "title": "test course",
             "outline": "outline",
@@ -53,6 +60,7 @@ class CourseSerializerTest(TestCase):
         self.assertIn("end_date", serializer.errors)
 
     def test_serializer_invalid_title(self):
+        """Test serializer with title that is only whitespace."""
         payload = {
             "title": "   ",
             "outline": "outline",

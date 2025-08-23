@@ -1,3 +1,6 @@
+# backend/EduLite/courses/tests/serializers/test_CourseMembershipSerializer.py
+# Tests for CourseMembershipSerializer
+
 from datetime import datetime
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
@@ -9,8 +12,10 @@ User = get_user_model()
 
 
 class CourseMembershipSerializerTest(TestCase):
+    """Test suite for CourseMembershipSerializer."""
     @classmethod
     def setUpTestData(cls) -> None:
+        """Set up user, course, and course membership instances for testing."""
         cls.user1 = User.objects.create_user(
             username="testuser1", password="password123", email="testuser1@example.com"
         )
@@ -36,6 +41,7 @@ class CourseMembershipSerializerTest(TestCase):
         )
         
     def test_serializer_contains_all_fields(self):
+        """Ensure the serializer includes all expected fields."""
         serializer = CourseMembershipSerializer(instance=self.course_membership1)
         data = serializer.data
         self.assertEqual(data['id'], self.course_membership1.id)
@@ -46,6 +52,7 @@ class CourseMembershipSerializerTest(TestCase):
         self.assertEqual(data['user_name'], self.course_membership1.user.username)
 
     def test_serializer_validation(self):
+        """Test serializer validation logic."""
         payload ={
             "user": self.user2.id,
             "course": self.course_membership1.course.id,
@@ -54,8 +61,9 @@ class CourseMembershipSerializerTest(TestCase):
         serializer = CourseMembershipSerializer(data=payload)
         self.assertTrue(serializer.is_valid())
         
-        
+    
     def test_serializer_invalid_user(self):
+        """Test serializer with non-existent user."""
         payload = {
             "user": self.user1.id,
             "course": self.course_membership1.course.id,
@@ -66,6 +74,7 @@ class CourseMembershipSerializerTest(TestCase):
         self.assertIn("non_field_errors", serializer.errors)
 
     def test_serializer_invalid_role(self):
+        """Test serializer with invalid status for the specified role."""
         payload = {
             "user": self.user2.id,
             "course": self.course1.id,
@@ -76,24 +85,29 @@ class CourseMembershipSerializerTest(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("non_field_errors", serializer.errors)
         
+    def test_student_pending_is_allowed(self):
+        """Test that a student can have 'pending' status."""
+        payload = {"user": self.user2.id, "course": self.course1.id, "role": "student", "status": "pending"}
+        serializer = CourseMembershipSerializer(data=payload)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
     def test_update_violates_uniqueness(self):
+        """Test updating a CourseMembership to a user-course pair that already exists."""
         m2 = CourseMembership.objects.create(user=self.user2, course=self.course1, role="student")
         payload = {"user": self.user1.id, "course": self.course1.id, "role": "student"}
         serializer = CourseMembershipSerializer(instance=m2, data=payload)
         self.assertFalse(serializer.is_valid())
         self.assertIn("non_field_errors", serializer.errors)
         
-    def test_student_pending_is_allowed(self):
-        payload = {"user": self.user2.id, "course": self.course1.id, "role": "student", "status": "pending"}
-        serializer = CourseMembershipSerializer(data=payload)
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-        
     def test_missing_user_or_course(self):
+        """Test serializer validation when user or course is missing."""
         serializer = CourseMembershipSerializer(data={"role": "student"})
         self.assertFalse(serializer.is_valid())
-        self.assertIn("user", serializer.errors)  
-        
+        self.assertIn("user", serializer.errors)
+        self.assertIn("course", serializer.errors)
+
     def test_readonly_derived_fields_ignored_on_input(self):
+        """Test that read-only fields are ignored during creation."""
         payload = {
             "user": self.user2.id,
             "course": self.course1.id,
