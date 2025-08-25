@@ -1,6 +1,3 @@
-from tkinter.scrolledtext import example
-from urllib import request
-
 from django.shortcuts import render, get_object_or_404
 from drf_spectacular.utils import (
     extend_schema,
