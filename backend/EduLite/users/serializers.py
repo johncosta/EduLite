@@ -483,18 +483,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """
-        Handles user registration and sends a verification email.
-        - Extracts and removes the password fields from the validated data.
-        - Builds a payload containing user info.
-        - Encodes and signs the payload to generate a secure token.
-        - Constructs a verification link with the signed token.
-        - Renders email templates and sends a multi-part email (text + HTML).
-        - Does NOT create the user yet; actual creation happens upon email verification.
+        Handles user registration based on EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP setting.
+        
+        If verification required:
+        - Sends verification email with signed token
+        - Does NOT create user yet (happens on email verification)
+        
+        If verification not required:
+        - Creates user immediately
+        - Still sends verification email for optional verification
         """
-         
         validated_data.pop("password2")
         password = validated_data.pop("password")
-
+        
+        # Check if email verification is required
+        require_verification = getattr(settings, 'USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP', False)
+        
+        # Prepare email verification token
         signer = TimestampSigner()
         payload = {
             "email": validated_data["email"],
@@ -503,13 +508,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "first_name": validated_data.get("first_name", ""),
             "last_name": validated_data.get("last_name", ""),
         }
-
+        
         json_payload = json.dumps(payload)
         b64_payload = base64.urlsafe_b64encode(json_payload.encode()).decode()
         signed_token = signer.sign(b64_payload)
         
         verification_link = f"{settings.FRONTEND_URL}/verify-email/?token={signed_token}"
-
+        
+        # Send verification email
         subject = render_to_string("email/account_verification_subject.txt").strip()
         text_content = render_to_string("email/account_verification_email.txt", {
             "username": payload["username"],
@@ -519,12 +525,29 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "username": payload["username"],
             "activation_link": verification_link,
         })
-
+        
         email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [payload["email"]])
         email.attach_alternative(html_content, "text/html")
         email.send()
-
-        return {"message": "Verification email sent."}
+        
+        if require_verification:
+            # Don't create user yet - wait for email verification
+            return {"message": "Verification email sent."}
+        else:
+            # Create user immediately but still send verification email
+            user = User.objects.create_user(
+                username=validated_data["username"],
+                email=validated_data["email"],
+                password=password,
+                first_name=validated_data.get("first_name", ""),
+                last_name=validated_data.get("last_name", ""),
+            )
+            
+            # Create UserProfile with defaults
+            from .models import UserProfile
+            UserProfile.objects.get_or_create(user=user)
+            
+            return user
 
 
 ## -- Friend Request Serializers -- ##
