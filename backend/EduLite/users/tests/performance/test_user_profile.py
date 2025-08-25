@@ -18,23 +18,9 @@ from rest_framework import status
 from rest_framework.test import APIClient
 import json
 
-# Import Mercury performance testing framework from PyPI package
-try:
-    from django_mercury import DjangoPerformanceAPITestCase
-    from django_mercury import monitor_django_view
-    MERCURY_AVAILABLE = True
-    print("✅ Mercury Framework loaded for profile performance tests")
-except ImportError as e:
-    print(f"⚠️  Mercury framework not available: {e}")
-    # Fallback to regular APITestCase
-    from rest_framework.test import APITestCase as DjangoPerformanceAPITestCase
-    MERCURY_AVAILABLE = False
-    
-    # Create a dummy context manager for monitor_django_view when Mercury is not available
-    from contextlib import contextmanager
-    @contextmanager
-    def monitor_django_view(view_name):
-        yield None
+# Import Mercury performance testing framework
+from django_mercury import DjangoPerformanceAPITestCase, monitor_django_view
+MERCURY_AVAILABLE = True
 
 from ...models import UserProfile
 

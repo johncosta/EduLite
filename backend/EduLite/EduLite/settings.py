@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
-from pathlib import Path
 import sys
+
+from datetime import timedelta
+from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -159,9 +161,6 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-        "TEST": {
-            "NAME": ":memory:",
-        },
     }
 }
 
@@ -214,13 +213,22 @@ REST_FRAMEWORK = {
     ],
 }
 
-from datetime import timedelta
-
-# Educational Test Runner via django-mercury-performance
-if '--edu' in sys.argv:
-    TEST_RUNNER = 'django_mercury.test_runner.EducationalTestRunner'
-    # Remove --edu from argv so Django doesn't complain
-    sys.argv.remove('--edu')
+#  Speed up Tests
+if 'test' in sys.argv and DEBUG == True:
+    # Use in-memory database for ALL database operations during tests
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+        'TEST': {
+            'NAME': ':memory:',
+        }
+    }
+    # Disable password validation for faster test user creation
+    AUTH_PASSWORD_VALIDATORS = []
+    # USe MD5 password hasher for speed
+    PASSWORD_HASHERS = [
+     'django.contrib.auth.hashers.MD5PasswordHasher',
+    ]
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Default is 5 minutes

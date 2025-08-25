@@ -14,22 +14,9 @@ from django.test import TransactionTestCase, override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 
-# Import Mercury performance testing framework from PyPI package
-try:
-    from django_mercury import DjangoPerformanceAPITestCase
-    from django_mercury import monitor_django_view
-    MERCURY_AVAILABLE = True
-except ImportError as e:
-    print(f"Mercury framework not available: {e}")
-    # Fallback to TransactionTestCase for fixtures
-    from django.test import TransactionTestCase as DjangoPerformanceAPITestCase
-    MERCURY_AVAILABLE = False
-    
-    # Create a dummy context manager for monitor_django_view when Mercury is not available
-    from contextlib import contextmanager
-    @contextmanager
-    def monitor_django_view(_view_name):
-        yield None
+# Import Mercury performance testing framework
+from django_mercury import DjangoPerformanceAPITestCase, monitor_django_view
+MERCURY_AVAILABLE = True
 
 from ...models import UserProfile, UserProfilePrivacySettings
 from ..fixtures.bulk_test_users import create_bulk_test_users

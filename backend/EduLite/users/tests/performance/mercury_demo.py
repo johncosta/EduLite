@@ -14,14 +14,9 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 
-# Import Mercury performance testing framework from PyPI package
-try:
-    from django_mercury import DjangoMercuryAPITestCase
-    MERCURY_AVAILABLE = True
-except ImportError as e:
-    print(f"Mercury framework not available: {e}")
-    from rest_framework.test import APITestCase as DjangoMercuryAPITestCase
-    MERCURY_AVAILABLE = False
+# Import Mercury performance testing framework
+from django_mercury import DjangoMercuryAPITestCase
+MERCURY_AVAILABLE = True
 
 from unittest import skipIf
 
