@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -16,8 +17,9 @@ class UserRegistrationViewTest(UsersAppTestCase):
         super().setUp()
         self.url = reverse('user-register')  # Assuming URL name is 'user-register'
         
+    @override_settings(USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP=False)
     def test_register_user_success(self):
-        """Test successful user registration."""
+        """Test successful user registration with immediate account creation."""
         data = {
             'username': 'newstudent',
             'email': 'new@university.edu',
@@ -46,6 +48,7 @@ class UserRegistrationViewTest(UsersAppTestCase):
         self.assertTrue(hasattr(user, 'profile'))
         self.assertTrue(hasattr(user.profile, 'privacy_settings'))
         
+    @override_settings(USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP=False)
     def test_register_user_no_authentication_required(self):
         """Test that registration doesn't require authentication."""
         data = {
@@ -193,6 +196,7 @@ class UserRegistrationViewTest(UsersAppTestCase):
         else:
             self.assert_response_success(response, status.HTTP_201_CREATED)
             
+    @override_settings(USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP=False)
     def test_register_user_with_optional_fields(self):
         """Test registration with optional first_name and last_name."""
         data = {
@@ -239,6 +243,7 @@ class UserRegistrationViewTest(UsersAppTestCase):
         # Should have non-field error about password mismatch
         self.assertTrue('non_field_errors' in response.data or 'password2' in response.data)
         
+    @override_settings(USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP=False)
     def test_register_user_profile_created_with_defaults(self):
         """Test that UserProfile is created with proper defaults."""
         data = {
@@ -300,6 +305,7 @@ class UserRegistrationViewTest(UsersAppTestCase):
         else:
             self.assert_response_success(response2, status.HTTP_201_CREATED)
             
+    @override_settings(USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP=False)
     def test_register_user_special_characters_in_names(self):
         """Test registration with special characters in first/last names."""
         data = {
@@ -319,6 +325,7 @@ class UserRegistrationViewTest(UsersAppTestCase):
         self.assertEqual(user.first_name, 'José')
         self.assertEqual(user.last_name, "O'Connor")
         
+    @override_settings(USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP=False)
     def test_register_user_unicode_support(self):
         """Test registration with Unicode characters."""
         data = {
@@ -385,3 +392,27 @@ class UserRegistrationViewTest(UsersAppTestCase):
         
         # Should complete within reasonable time (adjust based on requirements)
         self.assertLess(duration, 2.0, "Registration took too long")
+    
+    @override_settings(USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP=True)
+    def test_register_user_with_email_verification_required(self):
+        """Test registration when email verification is required."""
+        data = {
+            'username': 'emailverify',
+            'email': 'verify@university.edu',
+            'password': 'testpass123',
+            'password2': 'testpass123',
+            'first_name': 'Test',
+            'last_name': 'Verify'
+        }
+        
+        response = self.client.post(self.url, data)
+        
+        # Should return 201 Created
+        self.assert_response_success(response, status.HTTP_201_CREATED)
+        
+        # Should return message about email verification
+        self.assertIn('message', response.data)
+        self.assertIn('Verification email sent', response.data['message'])
+        
+        # User should NOT be created yet
+        self.assertFalse(User.objects.filter(username='emailverify').exists())

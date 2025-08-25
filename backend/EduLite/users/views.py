@@ -144,9 +144,24 @@ class UserRegistrationView(UsersAppBaseAPIView):
             data=request.data, context=self.get_serializer_context()
         )
         if serializer.is_valid():
-            if serializer.is_valid():
-                response = serializer.save()  # This returns a dict, not a User
-            return Response(response, status=status.HTTP_201_CREATED)
+            result = serializer.save()  # Returns either User or dict
+            
+            # Check if email verification is required
+            from django.conf import settings
+            require_verification = getattr(settings, 'USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP', False)
+            
+            if require_verification:
+                # Email verification required - return message only
+                return Response(result, status=status.HTTP_201_CREATED)
+            else:
+                # User created immediately - format response with user_id
+                response_data = {
+                    'message': 'User created successfully. Verification email sent.',
+                    'user_id': result.id,
+                    'username': result.username,
+                    'email': result.email
+                }
+                return Response(response_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

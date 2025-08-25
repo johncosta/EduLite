@@ -1,14 +1,28 @@
-{% if user.first_name %}
-Hi {{ user.first_name }},
-{% else %}
-Hi {{ user.username }},
-{% endif %}
+Welcome to EduLite!
+====================
 
-Thanks for registering on EduLite!
+Hi {{ username }},
 
-Please verify your email by visiting this link:
+Thank you for joining EduLite, your gateway to quality education. 
+We're excited to have you as part of our learning community!
+
+To get started, please verify your email address by clicking the link below:
+
 {{ activation_link }}
 
-If you didn’t create this account, you can ignore this email.
+----------------------------------------
+SECURITY NOTICE
+----------------------------------------
+This verification link will expire in 24 hours.
+If you didn't create an account with EduLite, please ignore this email.
 
-– The EduLite Team
+----------------------------------------
+NEED HELP?
+----------------------------------------
+Contact us at: support@edulite.com
+
+Best regards,
+The EduLite Team
+
+© 2025 EduLite. All rights reserved.
+Empowering Education for Everyone, Everywhere

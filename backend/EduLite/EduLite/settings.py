@@ -320,6 +320,9 @@ EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'EduLite <noreply@edulite.local>'
 FRONTEND_URL = 'http://127.0.0.1:8000/api'
 
+# User Registration Settings
+USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP = False  # Set to True to require email verification before account creation
+
 # Spectacular settings for OpenAPI schema generation
 SPECTACULAR_SETTINGS = {
     'TITLE': 'EduLite API',
