@@ -9,17 +9,23 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import sys
 
+from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Create logs directory if it doesn't exist
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -65,6 +71,10 @@ LOGGING = {
     "formatters": {
         "simple": {"format": "\n%(levelname)s %(name)s: %(message)s"},
         "none": {"format": "%(message)s"},
+        'performance': {
+            'format': '{asctime} [{levelname}] {message}',
+            'style': '{',
+        },
     },
     "handlers": {
         "console": {
@@ -75,8 +85,33 @@ LOGGING = {
             "class": "logging.StreamHandler",  # Outputs to stderr by default
             "formatter": "none",
         },
+        'performance_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/performance.log',
+            'maxBytes': 1024*1024*10,  # 10MB
+            'backupCount': 5,
+            'formatter': 'performance',
+        },
+        'performance_console': {
+            'level': 'WARNING',  # Only show violations in console
+            'class': 'logging.StreamHandler',
+            'formatter': 'performance',
+        },
+        
     },
     "loggers": {
+        'performance': {
+            'handlers': ['performance_file', 'performance_console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        # Performance testing logger - set to WARNING to hide INFO messages during tests
+        'performance_testing': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Only show WARNING and above (hides INFO messages)
+            'propagate': False,
+        },
         # TESTS WILL  USE THE `console-tests` HANDLER
         # FEEL FREE TO CHANGE THE LOG LEVELS TO DEBUG FOR MORE DETAILS
         # OR TO WARNING TO ONLY SEE FAILURES
@@ -209,7 +244,22 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-from datetime import timedelta
+#  Speed up Tests
+if 'test' in sys.argv and DEBUG == True:
+    # Use in-memory database for ALL database operations during tests
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+        'TEST': {
+            'NAME': ':memory:',
+        }
+    }
+    # Disable password validation for faster test user creation
+    AUTH_PASSWORD_VALIDATORS = []
+    # USe MD5 password hasher for speed
+    PASSWORD_HASHERS = [
+     'django.contrib.auth.hashers.MD5PasswordHasher',
+    ]
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Default is 5 minutes

@@ -32,6 +32,8 @@ Twisted==25.5.0
 txaio==25.6.1
 typing_extensions==4.13.2
 tzdata==2025.2
+django-cors-headers==4.7.0
+django-mercury-performance==0.0.8
 zope.interface==7.2
 drf-spectacular==0.28.0
 drf-spectacular-sidecar==2025.7.1

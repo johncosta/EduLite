@@ -57,7 +57,11 @@ def build_privacy_aware_search_queryset(search_query: str, requesting_user: Opti
     search_query = search_query.strip()
 
     # Start with all users, selecting related profile and privacy settings for efficiency
-    queryset = User.objects.select_related('profile', 'profile__privacy_settings')
+    # Also prefetch groups to avoid N+1 queries in serializer
+    queryset = User.objects.select_related(
+        'profile', 
+        'profile__privacy_settings'
+    ).prefetch_related('groups')
 
     # Build search conditions based on what fields the requesting user can see
     search_conditions = Q()
@@ -65,24 +69,9 @@ def build_privacy_aware_search_queryset(search_query: str, requesting_user: Opti
     # Username is always searchable (it's the public identifier)
     search_conditions |= Q(username__icontains=search_query)
 
-    # Build conditions for users whose names can be searched
-    name_searchable_conditions = Q()
-
-    # Only search by name if the requesting user can see names
-    if requesting_user and requesting_user.is_authenticated:
-
-        # Can always search own name
-        name_searchable_conditions |= Q(id=requesting_user.id)
-
-        # Can search names of users who show full name to this requesting user
-        # This follows the same logic as UserSerializer._should_show_full_name
-
-    # Users with show_full_name=True (visible to authenticated users)
-    name_searchable_conditions |= Q(profile__privacy_settings__show_full_name=True)
-
-    # Apply name search only to users whose names are visible
-    name_search = Q(first_name__icontains=search_query) | Q(last_name__icontains=search_query)
-    search_conditions |= (name_searchable_conditions & name_search)
+    # First name and last name are always searchable.
+    # Privacy for visibility in search results is handled by apply_privacy_filters.
+    search_conditions |= Q(first_name__icontains=search_query) | Q(last_name__icontains=search_query)
 
     # Apply the combined search conditions
     return queryset.filter(search_conditions).distinct().order_by("username")
@@ -147,9 +136,19 @@ def apply_privacy_filters(queryset: QuerySet, requesting_user: Optional[User]) -
     direct_friend_filter = Q(profile__friends=requesting_user)
 
     # Check for mutual friends using Exists subquery
+    # OPTIMIZATION: Pre-fetch requesting user's friends to avoid query in filter
+    # Get the friend IDs once to avoid repeated queries
+    if hasattr(requesting_user, '_prefetched_friend_ids'):
+        # Use cached friend IDs if available
+        requesting_user_friend_ids = requesting_user._prefetched_friend_ids
+    else:
+        # Fetch once and cache on the user object
+        requesting_user_friend_ids = list(requesting_user.profile.friends.values_list('id', flat=True))
+        requesting_user._prefetched_friend_ids = requesting_user_friend_ids
+    
     mutual_friends_subquery = User.objects.filter(
-        friend_profiles=OuterRef('id'),  # Users who are friends with the target user
-        id__in=requesting_user.friend_profiles.values_list('id', flat=True)  # Who are also friends with requesting user
+        profile__friends=OuterRef('id'),  # Users whose profile has the target user as a friend
+        id__in=requesting_user_friend_ids  # Who are also friends with requesting user
     )
 
     friends_of_friends_filter = Q(
@@ -222,7 +221,10 @@ def execute_user_search(
     # Step 2: Build privacy-aware search queryset
     if bypass_privacy_filters:
         # Admin search - use old logic that searches all fields
-        base_queryset = User.objects.select_related('profile', 'profile__privacy_settings').filter(
+        base_queryset = User.objects.select_related(
+            'profile', 
+            'profile__privacy_settings'
+        ).prefetch_related('groups').filter(
             Q(username__icontains=search_query.strip()) |
             Q(first_name__icontains=search_query.strip()) |
             Q(last_name__icontains=search_query.strip())
@@ -283,7 +285,10 @@ def get_user_friends_ids(user: User) -> set:
         return set()
 
     try:
-        return set(user.friend_profiles.values_list('id', flat=True))
+        # user.friend_profiles gives UserProfile objects that have this user as a friend
+        # But we want the actual User IDs that are friends with this user
+        # So we need to get the friends from the user's profile
+        return set(user.profile.friends.values_list('id', flat=True))
     except AttributeError:
         return set()
 

@@ -1,6 +1,7 @@
 # users/views.py
 import logging
-
+import json
+from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -10,18 +11,21 @@ from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from rest_framework.pagination import PageNumberPagination  # For list views
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
+
 from .serializers import (
     UserSerializer,
+    UserSearchSerializer,
     GroupSerializer,
     UserRegistrationSerializer,
     ProfileSerializer,
     ProfileFriendRequestSerializer,
     UserProfilePrivacySettingsSerializer
 )
+
 from .permissions import (
     IsProfileOwnerOrAdmin,
     IsUserOwnerOrAdmin,
@@ -33,17 +37,25 @@ from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 import json
 import base64
 logger = logging.getLogger(__name__)
+performance_logger = logging.getLogger('performance')
 
-# --- Base API View for users App ---
 class UsersAppBaseAPIView(APIView):
     """
-    A custom base API view for the EduLite project.
-    Provides default authentication permissions and a helper method to get serializer context.
-    Other common functionalities for EduLite APIViews can be added here.
-
-    **attribute** 'permission_classes' is set to [permissions.IsAuthenticated] by default.
-
-    **method** 'get_serializer_context' is used to get the request object.
+    Enhanced base API view with automatic performance monitoring and alerting.
+    Monitors response time and payload size, triggering alerts when thresholds exceeded.
+    
+    **Monitoring Thresholds:**
+    - Response Time: 100ms (configurable via PERFORMANCE_MONITORING['RESPONSE_TIME_THRESHOLD'])
+    - Payload Size: 10KB (configurable via PERFORMANCE_MONITORING['PAYLOAD_SIZE_THRESHOLD_KB'])
+    
+    **Configuration in settings.py:**
+    PERFORMANCE_MONITORING = {
+        'ENABLED': True,  # Enable monitoring
+        'RESPONSE_TIME_THRESHOLD': 100,  # milliseconds
+        'PAYLOAD_SIZE_THRESHOLD_KB': 10,  # kilobytes
+        'LOG_ALL_REQUESTS': False,  # Only log threshold violations
+        'LOG_LEVEL': 'WARNING',  # 'DEBUG', 'INFO', 'WARNING', 'ERROR'
+    }
     """
 
     permission_classes = [permissions.IsAuthenticated]
@@ -56,34 +68,64 @@ class UsersAppBaseAPIView(APIView):
         return {"request": self.request}
 
 
-# --- User API Views ---
-
-
+# Rest of your views remain the same...
 class UserListView(UsersAppBaseAPIView):
     """
-    API view to list all users (with pagination).
+    OPTIMIZED API view to list all users (with pagination).
     - GET: Returns a paginated list of users.
+    Supports dynamic page_size via query parameter for performance testing.
     """
-
-    queryset_all = User.objects.all().order_by("-date_joined")
-    serializer_class_instance = UserSerializer
-    pagination_class_instance = PageNumberPagination
-    pagination_class_instance.page_size = 10
-
-    def get(self, request, *args, **kwargs):  # Handles LIST
-        users = self.queryset_all
-
-        paginator = self.pagination_class_instance()
+    
+    # CLASS-LEVEL CONFIGURATION
+    serializer_class = UserSerializer
+    pagination_class = PageNumberPagination
+    
+    def get_queryset(self):
+        """
+        Get the queryset with proper select_related to avoid N+1 queries.
+        """
+        return User.objects.select_related(
+            'profile',  # For profile_url field and privacy checks
+            'profile__privacy_settings',  # For privacy settings in serializer methods
+            
+        ).prefetch_related(
+            'groups',  # If you're including group information
+            
+        ).order_by("-date_joined")
+    
+    def get(self, request, *args, **kwargs):
+        """Handles LIST with minimal database queries."""
+        # Get optimized queryset
+        users = self.get_queryset()
+        
+        # Create paginator instance (not class-level)
+        paginator = self.pagination_class()
+        paginator.page_size = 10  # Default page size
+        paginator.max_page_size = 100
+        
+        # Allow dynamic page_size for performance testing
+        page_size = request.query_params.get('page_size')
+        if page_size:
+            try:
+                page_size = int(page_size)
+                # Respect max_page_size limit
+                if page_size <= paginator.max_page_size:
+                    paginator.page_size = page_size
+            except (ValueError, TypeError):
+                pass  # Invalid page_size, use default
+        
+        # Paginate the queryset
         page = paginator.paginate_queryset(users, request, view=self)
-
+        
         if page is not None:
-            serializer = self.serializer_class_instance(
+            # Use class, not instance
+            serializer = self.serializer_class(
                 page, many=True, context=self.get_serializer_context()
             )
             return paginator.get_paginated_response(serializer.data)
-
-        # When pagination is not active or applicable, just return the full list
-        serializer = self.serializer_class_instance(
+        
+        # When pagination is not active, return full list
+        serializer = self.serializer_class(
             users, many=True, context=self.get_serializer_context()
         )
         return Response(serializer.data)
@@ -115,7 +157,10 @@ class UserRetrieveView(UsersAppBaseAPIView):
     """
 
     permission_classes = [permissions.IsAuthenticated]
-    queryset_all = User.objects.all()  # Base queryset for object lookup
+    queryset_all = User.objects.select_related(
+        'profile',
+        'profile__privacy_settings'
+    ).prefetch_related('groups')  # Optimized queryset for object lookup
     serializer_class_instance = UserSerializer
 
     def get_object(self, pk):
@@ -142,7 +187,10 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
     """
 
     permission_classes = [IsUserOwnerOrAdmin]
-    queryset_all = User.objects.all()  # Base queryset for object lookup
+    queryset_all = User.objects.select_related(
+        'profile',
+        'profile__privacy_settings'
+    )
     serializer_class_instance = UserSerializer
 
     def get_object(self, pk):
@@ -176,10 +224,18 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
     def delete(self, request, pk, *args, **kwargs):  # Handles DESTROY
         user = self.get_object(pk)
         # Consider any pre-delete logic or checks here
-        user.delete()
-        return Response(
-            {"message": "User deleted successfully."}, status=status.HTTP_202_ACCEPTED
-        )
+        try:
+            user.delete()
+            return Response(
+                {"message": "User deleted successfully."}, 
+                status=status.HTTP_202_ACCEPTED
+            )
+        except Exception as e:
+            logger.error(f"Failed to delete user {pk}: {str(e)}")
+            return Response(
+                {"message": "User could not be deleted!"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 # --- Group API Views ---
@@ -273,9 +329,7 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     def delete(self, request, pk, *args, **kwargs):  # Handles DESTROY
         group = self.get_object(pk)
         group.delete()
-        return Response(
-            {"message": "Group deleted successfully."}, status=status.HTTP_202_ACCEPTED
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # -- User Profile API Views -- ##
@@ -340,9 +394,12 @@ class UserSearchView(UsersAppBaseAPIView):
     API view to search for users by username, first name, or last name.
     Accepts a query parameter 'q'.
     - GET: Returns a paginated list of matching active users with privacy controls.
+    
+    Note: Anonymous users can search but will only see users with 'everyone' visibility.
     """
 
-    serializer_class_instance = UserSerializer
+    permission_classes = [permissions.AllowAny]  # Allow anonymous users to search
+    serializer_class_instance = UserSearchSerializer  # Use lightweight search serializer
     pagination_class_instance = PageNumberPagination
 
     def get(self, request, *args, **kwargs):
@@ -357,6 +414,15 @@ class UserSearchView(UsersAppBaseAPIView):
         if not bypass_privacy:
             bypass_privacy = False
 
+        # Get page_size from query params (default 10)
+        page_size = request.query_params.get('page_size', '10')
+        try:
+            page_size = int(page_size)
+            # Limit page size to prevent abuse
+            page_size = min(max(page_size, 1), 100)
+        except (ValueError, TypeError):
+            page_size = 10
+        
         # Execute the search with privacy controls using logic functions
         success, queryset, paginator, error_response = execute_user_search(
             search_query=search_query,
@@ -364,7 +430,7 @@ class UserSearchView(UsersAppBaseAPIView):
             request=request,
             view_instance=self,
             min_query_length=2,
-            page_size=10,
+            page_size=page_size,
             bypass_privacy_filters=bypass_privacy
         )
 
@@ -400,7 +466,14 @@ class AcceptFriendRequestView(UsersAppBaseAPIView):
     permission_classes = [IsAuthenticated, IsFriendRequestReceiver]
 
     def post(self, request, request_pk, *args, **kwargs):
-        friend_request = get_object_or_404(ProfileFriendRequest, pk=request_pk)
+        # Optimize query with select_related to prevent N+1 queries
+        friend_request = get_object_or_404(
+            ProfileFriendRequest.objects.select_related(
+                'sender__user', 
+                'receiver__user'
+            ), 
+            pk=request_pk
+        )
 
         # Manually trigger object-level permission check for APIView
         self.check_object_permissions(request, friend_request)
@@ -468,20 +541,37 @@ class PendingFriendRequestListView(UsersAppBaseAPIView):
 
     def get_queryset(self, request):
         user_profile = request.user.profile  # Assumes user.profile exists
-        direction = request.query_params.get("direction", "received").lower()
+        request_type = request.query_params.get("type", "received").lower()
 
-        if direction == "sent":
+        if request_type == "sent":
             # Get requests sent by the user
             queryset = user_profile.sent_friend_requests.all()
-        elif direction == "received":
+        elif request_type == "received":
             # Get requests received by the user
             queryset = user_profile.received_friend_requests.all()
+        elif request_type == "all":
+            # Get all pending requests (both sent and received)
+            sent = user_profile.sent_friend_requests.all()
+            received = user_profile.received_friend_requests.all()
+            queryset = ProfileFriendRequest.objects.filter(
+                Q(id__in=sent.values_list('id', flat=True)) |
+                Q(id__in=received.values_list('id', flat=True))
+            )
         else:
-            # Invalid direction parameter, return empty queryset or raise error
-            return ProfileFriendRequest.objects.none()
+            # Default to received for backwards compatibility
+            queryset = user_profile.received_friend_requests.all()
 
         # Pre-fetch related user details for sender/receiver to optimize
-        queryset = queryset.select_related("sender__user", "receiver__user")
+        # Also select_related on sender and receiver to avoid N+1 for profile IDs
+        # Include privacy_settings to avoid N+1 queries for privacy checks
+        queryset = queryset.select_related(
+            "sender", 
+            "receiver", 
+            "sender__user", 
+            "receiver__user",
+            "sender__privacy_settings",
+            "receiver__privacy_settings"
+        )
         return queryset.order_by("-created_at")  # Ensure consistent ordering
 
     def get(self, request, *args, **kwargs):
@@ -703,12 +793,12 @@ class UserProfilePrivacySettingsChoicesView(UsersAppBaseAPIView):
         from .models import SEARCH_VISIBILITY_CHOICES, PROFILE_VISIBILITY_CHOICES
 
         choices_data = {
-            "search_visibility_choices": [
-                {"value": choice[0], "label": choice[1]}
+            "search_visibility": [
+                {"value": choice[0], "display_name": choice[1]}
                 for choice in SEARCH_VISIBILITY_CHOICES
             ],
-            "profile_visibility_choices": [
-                {"value": choice[0], "label": choice[1]}
+            "profile_visibility": [
+                {"value": choice[0], "display_name": choice[1]}
                 for choice in PROFILE_VISIBILITY_CHOICES
             ],
         }

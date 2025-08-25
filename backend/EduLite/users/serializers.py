@@ -2,6 +2,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.db import models
+from django.conf import settings
 from typing import Optional, TYPE_CHECKING
 
 from rest_framework import serializers
@@ -35,6 +37,7 @@ class ProfileSerializer(
     Privacy-aware serializer that respects UserProfilePrivacySettings.
     """
 
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     user_url = serializers.HyperlinkedRelatedField(
         source="user",
         view_name="user-detail",
@@ -45,6 +48,7 @@ class ProfileSerializer(
         model = UserProfile
         fields = [
             "url",  # URL for the UserProfile instance itself
+            "user",  # User ID
             "user_url",  # URL for the related User instance
             "bio",
             "occupation",
@@ -127,6 +131,99 @@ class ProfileSerializer(
 # -- User/Group Hyperlinked Serializers -- ##
 
 
+class UserSearchSerializer(serializers.ModelSerializer):
+    """
+    Lightweight serializer for user search results.
+    Optimized to minimize database queries by avoiding hyperlinked fields.
+    """
+    full_name = serializers.SerializerMethodField()
+    profile_id = serializers.IntegerField(source='profile.id', read_only=True)
+    
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name", 
+            "last_name",
+            "full_name",
+            "profile_id",
+        ]
+    
+    def get_full_name(self, obj):
+        """Get full name efficiently."""
+        first = obj.first_name
+        last = obj.last_name
+        if first and last:
+            return f"{first} {last}"
+        elif first:
+            return first
+        elif last:
+            return last
+        return ""
+    
+    def _get_requesting_user(self):
+        """Get the requesting user from context."""
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and hasattr(
+            request.user, 'is_authenticated'
+        ) and request.user.is_authenticated:
+            return request.user
+        return None
+    
+    def _get_privacy_settings(self, obj):
+        """
+        Get privacy settings for the user, with caching to avoid multiple DB hits.
+        """
+        cache_key = f'_privacy_settings_{id(obj)}'
+        if hasattr(self, cache_key):
+            return getattr(self, cache_key)
+        
+        privacy_settings = None
+        try:
+            if hasattr(obj, 'profile') and hasattr(obj.profile, 'privacy_settings'):
+                privacy_settings = obj.profile.privacy_settings
+        except (AttributeError, UserProfilePrivacySettings.DoesNotExist):
+            pass
+        
+        setattr(self, cache_key, privacy_settings)
+        return privacy_settings
+    
+    def to_representation(self, instance):
+        """
+        Override to apply privacy filtering efficiently.
+        """
+        representation = super().to_representation(instance)
+        requesting_user = self._get_requesting_user()
+        
+        # Apply privacy filtering
+        if requesting_user and instance.id == requesting_user.id:
+            # User can see all their own data
+            return representation
+        
+        if requesting_user and (requesting_user.is_superuser or requesting_user.is_staff):
+            # Admin can see all data
+            return representation
+        
+        # Check privacy settings
+        privacy_settings = self._get_privacy_settings(instance)
+        
+        if not privacy_settings:
+            # Default privacy: hide email
+            representation.pop('email', None)
+        else:
+            if not privacy_settings.show_email:
+                representation.pop('email', None)
+            
+            if not privacy_settings.show_full_name:
+                representation.pop('first_name', None)
+                representation.pop('last_name', None)
+                representation.pop('full_name', None)
+        
+        return representation
+
+
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for the Group model.
@@ -177,7 +274,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
             return last
         return ""
 
-    # In UserSerializer class
     def _get_requesting_user(self):
         """Get the requesting user from context."""
         request = self.context.get('request')
@@ -196,6 +292,30 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
             return test_user
 
         return None
+    
+    def _get_privacy_settings(self, obj):
+        """
+        Get privacy settings for the user, with caching to avoid multiple DB hits.
+        Uses instance-level caching to prevent repeated access within the same serialization.
+        """
+        # Create a cache key specific to this serializer instance and object
+        cache_key = f'_privacy_settings_{id(obj)}'
+        
+        # Check if we've already fetched privacy settings for this object
+        if hasattr(self, cache_key):
+            return getattr(self, cache_key)
+        
+        # Fetch privacy settings
+        privacy_settings = None
+        try:
+            if hasattr(obj, 'profile') and hasattr(obj.profile, 'privacy_settings'):
+                privacy_settings = obj.profile.privacy_settings
+        except (AttributeError, UserProfilePrivacySettings.DoesNotExist):
+            pass
+        
+        # Cache the result on this serializer instance
+        setattr(self, cache_key, privacy_settings)
+        return privacy_settings
 
     def _should_show_email(self, obj, requesting_user: Optional['AbstractUser']) -> bool:
         """
@@ -209,13 +329,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
         if requesting_user and (requesting_user.is_superuser or requesting_user.is_staff):
             return True
 
-        # Check privacy settings
-        try:
-            if hasattr(obj, 'profile') and hasattr(obj.profile, 'privacy_settings'):
-                privacy_settings = obj.profile.privacy_settings
-                return privacy_settings.show_email
-        except (AttributeError, UserProfilePrivacySettings.DoesNotExist):
-            pass
+        # Check privacy settings using cached method
+        privacy_settings = self._get_privacy_settings(obj)
+        if privacy_settings:
+            return privacy_settings.show_email
 
         # Default to hiding email if no privacy settings exist
         return False
@@ -232,13 +349,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):  # Or ModelSeriali
         if requesting_user and (requesting_user.is_superuser or requesting_user.is_staff):
             return True
 
-        # Check privacy settings with proper Django ORM access
-        try:
-            if hasattr(obj, 'profile') and hasattr(obj.profile, 'privacy_settings'):
-                privacy_settings = obj.profile.privacy_settings
-                return privacy_settings.show_full_name
-        except AttributeError:
-            pass
+        # Check privacy settings using cached method
+        privacy_settings = self._get_privacy_settings(obj)
+        if privacy_settings:
+            return privacy_settings.show_full_name
 
         # Default to showing names if no privacy settings exist
         return True
@@ -311,44 +425,59 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 "Invalid email format: '@' symbol missing."
             )
         email_name, domain_part = value.split("@", 1)
-        from django.conf import settings
+        
+        # Cache blocked domains to avoid repeated getattr calls
+        if not hasattr(self, '_blocked_domains'):
+            blocked_domains = getattr(
+                settings, "BLOCKED_EMAIL_DOMAINS", ["example.com", "test.com"]
+            )
+            # Pre-process to lowercase for faster comparison
+            self._blocked_domains = [d.lower() for d in blocked_domains]
 
-        blocked_domains = getattr(
-            settings, "BLOCKED_EMAIL_DOMAINS", ["example.com", "test.com"]
-        )
-
-        if domain_part.lower() in [d.lower() for d in blocked_domains]:
+        if domain_part.lower() in self._blocked_domains:
             raise serializers.ValidationError(
                 "Registration from this email domain is not allowed."
             )
 
-        # Uniqueness Check
-        if User.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError(
-                "A user with this email address already exists."
-            )
-
-        return value  # If all checks pass, return the validated email value
+        return value  # Domain validation passes, uniqueness checked in validate()
 
     def validate_username(self, value):
         """
-        Check that the username is unique.
+        Check that the username format is valid.
+        Uniqueness will be checked in validate() method.
         """
-        if User.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(
-                "A user with that username already exists."
-            )
         return value
 
     def validate(self, attrs):
         """
-        Check that the two password entries match.
+        Check that the two password entries match and perform uniqueness checks.
+        Combined validation reduces database queries from 2 to 1.
         """
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError(
                 {"password2": "Password fields didn't match."}
             )
-        # You can add more custom validation here if needed
+        
+        # Perform combined uniqueness check using a single query
+        username = attrs.get('username')
+        email = attrs.get('email')
+        
+        if username and email:
+            # Use Q objects for efficient OR query
+            existing_users = User.objects.filter(
+                models.Q(username__iexact=username) | models.Q(email__iexact=email)
+            ).values('username', 'email')
+            
+            errors = {}
+            for user in existing_users:
+                if user['username'].lower() == username.lower():
+                    errors['username'] = "A user with that username already exists."
+                if user['email'].lower() == email.lower():
+                    errors['email'] = "A user with this email address already exists."
+            
+            if errors:
+                raise serializers.ValidationError(errors)
+        
         return attrs
 
 
@@ -410,15 +539,12 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
     receiver_profile_url = serializers.SerializerMethodField()
     accept_url = serializers.SerializerMethodField()
     decline_url = serializers.SerializerMethodField()
+    # Include nested sender and receiver user info
+    sender = serializers.SerializerMethodField()
+    receiver = serializers.SerializerMethodField()
     message = serializers.CharField(
         required=False, allow_blank=True, max_length=500
     )
-    
-
-    message = serializers.CharField(
-        required=False, allow_blank=True, max_length=500
-    )
-
     created_at = serializers.DateTimeField(read_only=True, format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
@@ -427,6 +553,8 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
             "id",
             "sender_id",
             "receiver_id",
+            "sender",
+            "receiver",
             "message",
             "sender_profile_url",
             "receiver_profile_url",
@@ -436,6 +564,28 @@ class ProfileFriendRequestSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
+    def get_sender(self, obj: ProfileFriendRequest) -> dict:
+        """Return basic sender user info."""
+        if obj.sender and obj.sender.user:
+            return {
+                'id': obj.sender.user.id,
+                'username': obj.sender.user.username,
+                'first_name': obj.sender.user.first_name,
+                'last_name': obj.sender.user.last_name,
+            }
+        return None
+    
+    def get_receiver(self, obj: ProfileFriendRequest) -> dict:
+        """Return basic receiver user info."""
+        if obj.receiver and obj.receiver.user:
+            return {
+                'id': obj.receiver.user.id,
+                'username': obj.receiver.user.username,
+                'first_name': obj.receiver.user.first_name,
+                'last_name': obj.receiver.user.last_name,
+            }
+        return None
+    
     def get_sender_profile_url(self, obj: ProfileFriendRequest) -> str | None:
         request = self.context.get("request")
         if request and obj.sender:
@@ -498,7 +648,7 @@ class UserProfilePrivacySettingsSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id","updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
     def validate(self, attrs):
         """

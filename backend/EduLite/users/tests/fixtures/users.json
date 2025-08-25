@@ -1,0 +1,795 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 100,
+    "fields": {
+      "username": "ahmad_student",
+      "email": "ahmad@gaza-university.ps",
+      "first_name": "Ahmad",
+      "last_name": "Al-Rashid",
+      "is_active": true,
+      "date_joined": "2024-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 100,
+    "fields": {
+      "user": 100,
+      "bio": "Computer Science student in Gaza. Learning despite challenges.",
+      "country": "PS",
+      "preferred_language": "ar",
+      "occupation": "student",
+      "friends": [101, 102, 103]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 100,
+    "fields": {
+      "user_profile": 100,
+      "search_visibility": "friends_of_friends",
+      "profile_visibility": "friends_only",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 101,
+    "fields": {
+      "username": "marie_student",
+      "email": "marie.dubois@refugeecamp.org",
+      "first_name": "Marie",
+      "last_name": "Dubois",
+      "is_active": true,
+      "date_joined": "2024-01-20T14:30:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 101,
+    "fields": {
+      "user": 101,
+      "bio": "Étudiante syrienne en France. Apprendre pour reconstruire.",
+      "country": "FR",
+      "preferred_language": "fr",
+      "secondary_language": "ar",
+      "occupation": "student",
+      "friends": [100, 104]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 101,
+    "fields": {
+      "user_profile": 101,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 102,
+    "fields": {
+      "username": "joy_student",
+      "email": "joy.okoro@communitynet.ng",
+      "first_name": "Joy",
+      "last_name": "Okoro",
+      "is_active": true,
+      "date_joined": "2024-02-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 102,
+    "fields": {
+      "user": 102,
+      "bio": "First in my family to pursue higher education. Mobile data is expensive but knowledge is priceless.",
+      "country": "NG",
+      "preferred_language": "en",
+      "occupation": "student",
+      "friends": [100, 103, 105]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 102,
+    "fields": {
+      "user_profile": 102,
+      "search_visibility": "friends_only",
+      "profile_visibility": "friends_only",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 103,
+    "fields": {
+      "username": "elena_student",
+      "email": "elena.popescu@library.ro",
+      "first_name": "Elena",
+      "last_name": "Popescu",
+      "is_active": true,
+      "date_joined": "2024-01-25T16:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 103,
+    "fields": {
+      "user": 103,
+      "bio": "Rural Romania. One computer in our village library. Studying nursing to help my community.",
+      "country": "RO",
+      "preferred_language": "ro",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [100, 102, 106]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 103,
+    "fields": {
+      "user_profile": 103,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": false,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 104,
+    "fields": {
+      "username": "james_student",
+      "email": "james.littlebear@firstnation.ca",
+      "first_name": "James",
+      "last_name": "Littlebear",
+      "is_active": true,
+      "date_joined": "2024-02-10T12:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 104,
+    "fields": {
+      "user": 104,
+      "bio": "Cree Nation, Northern Ontario. Satellite internet when weather permits. Preserving our culture through education.",
+      "country": "CA",
+      "preferred_language": "en",
+      "secondary_language": "cr",
+      "occupation": "student",
+      "friends": [101, 105, 107]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 104,
+    "fields": {
+      "user_profile": 104,
+      "search_visibility": "friends_of_friends",
+      "profile_visibility": "friends_only",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 105,
+    "fields": {
+      "username": "fatima_student",
+      "email": "fatima.hassan@khartoumlibrary.sd",
+      "first_name": "Fatima",
+      "last_name": "Hassan",
+      "is_active": true,
+      "date_joined": "2024-01-18T09:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 105,
+    "fields": {
+      "user": 105,
+      "bio": "Medical student in Khartoum. Power cuts daily but determination is constant.",
+      "country": "SD",
+      "preferred_language": "ar",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [102, 104, 108]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 105,
+    "fields": {
+      "user_profile": 105,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 106,
+    "fields": {
+      "username": "miguel_student",
+      "email": "miguel.silva@favela.edu.br",
+      "first_name": "Miguel",
+      "last_name": "Silva",
+      "is_active": true,
+      "date_joined": "2024-02-05T19:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 106,
+    "fields": {
+      "user": 106,
+      "bio": "Rio favela. Sharing one phone with siblings. Dreams bigger than circumstances.",
+      "country": "BR",
+      "preferred_language": "pt",
+      "secondary_language": "es",
+      "occupation": "student",
+      "friends": [103, 107, 109]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 106,
+    "fields": {
+      "user_profile": 106,
+      "search_visibility": "friends_only",
+      "profile_visibility": "friends_only",
+      "show_full_name": false,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 107,
+    "fields": {
+      "username": "sophie_student",
+      "email": "sophie.martin@secours-catholique.fr",
+      "first_name": "Sophie",
+      "last_name": "Martin",
+      "is_active": true,
+      "date_joined": "2024-01-30T15:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 107,
+    "fields": {
+      "user": 107,
+      "bio": "Homeless shelter in Paris. Using library computers. Education is my way out.",
+      "country": "FR",
+      "preferred_language": "fr",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [104, 106, 110]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 107,
+    "fields": {
+      "user_profile": 107,
+      "search_visibility": "nobody",
+      "profile_visibility": "private",
+      "show_full_name": false,
+      "show_email": false,
+      "allow_friend_requests": false
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 108,
+    "fields": {
+      "username": "dmitri_student",
+      "email": "dmitri.volkov@youth-center.ua",
+      "first_name": "Dmitri",
+      "last_name": "Volkov",
+      "is_active": true,
+      "date_joined": "2024-02-15T11:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 108,
+    "fields": {
+      "user": 108,
+      "bio": "Displaced from Mariupol. Learning IT in Lviv shelter. Code is hope.",
+      "country": "UA",
+      "preferred_language": "uk",
+      "secondary_language": "ru",
+      "occupation": "student",
+      "friends": [105, 109, 111]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 108,
+    "fields": {
+      "user_profile": 108,
+      "search_visibility": "friends_of_friends",
+      "profile_visibility": "friends_only",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 109,
+    "fields": {
+      "username": "maria_student",
+      "email": "maria.gonzalez@biblioteca-rural.mx",
+      "first_name": "Maria",
+      "last_name": "González",
+      "is_active": true,
+      "date_joined": "2024-02-08T10:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 109,
+    "fields": {
+      "user": 109,
+      "bio": "Oaxaca mountains. 2 hour walk to internet cafe. Indigenous rights through education.",
+      "country": "MX",
+      "preferred_language": "es",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [106, 108, 112]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 109,
+    "fields": {
+      "user_profile": 109,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 110,
+    "fields": {
+      "username": "thomas_student",
+      "email": "thomas.mueller@caritas.de",
+      "first_name": "Thomas",
+      "last_name": "Müller",
+      "is_active": true,
+      "date_joined": "2024-02-12T14:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 110,
+    "fields": {
+      "user": 110,
+      "bio": "East German town, high unemployment. First online student in family. Breaking cycles.",
+      "country": "DE",
+      "preferred_language": "de",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [107, 111, 113]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 110,
+    "fields": {
+      "user_profile": 110,
+      "search_visibility": "friends_only",
+      "profile_visibility": "friends_only",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 111,
+    "fields": {
+      "username": "aisha_student",
+      "email": "aisha.ibrahim@unhcr.org",
+      "first_name": "Aisha",
+      "last_name": "Ibrahim",
+      "is_active": true,
+      "date_joined": "2024-01-22T13:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 111,
+    "fields": {
+      "user": 111,
+      "bio": "Somali refugee in Kenya. Dadaab camp. Education knows no borders.",
+      "country": "KE",
+      "preferred_language": "so",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [108, 110, 114]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 111,
+    "fields": {
+      "user_profile": 111,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 112,
+    "fields": {
+      "username": "chen_student",
+      "email": "chen.wei@rural-library.cn",
+      "first_name": "Chen",
+      "last_name": "Wei",
+      "is_active": true,
+      "date_joined": "2024-02-03T07:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 112,
+    "fields": {
+      "user": 112,
+      "bio": "Rural Gansu province. Left-behind child. Grandparents support my dreams.",
+      "country": "CN",
+      "preferred_language": "zh",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [109, 113, 115]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 112,
+    "fields": {
+      "user_profile": 112,
+      "search_visibility": "friends_of_friends",
+      "profile_visibility": "friends_only",
+      "show_full_name": false,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 113,
+    "fields": {
+      "username": "priya_student",
+      "email": "priya.sharma@slum-school.in",
+      "first_name": "Priya",
+      "last_name": "Sharma",
+      "is_active": true,
+      "date_joined": "2024-01-28T05:30:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 113,
+    "fields": {
+      "user": 113,
+      "bio": "Mumbai slum. Studying at night after work. Breaking caste barriers through education.",
+      "country": "IN",
+      "preferred_language": "hi",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [110, 112, 114]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 113,
+    "fields": {
+      "user_profile": 113,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 114,
+    "fields": {
+      "username": "anna_student",
+      "email": "anna.kowalski@library.pl",
+      "first_name": "Anna",
+      "last_name": "Kowalski",
+      "is_active": true,
+      "date_joined": "2024-02-07T12:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 114,
+    "fields": {
+      "user": 114,
+      "bio": "Coal mining town in Poland. Father lost job. Education for new opportunities.",
+      "country": "PL",
+      "preferred_language": "pl",
+      "secondary_language": "en",
+      "occupation": "student",
+      "friends": [111, 113, 115]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 114,
+    "fields": {
+      "user_profile": 114,
+      "search_visibility": "friends_only",
+      "profile_visibility": "friends_only",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 115,
+    "fields": {
+      "username": "carlos_student",
+      "email": "carlos.rivera@escuela-rural.pe",
+      "first_name": "Carlos",
+      "last_name": "Rivera",
+      "is_active": true,
+      "date_joined": "2024-02-14T16:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 115,
+    "fields": {
+      "user": 115,
+      "bio": "Andean village. 3G on good days. Studying agriculture to help my community.",
+      "country": "PE",
+      "preferred_language": "es",
+      "secondary_language": "qu",
+      "occupation": "student",
+      "friends": [112, 114]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 115,
+    "fields": {
+      "user_profile": 115,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 200,
+    "fields": {
+      "username": "sarah_teacher",
+      "email": "sarah.johnson@innercity-school.ca",
+      "first_name": "Sarah",
+      "last_name": "Johnson",
+      "is_active": true,
+      "is_staff": false,
+      "date_joined": "2023-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 200,
+    "fields": {
+      "user": 200,
+      "bio": "Teaching in Toronto's priority neighborhoods. Every student deserves quality education.",
+      "country": "CA",
+      "preferred_language": "en",
+      "secondary_language": "fr",
+      "occupation": "teacher",
+      "website_url": "https://equityineducation.ca",
+      "friends": [201, 202]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 200,
+    "fields": {
+      "user_profile": 200,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": true,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 201,
+    "fields": {
+      "username": "dr_ahmed",
+      "email": "ahmed.hassan@cairo-university.eg",
+      "first_name": "Ahmed",
+      "last_name": "Hassan",
+      "is_active": true,
+      "is_staff": false,
+      "date_joined": "2023-08-15T09:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 201,
+    "fields": {
+      "user": 201,
+      "bio": "Professor of Computer Science. Building bridges through online education.",
+      "country": "EG",
+      "preferred_language": "ar",
+      "secondary_language": "en",
+      "occupation": "teacher",
+      "friends": [200, 202, 203]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 201,
+    "fields": {
+      "user_profile": 201,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": true,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 202,
+    "fields": {
+      "username": "prof_okonkwo",
+      "email": "chidi.okonkwo@rural-education.ng",
+      "first_name": "Chidi",
+      "last_name": "Okonkwo",
+      "is_active": true,
+      "is_staff": false,
+      "date_joined": "2023-10-01T07:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 202,
+    "fields": {
+      "user": 202,
+      "bio": "Bringing quality education to rural Nigeria. Mobile learning advocate.",
+      "country": "NG",
+      "preferred_language": "en",
+      "secondary_language": "ig",
+      "occupation": "teacher",
+      "friends": [200, 201, 203]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 202,
+    "fields": {
+      "user_profile": 202,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": false,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "auth.user",
+    "pk": 203,
+    "fields": {
+      "username": "marie_teacher",
+      "email": "marie.leblanc@education-refugies.fr",
+      "first_name": "Marie",
+      "last_name": "Leblanc",
+      "is_active": true,
+      "is_staff": false,
+      "date_joined": "2023-11-01T14:00:00Z"
+    }
+  },
+  {
+    "model": "users.userprofile",
+    "pk": 203,
+    "fields": {
+      "user": 203,
+      "bio": "Enseignante pour les réfugiés. L'éducation est un droit humain.",
+      "country": "FR",
+      "preferred_language": "fr",
+      "secondary_language": "ar",
+      "occupation": "teacher",
+      "friends": [201, 202]
+    }
+  },
+  {
+    "model": "users.userprofileprivacysettings",
+    "pk": 203,
+    "fields": {
+      "user_profile": 203,
+      "search_visibility": "everyone",
+      "profile_visibility": "public",
+      "show_full_name": true,
+      "show_email": true,
+      "allow_friend_requests": true
+    }
+  },
+  
+  {
+    "model": "users.profilefriendrequest",
+    "pk": 1,
+    "fields": {
+      "sender": 107,
+      "receiver": 100,
+      "message": "Hi Ahmad, I saw you're studying CS too. Would love to connect!",
+      "created_at": "2024-02-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "users.profilefriendrequest",
+    "pk": 2,
+    "fields": {
+      "sender": 111,
+      "receiver": 105,
+      "message": "Salaam Fatima, fellow African student here. Let's support each other!",
+      "created_at": "2024-02-21T09:00:00Z"
+    }
+  },
+  {
+    "model": "users.profilefriendrequest",
+    "pk": 3,
+    "fields": {
+      "sender": 108,
+      "receiver": 114,
+      "message": "Hi Anna, saw you're from Poland. Slavic solidarity! 💪",
+      "created_at": "2024-02-22T14:00:00Z"
+    }
+  }
+]
