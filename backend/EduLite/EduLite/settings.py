@@ -39,9 +39,11 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne", # ASGI server for Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -54,10 +56,13 @@ INSTALLED_APPS = [
     "notifications",
     "courses",
     # third-party apps
+    "channels",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
 ]
 
 LOGGING = {
@@ -120,6 +125,20 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
+
+        # --- Channels and Websocket logging ---
+        "channels":{
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+
+        # log all ASGI events
+        "django.channels.server": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
     },
 }
 
@@ -150,6 +169,18 @@ TEMPLATES = [
         },
     },
 ]
+
+ASGI_APPLICATION = "EduLite.asgi.application"
+
+# Django Channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 WSGI_APPLICATION = "EduLite.wsgi.application"
 
@@ -206,11 +237,11 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 #  Speed up Tests
@@ -278,3 +309,24 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
+
+# Email Configuration - Development Only (Console Backend)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025  # Not used by console backend but safe to include
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'EduLite <noreply@edulite.local>'
+FRONTEND_URL = 'http://127.0.0.1:8000/api'
+
+# Spectacular settings for OpenAPI schema generation
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'EduLite API',
+    'DESCRIPTION': 'API documentation for EduLite',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # configure sidecar for serving static files
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+}

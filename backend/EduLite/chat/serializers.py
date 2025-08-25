@@ -41,9 +41,24 @@ class MessageSerializer(serializers.ModelSerializer):
         if "sender" not in validated_data and "request" in self.context:
             validated_data["sender"] = self.context["request"].user
         return super().create(validated_data)
-
+    
+class ChatUserSerializer(serializers.ModelSerializer):
+    """ Serializer for user information in chat context """
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+        read_only_fields = fields
 
 class ChatRoomSerializer(serializers.ModelSerializer):
+    # nested serializer fields
+    creator = ChatUserSerializer(read_only=True)
+    editors = ChatUserSerializer(many=True, read_only=True)
+    participants_details = ChatUserSerializer(
+        source='participants',
+        many=True,
+        read_only=True
+    )
+
     # Show participants as a list of user IDs
     participants = serializers.PrimaryKeyRelatedField(
         many=True, queryset=User.objects.only("id")
@@ -56,11 +71,31 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         model = ChatRoom
         fields = [
             "id",
+            "creator",
+            "editors",
             "name",
             "room_type",
             "participants",
+            "participants_details",
             "messages",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at", "messages"]
+
+    def create(self, validated_data):
+        """
+        Override create method to set the creator from the request user.
+        """
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            validated_data["creator"] = request.user
+        return super().create(validated_data)
+    
+    def validate_editors(self, value):
+        """
+        Ensure that editors are also participants in the chat room.
+        """
+        if not set(value).issubset(set(self.initial_data.get('participants', []))):
+            raise serializers.ValidationError("Editors must be participants in the chat room.")
+        return value
