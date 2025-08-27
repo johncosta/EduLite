@@ -19,8 +19,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-User = get_user_model()
-
 class ChatAppBaseAPIView(APIView):
     """
     A custom base API view for the Chat app.
