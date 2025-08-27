@@ -10,13 +10,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import serializers, status
-
-from .models import ChatRoom, Message
+from .models import ChatRoom, Message, ChatRoomInvitation
 from .serializers import MessageSerializer, ChatRoomSerializer
 from .permissions import IsParticipant, IsMessageSenderOrReadOnly
 from .pagination import ChatRoomPagination, MessageCursorPagination
+from django.contrib.auth import get_user_model
 
 
+User = get_user_model()
 
 class ChatAppBaseAPIView(APIView):
     """
@@ -129,7 +130,8 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
 
         # Initialize paginator and paginate queryset
         paginator = self.pagination_class()
-        paginated_queryset = paginator.paginate_queryset(queryset, request, view=self)
+        paginated_queryset = paginator.paginate_queryset(
+            queryset, request, view=self)
 
         # Serialize paginated data
         serializer = ChatRoomSerializer(
@@ -203,12 +205,14 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
     )
     def post(self, request, *args, **kwargs):
         """Create a new chat room and add creator as participant"""
-        serializer = ChatRoomSerializer(data=request.data, context=self.get_serializer_context())
+        serializer = ChatRoomSerializer(
+            data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
             chat_room = serializer.save()
             chat_room.participants.add(request.user)
             return Response(
-                ChatRoomSerializer(chat_room, context=self.get_serializer_context()).data,
+                ChatRoomSerializer(
+                    chat_room, context=self.get_serializer_context()).data,
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -239,7 +243,7 @@ class ChatRoomDetailView(ChatAppBaseAPIView):
     - 404: Chat room not found or user is not a participant.
     """
     permission_classes = [IsAuthenticated, IsParticipant]
-    
+
     def get_object(self, pk):
         """Helper method to retrieve the chat room object or raise a 404 error"""
         return get_object_or_404(ChatRoom.objects.all(), pk=pk)
@@ -298,7 +302,8 @@ class ChatRoomDetailView(ChatAppBaseAPIView):
         """Retrieve details of a specific chat room"""
         chat_room = self.get_object(pk)
         self.check_object_permissions(request, chat_room)
-        serializer = ChatRoomSerializer(chat_room, context=self.get_serializer_context())
+        serializer = ChatRoomSerializer(
+            chat_room, context=self.get_serializer_context())
         return Response(serializer.data)
 
 @extend_schema(
@@ -405,13 +410,16 @@ class MessageListCreateView(ChatAppBaseAPIView):
         """
         chat_room = self.get_chat_room(chat_room_id)
 
+
         queryset = Message.objects.filter(
             chat_room=chat_room
         ).select_related("sender", "chat_room")
 
+
         # Initialize paginator and paginate queryset
         paginator = self.pagination_class()
-        paginated_queryset = paginator.paginate_queryset(queryset, request, view=self)
+        paginated_queryset = paginator.paginate_queryset(
+            queryset, request, view=self)
 
         # Serialize paginated data
         serializer = MessageSerializer(
@@ -419,6 +427,7 @@ class MessageListCreateView(ChatAppBaseAPIView):
             many=True,
             context=self.get_serializer_context()
         )
+
 
         return paginator.get_paginated_response(serializer.data)
 
@@ -521,14 +530,16 @@ class MessageListCreateView(ChatAppBaseAPIView):
         # Verify chat room exists and user is participant
         chat_room = self.get_chat_room(chat_room_id)
 
-        serializer = MessageSerializer(data=request.data, context=self.get_serializer_context())
+        serializer = MessageSerializer(
+            data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
             message = serializer.save(
                 chat_room=chat_room,
                 sender=request.user
             )
             return Response(
-                MessageSerializer(message, context=self.get_serializer_context()).data,
+                MessageSerializer(
+                    message, context=self.get_serializer_context()).data,
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -653,7 +664,8 @@ class MessageDetailView(ChatAppBaseAPIView):
     def get(self, request, chat_room_id, pk, *args, **kwargs):
         """Retrieve a specific message in a chat room."""
         message = self.get_object(chat_room_id, pk)
-        serializer = MessageSerializer(message, context=self.get_serializer_context())
+        serializer = MessageSerializer(
+            message, context=self.get_serializer_context())
         return Response(serializer.data)
 
     @extend_schema(
@@ -953,3 +965,78 @@ class MessageDetailView(ChatAppBaseAPIView):
             {"message": "Message deleted successfully."},
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+class ChatRoomInvitationView(ChatAppBaseAPIView):
+    """
+    Handles sending, accepting, and declining chat room invitations.
+    """
+
+    def post(self, request, pk, action=None):
+        if action is None:
+            return self.send_invitation(request, pk)
+        elif action == 'accept':
+            return self.accept_invitation(request, pk)
+        elif action == 'decline':
+            return self.decline_invitation(request, pk)
+        else:
+            return Response({"error": "Invalid action."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def send_invitation(self, request, pk):
+        chat_room = get_object_or_404(ChatRoom, pk=pk)
+
+        if not chat_room.can_manage(request.user):
+            return Response({"error": "You do not have permission to invite users to this room."}, 
+                            status=status.HTTP_403_FORBIDDEN)
+        invitee_id = request.data.get('invitee_id')
+
+        if not invitee_id:
+            return Response({"error": "invitee_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.user.id == int(invitee_id):
+            return Response({"error": "You cannot invite yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if chat_room.participants.filter(id=invitee_id).exists():
+            return Response({"error": "User is already a participant."}, status=status.HTTP_400_BAD_REQUEST)
+
+        existing_invite = ChatRoomInvitation.objects.filter(
+            chat_room=chat_room,
+            invitee_id=invitee_id,
+            status='pending'
+        ).first()
+
+        if existing_invite:
+            return Response({"error": "A pending invitation already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        invitation = ChatRoomInvitation.objects.create(
+            chat_room=chat_room,
+            invited_by=request.user,
+            invitee_id=invitee_id
+        )
+
+        return Response({"message": "Invitation sent.", "invitation_id": invitation.id}, status=status.HTTP_201_CREATED)
+
+    def accept_invitation(self, request, pk):
+        invitation = get_object_or_404(
+            ChatRoomInvitation, pk=pk, invitee=request.user)
+
+        if invitation.status != 'pending':
+            return Response({"error": "This invitation is no longer pending."}, status=status.HTTP_400_BAD_REQUEST)
+
+        invitation.status = 'accepted'
+        invitation.save()
+        invitation.chat_room.participants.add(request.user)
+
+        return Response({"message": "Invitation accepted."})
+
+    def decline_invitation(self, request, pk):
+        invitation = get_object_or_404(
+            ChatRoomInvitation, pk=pk, invitee=request.user)
+
+        if invitation.status != 'pending':
+            return Response({"error": "This invitation is no longer pending."}, status=status.HTTP_400_BAD_REQUEST)
+
+        invitation.status = 'declined'
+        invitation.save()
+
+        return Response({"message": "Invitation declined."})
