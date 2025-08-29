@@ -1,23 +1,21 @@
 """
-Chat application WebSocket routing configuration.
+WebSocket routing configuration for chat functionality.
 
-Defines URL patterns for real-time chat functionality including
-room-based messaging and real-time communication features.
+This module defines URL patterns for WebSocket connections following
+Django's URL dispatcher patterns for consistency.
 """
 
 from django.urls import re_path
 from . import consumers
 
-# Chat WebSocket URL patterns
+# WebSocket URL patterns following Django URL conventions
 websocket_urlpatterns = [
-    # Chat room WebSocket connection
-    # URL: ws://domain/ws/chat/<room_id>/
-    re_path(
-        r'ws/chat/(?P<room_id>\d+)/$',
-        consumers.ChatConsumer.as_asgi(),
-        name='chat_room_websocket'
-    ),
+    # # Simple echo consumer for testing (no authentication required)
+    # re_path(r'ws/echo/$', consumers.EchoConsumer.as_asgi(), name='websocket_echo'),
     
-    # Future chat-related WebSocket endpoints
-    # Example: Private messaging, group chat notifications, etc.
+    # # Ping-pong consumer for connection testing
+    # re_path(r'ws/ping/$', consumers.PingPongConsumer.as_asgi(), name='websocket_ping'),
+    
+    # Production chat consumer with authentication
+    re_path(r'ws/chat/(?P<room_id>[\w-]+)/$', consumers.ChatConsumer.as_asgi(), name='websocket_chat'),
 ]
