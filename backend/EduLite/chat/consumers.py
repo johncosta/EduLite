@@ -1,6 +1,14 @@
 # chat/consumers.py - WebSocket consumers for real-time chat functionality
 # Handles WebSocket connections, authentication, and message broadcasting
 
+
+"""
+WebSocket consumers for EduLite chat functionality.
+
+This module provides both production chat consumers and simple testing consumers
+following Django's class-based view patterns and best practices.
+"""
+
 import json
 import logging
 from typing import Dict, Any, Optional
@@ -15,6 +23,8 @@ from .serializers import MessageSerializer
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
+
+
 
 
 class ChatConsumer(AsyncWebsocketConsumer):

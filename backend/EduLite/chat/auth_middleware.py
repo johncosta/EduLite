@@ -1,113 +1,72 @@
-import logging
+"""Authentication classes for channels."""
 from urllib.parse import parse_qs
-from django.contrib.auth.models import AnonymousUser
-from django.contrib.auth import get_user_model
-from rest_framework.authtoken.models import Token
-from rest_framework_simplejwt.tokens import UntypedToken
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
+from channels.auth import AuthMiddlewareStack
 from channels.db import database_sync_to_async
-from channels.middleware import BaseMiddleware
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
+from django.db import close_old_connections
+from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
+from jwt import decode as jwt_decode
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
-
-@database_sync_to_async
-def get_user_from_jwt(token_key: str):
-    """
-    Get user from JWT token
-    
-    Args:
-        token_key: JWT token key
-        
-    Returns:
-        User instance or AnonymousUser
-    """
-    try:
-        # Validate JWT token
-        validated_token = UntypedToken(token_key)
-        user_id = validated_token['user_id']
-        
-        # Get user from database
-        user = User.objects.get(id=user_id, is_active=True)
-        return user
-        
-    except (InvalidToken, TokenError, User.DoesNotExist) as e:
-        logger.warning(f"JWT authentication failed: {str(e)}")
-        return AnonymousUser()
-    except Exception as e:
-        logger.error(f"Unexpected JWT authentication error: {str(e)}")
-        return AnonymousUser()
 
 
-class JWTAuthMiddleware(BaseMiddleware):
-    """
-    Middleware to authenticate WebSocket connections using JWT tokens.
-    
-    Supports both header-based and query parameter-based token authentication.
-    """
+class JWTAuthMiddleware:
+    """Middleware to authenticate user for channels (supports header + query param)."""
 
-    def __init__(self, inner):
-        super().__init__(inner)
+    def __init__(self, app):
+        self.app = app
 
     async def __call__(self, scope, receive, send):
-        """
-        Authenticate WebSocket connection during handshake.
-        
-        Args:
-            scope: ASGI scope containing connection information
-            receive: ASGI receive callable
-            send: ASGI send callable
-        """
-        # only process WebSocket connections
-        if scope['type'] == 'websocket':
-            token = await self.get_token_from_scope(scope)
+        """Authenticate user from JWT in query param or Authorization header."""
+        close_old_connections()
+        token = None  
 
+        try:
+            # --- 1. Try from query param ?token= ---
+            query_params = parse_qs(scope["query_string"].decode("utf8"))
+            token_list = query_params.get("token")
+            if token_list:
+                token = token_list[0]
+
+            # --- 2. Try from headers if no query param ---
+            if not token:
+                headers = dict(scope.get("headers", []))
+                auth_header = headers.get(b"authorization")
+                if auth_header:
+                    auth_header = auth_header.decode("utf8")
+                    if auth_header.startswith("Bearer "):
+                        token = auth_header.split("Bearer ")[1]
+
+            # --- 3. Decode token if found ---
             if token:
-                scope['user'] = await get_user_from_jwt(token)
+                data = jwt_decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+                scope["user"] = await self.get_user(data.get("user_id"))
             else:
-                scope['user'] = AnonymousUser()
+                scope["user"] = AnonymousUser()
 
-        return await super().__call__(scope, receive, send)
-    
-    async def get_token_from_scope(self, scope):
-        """
-        Extract JWT token from WebSocket scope.
-        
-        Args:
-            scope: ASGI scope
-            
-        Returns:
-            Token string or None
-        """
-        # Method 1: Check Authorization header
-        headers = dict(scope.get('headers', []))
-        if b'authorization' in headers:
-            try:
-                auth_header = headers[b'authorization'].decode()
-                token_type, token = auth_header.split()
-                if token_type.lower() == 'bearer':
-                    return token
-            except (ValueError, UnicodeDecodeError):
-                pass
+        except (InvalidSignatureError, ExpiredSignatureError, DecodeError) as e:
+            # Invalid token → fallback to anonymous
+            print(f"JWT authentication error: {str(e)}")
+            scope["user"] = AnonymousUser()
+        except Exception as e:
+            # Catch-all for unexpected errors
+            print(f"Unexpected authentication error: {str(e)}")
+            scope["user"] = AnonymousUser()
 
-        # Method 2: Check query parameters  
-        query_string = scope.get('query_string', b'').decode()
-        if query_string:
-            query_params = parse_qs(query_string)
-            token = query_params.get('token', [None])[0]
-            if token:
-                return token
+        return await self.app(scope, receive, send)
 
-        return None
-    
-def JWTAuthMiddlewareStack(inner):
-    """
-    Create JWT authentication middleware stack.
-    
-    Args:
-        inner: Inner ASGI application
-        
-    Returns:
-        Middleware stack with JWT authentication
-    """
-    return JWTAuthMiddleware(inner)
+    @database_sync_to_async
+    def get_user(self, user_id):
+        """Return the user based on user id."""
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return AnonymousUser()
+
+
+def JWTAuthMiddlewareStack(app):
+    """Wrap default AuthMiddlewareStack with JWTAuthMiddleware."""
+    return JWTAuthMiddleware(AuthMiddlewareStack(app))
