@@ -210,6 +210,7 @@ class ChatRoomListCreateView(ChatAppBaseAPIView):
         if serializer.is_valid():
             chat_room = serializer.save()
             chat_room.participants.add(request.user)
+            chat_room.editors.add(request.user)
             return Response(
                 ChatRoomSerializer(
                     chat_room, context=self.get_serializer_context()).data,
