@@ -52,7 +52,6 @@ class JWTAuthMiddleware:
             print(f"JWT authentication error: {str(e)}")
             scope["user"] = AnonymousUser()
         except Exception as e:
-            # Catch-all for unexpected errors
             print(f"Unexpected authentication error: {str(e)}")
             scope["user"] = AnonymousUser()
 
