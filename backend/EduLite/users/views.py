@@ -14,7 +14,12 @@ from rest_framework import status, permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
-from .models import UserProfile, ProfileFriendRequest, UserProfilePrivacySettings
+from .models import (
+    UserProfile,
+    ProfileFriendRequest,
+    UserProfilePrivacySettings,
+    FriendSuggestion,
+)
 
 from .serializers import (
     UserSerializer,
@@ -23,7 +28,8 @@ from .serializers import (
     UserRegistrationSerializer,
     ProfileSerializer,
     ProfileFriendRequestSerializer,
-    UserProfilePrivacySettingsSerializer
+    FriendSuggestionSerializer,
+    UserProfilePrivacySettingsSerializer,
 )
 
 from .permissions import (
@@ -465,6 +471,32 @@ class UserSearchView(UsersAppBaseAPIView):
         # Handle non-paginated response
         serializer = self.serializer_class_instance(
             queryset, many=True, context=self.get_serializer_context()
+        )
+        return Response(serializer.data)
+
+
+# -- Friend Suggestion API View -- ##
+
+
+class FriendSuggestionListView(UsersAppBaseAPIView):
+    """Return friend suggestions for the authenticated user."""
+
+    serializer_class = FriendSuggestionSerializer
+
+    def get(self, request, *args, **kwargs):
+        # Base queryset for current user's suggestions
+        suggestions = FriendSuggestion.objects.filter(user=request.user)
+
+        # Optional reason filter
+        suggestion_type = request.query_params.get("type")
+        if suggestion_type:
+            suggestions = suggestions.filter(reason__iexact=suggestion_type)
+
+        # Optimize related user/profile and order by relevance
+        suggestions = suggestions.select_related("suggested_user", "suggested_user__profile").order_by("-score")
+
+        serializer = self.serializer_class(
+            suggestions, many=True, context=self.get_serializer_context()
         )
         return Response(serializer.data)
 
