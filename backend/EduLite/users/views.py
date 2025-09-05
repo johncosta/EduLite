@@ -10,9 +10,17 @@ from django.db import IntegrityError
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import (
+    extend_schema,
+    inline_serializer,
+    OpenApiResponse,
+    OpenApiParameter,
+    OpenApiTypes,
+    OpenApiExample,
+)
 
 from .models import (
     UserProfile,
@@ -478,12 +486,58 @@ class UserSearchView(UsersAppBaseAPIView):
 # -- Friend Suggestion API View -- ##
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="Authorization",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.HEADER,
+            required=True,
+            description="Bearer token for authentication.",
+        ),
+    ],
+)
 class FriendSuggestionListView(UsersAppBaseAPIView):
-    """Return friend suggestions for the authenticated user."""
+    """API view to retrieve friend suggestions for the authenticated user.
+
+    GET:
+    - Returns a list of precomputed friend suggestions sorted by score.
+    - Optional `type` query parameter filters suggestions by reason.
+    """
 
     serializer_class = FriendSuggestionSerializer
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="type",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="Filter suggestions by reason (case-insensitive)",
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="List of friend suggestions.",
+                response=FriendSuggestionSerializer(many=True),
+            ),
+            401: OpenApiResponse(
+                description="Authentication credentials were not provided.",
+                response=inline_serializer(
+                    name="UnauthorizedError",
+                    fields={"detail": serializers.CharField()},
+                ),
+                examples=[
+                    OpenApiExample(
+                        "Unauthorized",
+                        value={"detail": "Authentication credentials were not provided."},
+                    )
+                ],
+            ),
+        },
+    )
     def get(self, request, *args, **kwargs):
+        """Retrieve friend suggestions for the authenticated user."""
         # Base queryset for current user's suggestions
         suggestions = FriendSuggestion.objects.filter(user=request.user)
 
@@ -493,7 +547,9 @@ class FriendSuggestionListView(UsersAppBaseAPIView):
             suggestions = suggestions.filter(reason__iexact=suggestion_type)
 
         # Optimize related user/profile and order by relevance
-        suggestions = suggestions.select_related("suggested_user", "suggested_user__profile").order_by("-score")
+        suggestions = suggestions.select_related(
+            "suggested_user", "suggested_user__profile"
+        ).order_by("-score")
 
         serializer = self.serializer_class(
             suggestions, many=True, context=self.get_serializer_context()
