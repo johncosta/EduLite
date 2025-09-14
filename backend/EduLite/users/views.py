@@ -78,17 +78,7 @@ class UsersAppBaseAPIView(APIView):
 
 
 # Rest of your views remain the same...
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class UserListView(UsersAppBaseAPIView):
     """
     OPTIMIZED API view to list all users (with pagination).
@@ -191,17 +181,7 @@ class UserListView(UsersAppBaseAPIView):
         return Response(serializer.data)
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=False,
-            description='Bearer token (optional for registration)',
-        ),
-    ],
-)
+@extend_schema()
 class UserRegistrationView(UsersAppBaseAPIView):
     """
     API view to register a new user.
@@ -337,17 +317,7 @@ class UserRegistrationView(UsersAppBaseAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class UserRetrieveView(UsersAppBaseAPIView):
     """
     API view to retrieve, update, or delete a specific user by their PK.
@@ -406,17 +376,7 @@ class UserRetrieveView(UsersAppBaseAPIView):
         return Response(serializer.data)
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class UserUpdateDeleteView(UsersAppBaseAPIView):
     """
     API view to update or delete a specific user by their PK.
@@ -560,17 +520,7 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
 
 # --- Group API Views ---
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class GroupListCreateView(UsersAppBaseAPIView):
     """
     API view to list all groups (with pagination) or create a new group.
@@ -652,17 +602,7 @@ class GroupListCreateView(UsersAppBaseAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
     """
     API view to retrieve, update, or delete a specific group by its PK.
@@ -774,17 +714,7 @@ class GroupRetrieveUpdateDestroyView(UsersAppBaseAPIView):
 
 # -- User Profile API Views -- ##
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
     """
     API view to retrieve, update, or delete a specific user profile by their PK.
@@ -885,17 +815,7 @@ class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=False,
-            description='Bearer token for authentication (optional).',
-        ),
-    ],
-)
+@extend_schema()
 class UserSearchView(UsersAppBaseAPIView):
     """
     API view to search for users by username, first name, or last name.
@@ -1016,17 +936,7 @@ class UserSearchView(UsersAppBaseAPIView):
 
 # -- Friend Request API Views -- ##
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class AcceptFriendRequestView(UsersAppBaseAPIView):
     """
     API view to accept a friend request.
@@ -1100,17 +1010,7 @@ class AcceptFriendRequestView(UsersAppBaseAPIView):
             )
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class DeclineFriendRequestView(UsersAppBaseAPIView):
     """
     API view to decline or cancel a friend request.
@@ -1179,17 +1079,7 @@ class DeclineFriendRequestView(UsersAppBaseAPIView):
             )
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class PendingFriendRequestListView(UsersAppBaseAPIView):
     """
     API view to list pending friend requests for the authenticated user.
@@ -1305,17 +1195,7 @@ class PendingFriendRequestListView(UsersAppBaseAPIView):
         return Response(serializer.data)
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class SendFriendRequestView(UsersAppBaseAPIView):
     """
     API view to send a new friend request.
@@ -1483,17 +1363,7 @@ class SendFriendRequestView(UsersAppBaseAPIView):
 
 # -- Privacy Settings API Views -- ##
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class UserProfilePrivacySettingsRetrieveUpdateView(UsersAppBaseAPIView):
     """
     API view to retrieve and update user privacy settings.
