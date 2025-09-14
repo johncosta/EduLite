@@ -405,6 +405,20 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
         summary="Update user",
         description="Fully update a user's information. Only the user themselves or an admin can perform this action.",
         request=UserSerializer,
+        examples=[
+            OpenApiExample(
+                'Update User',
+                value={
+                    'username': 'johndoe',
+                    'email': 'john@example.com',
+                    'groups': [],
+                    'first_name': 'John',
+                    'last_name': 'Doe'
+                },
+                request_only=True,
+                description='Example user update with empty groups'
+            )
+        ],
         responses={
             200: OpenApiResponse(
                 description="User updated successfully",
@@ -443,6 +457,17 @@ class UserUpdateDeleteView(UsersAppBaseAPIView):
         summary="Partially update user",
         description="Partially update a user's information. Only the user themselves or an admin can perform this action.",
         request=UserSerializer,
+        examples=[
+            OpenApiExample(
+                'Partial Update',
+                value={
+                    'first_name': 'Jane',
+                    'groups': []
+                },
+                request_only=True,
+                description='Example partial update with only some fields'
+            )
+        ],
         responses={
             200: OpenApiResponse(
                 description="User partially updated successfully",
@@ -761,8 +786,38 @@ class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
 
     @extend_schema(
         summary="Update user profile",
-        description="Fully update a user's profile. Only the profile owner or an admin can perform this action.",
+        description="Fully update a user's profile. Only the profile owner or an admin can perform this action. Note: To upload a picture, use multipart/form-data instead of JSON.",
         request=ProfileSerializer,
+        examples=[
+            OpenApiExample(
+                'Complete Profile Update',
+                value={
+                    'bio': 'I am a software developer passionate about education technology',
+                    'occupation': 'developer',
+                    'country': 'US',
+                    'preferred_language': 'en',
+                    'secondary_language': 'es',
+                    'website_url': 'https://example.com',
+                    'friends': []
+                },
+                request_only=True,
+                description='Full profile update with all fields (except picture)'
+            ),
+            OpenApiExample(
+                'Minimal Profile Update',
+                value={
+                    'bio': None,
+                    'occupation': None,
+                    'country': None,
+                    'preferred_language': None,
+                    'secondary_language': None,
+                    'website_url': None,
+                    'friends': []
+                },
+                request_only=True,
+                description='Clear all optional fields'
+            )
+        ],
         responses={
             200: OpenApiResponse(
                 description="Profile updated successfully",
@@ -787,8 +842,35 @@ class UserProfileRetrieveUpdateView(UsersAppBaseAPIView):
 
     @extend_schema(
         summary="Partially update user profile",
-        description="Partially update a user's profile. Only the profile owner or an admin can perform this action.",
+        description="Partially update a user's profile. Only the profile owner or an admin can perform this action. Only include fields you want to update.",
         request=ProfileSerializer,
+        examples=[
+            OpenApiExample(
+                'Update Bio Only',
+                value={
+                    'bio': 'Updated bio - now working in AI research'
+                },
+                request_only=True,
+                description='Update only the bio field'
+            ),
+            OpenApiExample(
+                'Update Location and Language',
+                value={
+                    'country': 'CA',
+                    'preferred_language': 'fr'
+                },
+                request_only=True,
+                description='Update country and language preferences'
+            ),
+            OpenApiExample(
+                'Add Friends',
+                value={
+                    'friends': [2, 3, 5]
+                },
+                request_only=True,
+                description='Update friends list with user IDs'
+            )
+        ],
         responses={
             200: OpenApiResponse(
                 description="Profile partially updated successfully",
@@ -1477,17 +1559,7 @@ class UserProfilePrivacySettingsRetrieveUpdateView(UsersAppBaseAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='Authorization',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.HEADER,
-            required=True,
-            description='Bearer token for authentication.',
-        ),
-    ],
-)
+@extend_schema()
 class UserProfilePrivacySettingsChoicesView(UsersAppBaseAPIView):
     """
     API view to get available privacy setting choices.
