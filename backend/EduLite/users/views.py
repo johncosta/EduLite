@@ -77,7 +77,6 @@ class UsersAppBaseAPIView(APIView):
         return {"request": self.request}
 
 
-# Rest of your views remain the same...
 @extend_schema()
 class UserListView(UsersAppBaseAPIView):
     """
