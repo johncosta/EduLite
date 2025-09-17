@@ -7,7 +7,9 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: \.svg$
       - id: end-of-file-fixer
+        exclude: \.svg$
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
@@ -15,6 +17,7 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
       - id: mixed-line-ending
+        exclude: \.svg$
       - id: check-ast  # Validates Python syntax
 
   # Black formatter for Python code
@@ -39,3 +42,7 @@ repos:
           - djangorestframework-stubs
         files: ^backend/.*\.py$
         exclude: (migrations/|tests/|venv/)
+        # Make mypy non-blocking during pre-commit (still runs in CI)
+        verbose: true
+        pass_filenames: true
+        stages: [manual]

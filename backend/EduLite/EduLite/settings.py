@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+
 import sys
 
 from datetime import timedelta
@@ -20,7 +21,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Create logs directory if it doesn't exist
-LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR = BASE_DIR / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
 
 MEDIA_URL = "/media/"
@@ -39,11 +40,10 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
-    "daphne", # ASGI server for Django
+    "daphne",  # ASGI server for Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -61,8 +61,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-    'drf_spectacular',
-    'drf_spectacular_sidecar',
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 LOGGING = {
@@ -71,9 +71,9 @@ LOGGING = {
     "formatters": {
         "simple": {"format": "\n%(levelname)s %(name)s: %(message)s"},
         "none": {"format": "%(message)s"},
-        'performance': {
-            'format': '{asctime} [{levelname}] {message}',
-            'style': '{',
+        "performance": {
+            "format": "{asctime} [{levelname}] {message}",
+            "style": "{",
         },
     },
     "handlers": {
@@ -85,32 +85,31 @@ LOGGING = {
             "class": "logging.StreamHandler",  # Outputs to stderr by default
             "formatter": "none",
         },
-        'performance_file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': 'logs/performance.log',
-            'maxBytes': 1024*1024*10,  # 10MB
-            'backupCount': 5,
-            'formatter': 'performance',
+        "performance_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "logs/performance.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 5,
+            "formatter": "performance",
         },
-        'performance_console': {
-            'level': 'WARNING',  # Only show violations in console
-            'class': 'logging.StreamHandler',
-            'formatter': 'performance',
+        "performance_console": {
+            "level": "WARNING",  # Only show violations in console
+            "class": "logging.StreamHandler",
+            "formatter": "performance",
         },
-        
     },
     "loggers": {
-        'performance': {
-            'handlers': ['performance_file', 'performance_console'],
-            'level': 'DEBUG',
-            'propagate': False,
+        "performance": {
+            "handlers": ["performance_file", "performance_console"],
+            "level": "DEBUG",
+            "propagate": False,
         },
         # Performance testing logger - set to WARNING to hide INFO messages during tests
-        'performance_testing': {
-            'handlers': ['console'],
-            'level': 'WARNING',  # Only show WARNING and above (hides INFO messages)
-            'propagate': False,
+        "performance_testing": {
+            "handlers": ["console"],
+            "level": "WARNING",  # Only show WARNING and above (hides INFO messages)
+            "propagate": False,
         },
         # TESTS WILL  USE THE `console-tests` HANDLER
         # FEEL FREE TO CHANGE THE LOG LEVELS TO DEBUG FOR MORE DETAILS
@@ -125,14 +124,12 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
-
         # --- Channels and Websocket logging ---
-        "channels":{
+        "channels": {
             "handlers": ["console"],
             "level": "DEBUG",
             "propagate": False,
         },
-
         # log all ASGI events
         "django.channels.server": {
             "handlers": ["console"],
@@ -241,24 +238,24 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 #  Speed up Tests
-if 'test' in sys.argv and DEBUG == True:
+if "test" in sys.argv and DEBUG == True:
     # Use in-memory database for ALL database operations during tests
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-        'TEST': {
-            'NAME': ':memory:',
-        }
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+        "TEST": {
+            "NAME": ":memory:",
+        },
     }
     # Disable password validation for faster test user creation
     AUTH_PASSWORD_VALIDATORS = []
     # USe MD5 password hasher for speed
     PASSWORD_HASHERS = [
-     'django.contrib.auth.hashers.MD5PasswordHasher',
+        "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
 
 SIMPLE_JWT = {
@@ -316,7 +313,9 @@ EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default=None)
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=None)
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="EduLite <noreply@edulite.local>")
+DEFAULT_FROM_EMAIL = config(
+    "DEFAULT_FROM_EMAIL", default="EduLite <noreply@edulite.local>"
+)
 
 if EMAIL_HOST and EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -328,18 +327,20 @@ else:
     EMAIL_HOST_USER = ""
     EMAIL_HOST_PASSWORD = ""
 
-FRONTEND_URL = 'http://127.0.0.1:8000/api'
+FRONTEND_URL = "http://127.0.0.1:8000/api"
 
 # User Registration Settings
-USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP = False  # Set to True to require email verification before account creation
+USER_EMAIL_VERIFICATION_REQUIRED_FOR_SIGNUP = (
+    False  # Set to True to require email verification before account creation
+)
 
 # Spectacular settings for OpenAPI schema generation
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'EduLite API',
-    'DESCRIPTION': 'API documentation for EduLite',
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "EduLite API",
+    "DESCRIPTION": "API documentation for EduLite",
+    "SERVE_INCLUDE_SCHEMA": False,
     # configure sidecar for serving static files
-    'SWAGGER_UI_DIST': 'SIDECAR',
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
 }
