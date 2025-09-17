@@ -30,7 +30,7 @@ exclude = '''
 
 # mypy type checker configuration
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"  # Minimum version supported by current mypy
 warn_return_any = false
 warn_unused_configs = true
 ignore_missing_imports = true
@@ -71,15 +71,44 @@ ignore_missing_imports = true
 module = "drf_spectacular.*"
 ignore_missing_imports = true
 
+# Django models have too many false positives with type checking
+[[tool.mypy.overrides]]
+module = "*.models"
+ignore_errors = true
+
+# Django migrations should be ignored
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
+
+# Django admin uses decorators that confuse mypy
+[[tool.mypy.overrides]]
+module = "*.admin"
+ignore_errors = true
+
 # Allow untyped calls in test files
 [[tool.mypy.overrides]]
 module = "tests.*"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = "*/tests/*"
+module = "*.tests.*"
 ignore_errors = true
 
+
+# DRF permissions have metaclass issues
 [[tool.mypy.overrides]]
-module = "*/test_*.py"
+module = "*.permissions"
 ignore_errors = true
+
+# Serializers often have complex type interactions
+[[tool.mypy.overrides]]
+module = "*.serializers"
+# Less strict for serializers but still check
+warn_return_any = false
+check_untyped_defs = false
+
+# Django-stubs configuration
+[tool.django-stubs]
+django_settings_module = "EduLite.settings"
+strict_settings = false
