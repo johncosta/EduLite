@@ -7,10 +7,10 @@ from rest_framework.test import APITestCase, APIClient
 
 from ...models import UserProfile, UserProfilePrivacySettings
 
-from django_mercury import DjangoMercuryAPITestCase
+from django_mercury import DjangoPerformanceAPITestCase
 
 
-class UserProfilePrivacySettingsRetrieveUpdateViewTest(DjangoMercuryAPITestCase):
+class UserProfilePrivacySettingsRetrieveUpdateViewTest(DjangoPerformanceAPITestCase):
     """Test cases for the UserProfilePrivacySettingsRetrieveUpdateView API endpoint."""
     
     def setUp(self):

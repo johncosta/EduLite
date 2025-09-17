@@ -96,6 +96,51 @@ Our project is a monorepo containing a `backend` (Django) and a `Frontend` (Reac
     ```
     The frontend will usually be available at `http://127.0.0.1:5173/` (Vite often picks the next available port if 5173 is busy). Check the `Frontend/README.md` for more details.
 
+### Code Quality Tools (Recommended)
+
+We use automated tools to maintain consistent code quality across the project:
+
+#### Pre-commit Hooks
+
+Pre-commit runs various checks before each commit to catch issues early:
+
+1. **Install pre-commit:**
+   ```bash
+   pip install pre-commit
+   ```
+
+2. **Set up the hooks:**
+   ```bash
+   pre-commit install
+   ```
+
+3. **Run manually (optional):**
+   ```bash
+   pre-commit run --all-files
+   ```
+
+The hooks will now run automatically on `git commit`. They include:
+- **Black**: Automatic Python code formatting (line-length: 88)
+- **Basic checks**: Trailing whitespace, YAML syntax, merge conflicts
+- **mypy**: Type checking (non-blocking, helps catch type issues early)
+
+#### Black Code Formatter
+
+Black ensures consistent Python formatting across the project:
+
+```bash
+# Format specific files
+black backend/EduLite/users/views.py
+
+# Format entire backend
+black backend/
+
+# Check without modifying
+black --check backend/
+```
+
+Black is already included in requirements.txt, so it will be installed automatically when you set up the backend.
+
 ### Making Changes (Your First Code Contribution)
 
 1.  **Claim an Issue:** Look for open issues in the [GitHub Issues](https://github.com/ibrahim-sisar/EduLite/issues). If you find one you'd like to work on, comment on it to let others know. If you have a new idea, consider creating an issue first to discuss it.
@@ -109,13 +154,16 @@ Our project is a monorepo containing a `backend` (Django) and a `Frontend` (Reac
     ```
 3.  **Write Code:**
     * Write clear, understandable, and well-commented code where necessary.
+    * Code will be automatically formatted by Black if you have pre-commit hooks installed.
 4.  **Test Your Changes:** (See [Writing Tests](#writing-tests) below).
 5.  **Commit Your Changes:**
     * Write clear and concise commit messages. Briefly describe the changes made.
+    * Pre-commit hooks will run automatically to ensure code quality.
     ```bash
     git add .
     git commit -m "Your descriptive commit message"
     ```
+    * If pre-commit makes changes, review them and commit again.
 
 ### Writing Tests
 
