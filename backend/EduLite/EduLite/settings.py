@@ -286,7 +286,7 @@ SIMPLE_JWT = {
     "JTI_CLAIM": "jti",  # Default
 }
 
-BLOCKED_EMAIL_DOMAINS = ["example.com", "test.com"]  # For testing
+BLOCKED_EMAIL_DOMAINS = ["test.com"]  # For testing
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
