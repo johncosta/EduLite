@@ -5,7 +5,7 @@ from django.urls import path, include
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
-    SpectacularRedocView
+    SpectacularRedocView,
 )
 from users.jwt_views import (
     CustomTokenObtainPairView,
@@ -24,7 +24,7 @@ urlpatterns = [
     # Our own URLs
     path("api/", include("users.urls")),
     path("api/chat/", include("chat.urls")),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),
-    path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger"),
+    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]

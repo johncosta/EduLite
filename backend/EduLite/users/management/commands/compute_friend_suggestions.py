@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from users.models import User
 from users.logic.friend_suggestions import compute_friend_suggestions_for_user
 
+
 class Command(BaseCommand):
     help = "Compute friend suggestions for all users"
 

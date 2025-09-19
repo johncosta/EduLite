@@ -4,9 +4,9 @@ This is the backend part of EduLite – built with Django & Django REST Framewor
 
 ## 🛠️ Tech Stack
 
-- Python + Django  
-- Django REST Framework  
-- PostgreSQL / SQLite (for local dev)  
+- Python + Django
+- Django REST Framework
+- PostgreSQL / SQLite (for local dev)
 - Django JWT (for auth)
 
 ## 🗂️ Project Structure
@@ -41,7 +41,7 @@ sudo systemctl enable redis-server
 sudo systemctl start redis-server
 ```
 
-### Install on Red Hat/Rocky 
+### Install on Red Hat/Rocky
 
 ```bash
 sudo yum install redis

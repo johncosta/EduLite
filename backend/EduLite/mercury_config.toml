@@ -1,7 +1,7 @@
 # Mercury Test Configuration
 # Auto-generated for: /home/mathew/EduLite/backend/EduLite
 # Documentation: https://github.com/80-20-Human-In-The-Loop/Django-Mercury
-# 
+#
 # Plugins are loaded ONLY from this configuration
 # No auto-discovery - you must explicitly enable plugins here
 
