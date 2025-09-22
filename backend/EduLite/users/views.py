@@ -1035,7 +1035,8 @@ class UserSearchView(UsersAppBaseAPIView):
 
 # -- Friend Suggestion API View -- ##
 
-@extend_schema(tags=['Users'])
+
+@extend_schema(tags=["Users"])
 class FriendSuggestionListView(UsersAppBaseAPIView):
     """API view to retrieve friend suggestions for the authenticated user.
 
@@ -1071,25 +1072,27 @@ class FriendSuggestionListView(UsersAppBaseAPIView):
                 examples=[
                     OpenApiExample(
                         "Unauthorized",
-                        value={"detail": "Authentication credentials were not provided."},
+                        value={
+                            "detail": "Authentication credentials were not provided."
+                        },
                     )
                 ],
             ),
         },
         examples=[
             OpenApiExample(
-                'Success Example',
+                "Success Example",
                 value={
                     "suggested_user": {
                         "id": 3,
-                            "username": "john_doe",
-                            "full_name": "John Doe",
-                            "avatar_url": "http://localhost:8000/media/profile_pics/dummy/avatar2.png"
+                        "username": "john_doe",
+                        "full_name": "John Doe",
+                        "avatar_url": "http://localhost:8000/media/profile_pics/dummy/avatar2.png",
                     },
                     "score": 1,
-                    "reason": "Same teacher"
+                    "reason": "Same teacher",
                 },
-                response_only=True
+                response_only=True,
             )
         ],
     )
