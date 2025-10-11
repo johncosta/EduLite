@@ -10,23 +10,21 @@ from drf_spectacular.utils import (
 
 from .models import CourseMembership
 from .serializers import CourseSerializer
-from .permissions import IsTeacherUser
 
 logger = logging.getLogger(__name__)
 
 
 class CourseCreateView(generics.CreateAPIView):
-    """Create a course for the authenticated teacher."""
+    """Create a course for the authenticated user."""
 
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTeacherUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     @extend_schema(
         summary="Create a course",
         description=(
-            "Create a new course. Only teachers (users with a profile occupation of `teacher` "
-            "or staff users) are allowed to access this endpoint. The creator is automatically "
-            "added to the course as a teacher membership."
+            "Create a new course. Any authenticated user can create a course and the creator is "
+            "automatically added to the course as a teacher membership."
         ),
         tags=["Courses"],
         request=CourseSerializer,
@@ -47,13 +45,6 @@ class CourseCreateView(generics.CreateAPIView):
                             child=serializers.CharField(), required=False
                         ),
                     },
-                ),
-            ),
-            403: OpenApiResponse(
-                description="User is not permitted to create courses.",
-                response=inline_serializer(
-                    name="CourseCreateForbiddenError",
-                    fields={"detail": serializers.CharField()},
                 ),
             ),
         },

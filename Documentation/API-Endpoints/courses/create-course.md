@@ -1,6 +1,6 @@
 # Create Course
 
-Create a new course as a teacher. The authenticated user must be a teacher (their profile occupation is `teacher`) or a staff member. Upon successful creation the teacher is automatically added to the course roster with a `teacher` membership.
+Create a new course. The authenticated user is automatically added to the course roster with a `teacher` membership.
 
 ## Endpoint URL
 
@@ -13,8 +13,6 @@ Create a new course as a teacher. The authenticated user must be a teacher (thei
 ## Permissions
 
 * **Requires Authentication**: Yes (`permissions.IsAuthenticated`)
-* **Additional Restriction**: User must satisfy `IsTeacherUser` (profile occupation of `teacher`, or be staff/superuser).
-
 ---
 
 ## `POST` – Create a Course
@@ -107,19 +105,7 @@ Create a course and associate yourself as the teacher.
 }
 ```
 
-* **Status Code:** `403 Forbidden`
-  * **Reason:** Authenticated user is not recognised as a teacher.
-  * **Response Body Example:**
-
-```json
-{
-    "detail": "Only teachers can perform this action."
-}
-```
-
----
-
 ### Additional Notes
 
-* The authenticated teacher is automatically enrolled in the new course with a `teacher` role and `enrolled` status.
-* Use `/api/users/` endpoints to manage teacher profiles and permissions if occupation updates are required.
+* The authenticated creator is automatically enrolled in the new course with a `teacher` role and `enrolled` status.
+* Use `/api/users/` endpoints to manage user profiles if occupation updates are required.

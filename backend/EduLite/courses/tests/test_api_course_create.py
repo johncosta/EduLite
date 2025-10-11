@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 
+from typing import Optional
+
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
@@ -19,11 +21,12 @@ class CourseCreateAPITests(APITestCase):
         self.url = reverse("course-create")
         self.user_model = get_user_model()
 
-    def _create_user(self, username: str, occupation: str):
+    def _create_user(self, username: str, occupation: Optional[str] = None):
         user = self.user_model.objects.create_user(username=username, password="test-pass-123")
-        profile = user.profile
-        profile.occupation = occupation
-        profile.save()
+        if occupation is not None:
+            profile = user.profile
+            profile.occupation = occupation
+            profile.save()
         return user
 
     def test_teacher_can_create_course(self):
@@ -60,17 +63,29 @@ class CourseCreateAPITests(APITestCase):
             ).exists()
         )
 
-    def test_non_teacher_cannot_create_course(self):
-        """Students or non-teacher users receive a forbidden response."""
+    def test_non_teacher_can_create_course_and_is_set_as_teacher(self):
+        """Any authenticated user can create a course and becomes the teacher member."""
 
         student = self._create_user("student_user", "student")
         self.client.force_authenticate(user=student)
 
-        response = self.client.post(self.url, {"title": "Unauthorized Course"}, format="json")
+        response = self.client.post(
+            self.url,
+            {
+                "title": "Course by student",
+                "language": "en",
+                "visibility": "private",
+            },
+            format="json",
+        )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(response.data["detail"], "Only teachers can perform this action.")
-        self.assertEqual(Course.objects.count(), 0)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        course = Course.objects.get(pk=response.data["id"])
+        self.assertTrue(
+            CourseMembership.objects.filter(
+                course=course, user=student, role="teacher", status="enrolled"
+            ).exists()
+        )
 
     def test_validation_errors_returned(self):
         """Serializer validation errors surface as 400 responses."""
