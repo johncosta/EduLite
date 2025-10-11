@@ -1,6 +1,8 @@
 import logging
+from typing import TYPE_CHECKING, Any, cast
+
 from django.db import transaction
-from rest_framework import generics, permissions, serializers
+from rest_framework import exceptions, generics, permissions, serializers
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiExample,
@@ -10,6 +12,9 @@ from drf_spectacular.utils import (
 
 from .models import CourseMembership
 from .serializers import CourseSerializer
+
+if TYPE_CHECKING:
+    from users.models import User
 from .permissions import IsTeacherUser
 
 logger = logging.getLogger(__name__)
@@ -68,19 +73,25 @@ class CourseCreateView(generics.CreateAPIView):
             ),
         ],
     )
-    def post(self, request, *args, **kwargs):  # type: ignore[override]
+    def post(self, request, *args, **kwargs):
         logger.debug("Course creation requested by user %s", request.user)
         return super().post(request, *args, **kwargs)
 
     @transaction.atomic
-    def perform_create(self, serializer: CourseSerializer) -> None:
+    def perform_create(self, serializer: serializers.BaseSerializer[Any]) -> None:
         """Persist the course and link the creator as a teacher."""
 
-        course = serializer.save()
+        course_serializer = cast(CourseSerializer, serializer)
+        course = course_serializer.save()
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            raise exceptions.NotAuthenticated("Authentication is required to create a course.")
+
+        typed_user = cast("User", user)
         logger.info("Course %s (%s) created by %s", course.title, course.pk, self.request.user)
         CourseMembership.objects.create(
             course=course,
-            user=self.request.user,
+            user=typed_user,
             role="teacher",
             status="enrolled",
         )
