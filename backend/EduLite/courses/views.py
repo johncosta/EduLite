@@ -1,6 +1,7 @@
 import logging
 from typing import TYPE_CHECKING, Any, cast
 
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import exceptions, generics, permissions, serializers
 from drf_spectacular.utils import (
@@ -15,6 +16,8 @@ from .serializers import CourseSerializer
 
 if TYPE_CHECKING:
     from users.models import User
+else:
+    User = get_user_model()
 from .permissions import IsTeacherUser
 
 logger = logging.getLogger(__name__)
