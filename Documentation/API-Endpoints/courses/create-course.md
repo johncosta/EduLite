@@ -13,7 +13,6 @@ Create a new course. The authenticated user is automatically added to the course
 ## Permissions
 
 * **Requires Authentication**: Yes (`permissions.IsAuthenticated`)
-
 ---
 
 ## `POST` – Create a Course
